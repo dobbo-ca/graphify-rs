@@ -130,6 +130,13 @@ pub(crate) fn parse_root<R>(
     todo!("graphify-rs-ihc.16")
 }
 
+/// Go `n.Utf8Text(src)` as a `&str`. gositter-rs returns the bytes; `src` went through
+/// `to_utf8`, and a node's byte range ends on a rune boundary (the lexer advances by runes), so
+/// the slice is valid UTF-8. A slice that is not is a bug, and panics with the node's range.
+pub(crate) fn node_text<'s>(n: Node<'_>, src: &'s [u8]) -> &'s str {
+    todo!("graphify-rs-ihc.16")
+}
+
 /// Go `line`: the node's start row + 1.
 pub(crate) fn line(n: Node<'_>) -> Loc {
     todo!("graphify-rs-ihc.16")
