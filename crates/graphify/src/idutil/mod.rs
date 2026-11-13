@@ -7,3 +7,6 @@
 mod idutil;
 
 pub use idutil::*;
+
+#[cfg(test)]
+mod tests;
