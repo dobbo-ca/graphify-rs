@@ -7,7 +7,6 @@ use crate::extract::builder::go_text;
 /// A node range that ends inside a rune gives Go's bytes (one U+FFFD per bad byte, which
 /// graph.json writes as Go writes the raw byte) and no panic; valid text is borrowed.
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn go_text_mid_rune_range() {
     let src = "aé€😀".as_bytes(); // 61 | C3 A9 | E2 82 AC | F0 9F 98 80
     assert!(matches!(go_text(src), Cow::Borrowed("aé€😀")));
