@@ -48,6 +48,19 @@ impl Drop for TempDir {
     }
 }
 
+/// Runs `f` on a thread with the production stack ([`crate::STACK_BYTES`]), as a deep-input test
+/// must (plan hazard "Stack depth").
+pub fn on_worker_stack<R: Send>(f: impl FnOnce() -> R + Send) -> R {
+    std::thread::scope(|s| {
+        std::thread::Builder::new()
+            .stack_size(crate::STACK_BYTES)
+            .spawn_scoped(s, f)
+            .expect("spawn worker thread")
+            .join()
+            .expect("worker thread panicked")
+    })
+}
+
 /// `crates/graphify/testdata`.
 pub fn testdata() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata")
@@ -71,4 +84,16 @@ fn testdata_present() {
     assert!(d.join("extract/tf/label/main.tf").is_file());
     let golden = std::fs::metadata(d.join("cluster/louvain_gonum.golden")).unwrap();
     assert_eq!(golden.len(), 29_680);
+}
+
+#[test]
+fn worker_stack_holds_deep_recursion() {
+    // 100,000 frames of a few hundred bytes each: more than a 2 MiB default thread stack holds.
+    fn depth(n: u32, pad: [u8; 256]) -> u32 {
+        if n == 0 {
+            return u32::from(pad[0]);
+        }
+        depth(n - 1, std::hint::black_box(pad)) + 1
+    }
+    assert_eq!(on_worker_stack(|| depth(100_000, [0; 256])), 100_000);
 }

@@ -22,5 +22,11 @@ pub mod semantic;
 pub mod skills;
 pub mod ts;
 
+/// The stack of every thread that parses or walks trees or graphs (the extract workers, and the
+/// thread `cli::main` runs a command on). Go grows a goroutine stack to 1 GB; a Rust thread's is
+/// fixed, so graphify-go's recursive walks need room here. Reserved virtual memory, committed only
+/// when touched (plan hazard "Stack depth").
+pub const STACK_BYTES: usize = 256 << 20;
+
 #[cfg(test)]
 mod testutil;
