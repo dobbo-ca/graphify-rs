@@ -1,7 +1,7 @@
 //! Port of graphify-go `internal/model`: nodes, edges, the graph, and their JSON.
 //!
 //! Shared API (plan Task 1): the signatures are fixed; the bodies come with graphify-rs-ihc.7.
-#![allow(dead_code, unused_variables)]
+#![allow(dead_code, unused_variables, clippy::ptr_arg)]
 
 mod code;
 mod jsonenc;
