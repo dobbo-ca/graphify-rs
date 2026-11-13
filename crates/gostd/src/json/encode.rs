@@ -1,8 +1,11 @@
-//! Go `encode.go` and the `Encoder` of `stream.go`.
+//! The encode side of Go `encoding/json` (GOEXPERIMENT=jsonv2): `Marshal`, `MarshalIndent`
+//! (`v2_encode.go`) and the `Encoder` (`v2_stream.go`); the reflection encoders still cite v1
+//! `encode.go`.
 
 use std::collections::{BTreeMap, HashMap};
 
-use super::indent::{compact, indent as append_indent};
+use super::indent::indent as append_indent;
+use super::jsontext::{Opts, append_format};
 use super::{Error, RawMessage, Value};
 use crate::utf8::{RUNE_ERROR, decode_rune};
 
@@ -21,7 +24,7 @@ impl EncodeState {
         self.buf.extend_from_slice(b);
     }
 
-    /// Go `appendString` (`encode.go:998`) with the current `escape_html`; quotes included.
+    /// [`append_string`] with the current `escape_html`; quotes included.
     pub fn write_string(&mut self, s: &[u8]) {
         append_string(&mut self.buf, s, self.escape_html);
     }
@@ -52,16 +55,24 @@ impl EncodeState {
         self.buf.extend_from_slice(b"null");
     }
 
-    /// Go `marshalerEncoder` (`encode.go:472`): the result of a `MarshalJSON` is validated and
-    /// compacted with `escape_html`; a syntax error becomes `Error::Marshaler` for `go_type`.
+    /// The result of a `MarshalJSON` goes through Go's `enc.WriteValue(val)`
+    /// (`v2/arshal_methods.go:248`): validated and compacted, with `EscapeForHTML` as
+    /// `escape_html` and `EscapeForJS` always on (v1 defaults,
+    /// `internal/jsonflags/flags.go:51-72`).
+    /// A syntax error becomes `Error::Marshaler` for `go_type` (`v2_inject.go:25`) with the legacy
+    /// text of `transformMarshalError` (`v2_inject.go:63`), and the buffer is left as it was.
     pub fn write_marshaler_output(
         &mut self,
         go_type: &'static str,
         json: &[u8],
     ) -> Result<(), Error> {
-        // Go's appendCompact runs the scanner over `json` itself, so it also does what `checkValid`
-        // would; the syntax error is wrapped as Go's `MarshalerError` and the buffer is left as it was.
-        compact(&mut self.buf, json, self.escape_html).map_err(|err| Error::Marshaler {
+        let o = Opts {
+            decoder: false,
+            indent: None,
+            escape_html: self.escape_html,
+            escape_js: true,
+        };
+        append_format(&mut self.buf, json, &o).map_err(|err| Error::Marshaler {
             go_type: go_type.to_string(),
             source_func: "MarshalJSON",
             err: err.to_string(),
@@ -292,7 +303,7 @@ impl Marshal for Value {
         matches!(self, Value::Null)
     }
 }
-/// Go `RawMessage.MarshalJSON` (`stream.go:276`) through `marshalerEncoder`. An empty
+/// Go `RawMessage.MarshalJSON` (`jsontext/value.go:234`) through `WriteValue`. An empty
 /// `RawMessage` is Go's nil one, `null`.
 impl Marshal for RawMessage {
     fn marshal_json(&self, e: &mut EncodeState) -> Result<(), Error> {
@@ -337,7 +348,7 @@ pub fn marshal<T: Marshal + ?Sized>(v: &T) -> Result<Vec<u8>, Error> {
     Ok(e.buf)
 }
 
-/// Go `MarshalIndent` (`encode.go:220`).
+/// Go `MarshalIndent` (`v2_encode.go:189`): `Marshal`, then `appendIndent`.
 pub fn marshal_indent<T: Marshal + ?Sized>(
     v: &T,
     prefix: &str,
@@ -349,7 +360,9 @@ pub fn marshal_indent<T: Marshal + ?Sized>(
     Ok(b2)
 }
 
-/// Go `appendString` (`encode.go:998`); quotes included, invalid UTF-8 becomes `�` per byte.
+/// Go `jsonwire.AppendQuote` (`internal/jsonwire/encode.go:65`) with `EscapeForJS` on and
+/// `EscapeForHTML` as `escape_html`; quotes included, each invalid UTF-8 byte becomes the raw
+/// bytes of U+FFFD (EF BF BD), not v1's six-byte escape text.
 pub fn append_string(dst: &mut Vec<u8>, s: &[u8], escape_html: bool) {
     dst.push(b'"');
     let mut start = 0;
@@ -357,8 +370,8 @@ pub fn append_string(dst: &mut Vec<u8>, s: &[u8], escape_html: bool) {
     while i < s.len() {
         let b = s[i];
         if b < 0x80 {
-            // Go's htmlSafeSet / safeSet (`tables.go`): printable ASCII (DEL included) except `"`
-            // and `\`, and, with escape_html, `<`, `>` and `&`.
+            // Go's `escapeASCII` (`internal/jsonwire/encode.go:20`): printable ASCII (DEL
+            // included) except `"` and `\`, and, with escape_html, `<`, `>` and `&`.
             if b >= 0x20
                 && b != b'"'
                 && b != b'\\'
@@ -392,7 +405,7 @@ pub fn append_string(dst: &mut Vec<u8>, s: &[u8], escape_html: bool) {
         let (c, size) = decode_rune(&s[i..]);
         if c == RUNE_ERROR && size == 1 {
             dst.extend_from_slice(&s[start..i]);
-            dst.extend_from_slice(b"\\ufffd");
+            dst.extend_from_slice("\u{FFFD}".as_bytes());
             i += size;
             start = i;
             continue;
@@ -440,7 +453,7 @@ pub fn append_float(dst: &mut Vec<u8>, f: f64) -> Result<(), Error> {
     Ok(())
 }
 
-/// Go `Encoder` (`stream.go:195`).
+/// Go `Encoder` (`v2_stream.go:112`).
 pub struct Encoder<W: std::io::Write> {
     w: W,
     err: Option<Error>,
@@ -450,7 +463,7 @@ pub struct Encoder<W: std::io::Write> {
 }
 
 impl<W: std::io::Write> Encoder<W> {
-    /// Go `NewEncoder` (`stream.go:206`).
+    /// Go `NewEncoder` (`v2_stream.go:124`).
     pub fn new(w: W) -> Self {
         Encoder {
             w,
@@ -461,19 +474,19 @@ impl<W: std::io::Write> Encoder<W> {
         }
     }
 
-    /// Go `Encoder.SetIndent` (`stream.go:254`).
+    /// Go `Encoder.SetIndent` (`v2_stream.go:166`).
     pub fn set_indent(&mut self, prefix: &str, indent: &str) {
         self.prefix = prefix.to_string();
         self.indent = indent.to_string();
     }
 
-    /// Go `Encoder.SetEscapeHTML` (`stream.go:266`).
+    /// Go `Encoder.SetEscapeHTML` (`v2_stream.go:181`).
     pub fn set_escape_html(&mut self, on: bool) {
         self.escape_html = on;
     }
 
-    /// Go `Encoder.Encode` (`stream.go:216`): value, then `\n`; the newline is added before
-    /// indenting, so the indented text keeps it as trailing whitespace. A write error is sticky.
+    /// Go `Encoder.Encode` (`v2_stream.go:136`): the value, indented if set, then `\n` (added
+    /// after indenting, so the prefix never follows it). A write error is sticky.
     pub fn encode<T: Marshal + ?Sized>(&mut self, v: &T) -> Result<(), Error> {
         if let Some(err) = &self.err {
             return Err(err.clone());
@@ -483,15 +496,14 @@ impl<W: std::io::Write> Encoder<W> {
             escape_html: self.escape_html,
         };
         v.marshal_json(&mut e)?;
-        // Terminate each value with a newline.
-        e.buf.push(b'\n');
-        let b = if self.prefix.is_empty() && self.indent.is_empty() {
+        let mut b = if self.prefix.is_empty() && self.indent.is_empty() {
             e.buf
         } else {
             let mut out = Vec::new();
             append_indent(&mut out, &e.buf, &self.prefix, &self.indent)?;
             out
         };
+        b.push(b'\n');
         self.w.write_all(&b).map_err(|err| {
             let err = Error::Io(err.to_string());
             self.err = Some(err.clone());

@@ -13,6 +13,7 @@ pub enum Value {
     Object(BTreeMap<String, Value>),
 }
 
-/// Go `RawMessage` (`stream.go:273`): pre-encoded JSON, validated and compacted on marshal.
+/// Go `RawMessage` (`v2_stream.go:190`, `jsontext.Value`): pre-encoded JSON, validated and
+/// compacted on marshal.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct RawMessage(pub Vec<u8>);

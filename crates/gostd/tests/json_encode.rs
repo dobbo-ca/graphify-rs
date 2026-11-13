@@ -54,10 +54,15 @@
 //!   `,string` and `[]byte` base64; Int8, Int16 and Uint8, Uint16 are `i64`/`u64`, Float32 is an `f64`, since
 //!   the stub has no `Marshal` for `i8`, `i16`, `u8`, `u16`, `f32`; the expected text drops the same three
 //!   keys), 2 of 2 values (allValue, pallValue)
-//! - TestMarshalInvalidUTF8 (:1358): ported through `append_string` with HTML escape on (a Rust `str` cannot
+//! - TestMarshalInvalidUTF8 (:1358; active rows v2_decode_test.go:1360-1371, raw U+FFFD bytes): ported
+//!   through `append_string` with HTML escape on (a Rust `str` cannot
 //!   hold invalid UTF-8, so `marshal` cannot take these inputs), 6 of 6 rows
 //!
 //! Added (no Go source): invalid_utf8_per_byte, float_format (the plan's Task 9 cases).
+//!
+//! Go 1.27.4 runs the GOEXPERIMENT=jsonv2 copies of these tests (v2_encode_test.go, v2_decode_test.go);
+//! v2_encode_test.go has the same rows as encode_test.go, and TestMarshal is the same in
+//! v2_decode_test.go (:1338). Only TestMarshalInvalidUTF8 changed.
 
 use gostd::json::{
     EncodeState, Error, Marshal, RawMessage, Value, append_float, append_string, html_escape,
@@ -1148,16 +1153,19 @@ fn test_marshal() {
 
 #[test]
 fn test_marshal_invalid_utf8() {
-    // (in, want); `Marshal` of a string is appendString with HTML escape on
+    // (in, want), v2_decode_test.go:1366-1371, the active rows: the Go escape there is the
+    // rune U+FFFD, so each bad byte becomes the raw bytes EF BF BD (v1's decode_test.go:1364-1369
+    // wanted the six-byte escape text). `Marshal` of a string is jsonwire.AppendQuote with HTML
+    // escape on.
     let tests: &[(&[u8], &str)] = &[
-        (b"hello\xffworld", r#""hello\ufffdworld""#),
+        (b"hello\xffworld", "\"hello\u{FFFD}world\""),
         (b"", r#""""#),
-        (b"\xff", r#""\ufffd""#),
-        (b"\xff\xff", r#""\ufffd\ufffd""#),
-        (b"a\xffb", r#""a\ufffdb""#),
+        (b"\xff", "\"\u{FFFD}\""),
+        (b"\xff\xff", "\"\u{FFFD}\u{FFFD}\""),
+        (b"a\xffb", "\"a\u{FFFD}b\""),
         (
             b"\xe6\x97\xa5\xe6\x9c\xac\xff\xaa\x9e",
-            r#""日本\ufffd\ufffd\ufffd""#,
+            "\"\u{65E5}\u{672C}\u{FFFD}\u{FFFD}\u{FFFD}\"",
         ),
     ];
     for &(inp, want) in tests {
@@ -1172,9 +1180,10 @@ fn test_marshal_invalid_utf8() {
 #[test]
 fn invalid_utf8_per_byte() {
     // Go's DecodeRune gives (U+FFFD, 1) for each bad byte: E2 and 82 are two errors, not one.
+    // jsonwire.AppendQuote (internal/jsonwire/encode.go:92-95) writes U+FFFD as raw bytes.
     let mut got = Vec::new();
     append_string(&mut got, b"\xE2\x82<", true);
-    assert_eq!(String::from_utf8(got).unwrap(), r#""\ufffd\ufffd\u003c""#);
+    assert_eq!(got, b"\"\xEF\xBF\xBD\xEF\xBF\xBD\\u003c\"");
 
     // U+2028 is escaped whether or not HTML escaping is on (appendString).
     for escape_html in [true, false] {

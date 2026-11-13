@@ -1,5 +1,6 @@
 //! Ported from encoding/json/stream_test.go (Go 1.27.4, BSD-3-Clause, Copyright 2010 The Go
-//! Authors). stream_test.go has 13 Test funcs: 6 ported, 7 not ported.
+//! Authors). stream_test.go has 13 Test funcs: 6 ported, 7 not ported. Go 1.27.4 runs v2_stream_test.go
+//! (GOEXPERIMENT=jsonv2): the same encoder rows, plus TestDecoderMaxBytesError (Decoder, not ported).
 //! - TestEncoder (stream_test.go:72): ported (`Value` for streamTest, `Encoder` over a `Vec<u8>`)
 //! - TestEncoderErrorAndReuseEncodeState (stream_test.go:92): ported, adapted (the pointer cycle is not
 //!   expressible; a NaN `UnsupportedValue` error stands in, then the same Data is encoded; the
@@ -18,7 +19,7 @@
 //! - TestTokenError (stream_test.go:545): not ported: `Decoder.Token`, not used by graphify-go
 //! - TestDecoderInputOffset (stream_test.go:592): not ported: `Decoder.InputOffset`, not used by graphify-go
 //! - marshal_indent_prefix: added (no Go source), the plan's Task 9 case; expected strings checked against
-//!   `appendIndent` (indent.go:128): `appendNewline` writes the prefix after every `\n`, never on the first line
+//!   `appendIndent` (v2_indent.go:91, `jsontext` `AppendIndent`): the prefix after every `\n`, never on the first line
 //!
 //! streamTest has 8 values (stream_test.go:51): 8 kept, 0 left out. streamEncoded and streamEncodedIndent
 //! are kept whole. TestEncoderSetEscapeHTML has 6 rows (stream_test.go:198-215): 5 kept, 1 left out:

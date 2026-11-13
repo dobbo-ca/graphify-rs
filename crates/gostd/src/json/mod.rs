@@ -1,7 +1,10 @@
-//! Go 1.27.4 `encoding/json` v1, encode half (`encode.go`, `indent.go`, `scanner.go`,
-//! `stream.go`, `tags.go`). The decode half arrives with graphify-rs-aa6.10.
+//! Go 1.27.4 `encoding/json`, encode half. Go 1.27.4 builds it with GOEXPERIMENT=jsonv2 on, so
+//! the active code is the `v2_*.go` files over `encoding/json/jsontext` and
+//! `internal/jsonwire` (`v2_encode.go`, `v2_indent.go`, `v2_scanner.go`, `v2_stream.go`,
+//! `tags.go`). The decode half arrives with graphify-rs-aa6.10.
 mod encode;
 mod indent;
+mod jsontext;
 mod scanner;
 mod value;
 
@@ -19,13 +22,14 @@ pub use value::{RawMessage, Value};
 /// Decode variants (`UnmarshalTypeError` etc.) arrive with graphify-rs-aa6.10.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Error {
-    /// Go `SyntaxError` (`scanner.go:49`); `Error()` is `msg`. `offset` is bytes read before the error.
+    /// Go `SyntaxError` (`v2_scanner.go:47`); `Error()` is `msg`. `offset` is Go's legacy
+    /// `Offset` (`jsontext/errors.go:102-116`): past the invalid text.
     Syntax { msg: String, offset: i64 },
-    /// Go `UnsupportedValueError` (`encode.go:251`); holds Go's `Str`, e.g. `"NaN"`.
+    /// Go `UnsupportedValueError` (`v2_encode.go:220`); holds Go's `Str`, e.g. `"NaN"`.
     UnsupportedValue(String),
-    /// Go `UnsupportedTypeError` (`encode.go:241`); holds the Go type string.
+    /// Go `UnsupportedTypeError` (`v2_encode.go:210`); holds the Go type string.
     UnsupportedType(String),
-    /// Go `MarshalerError` (`encode.go:276`). `source_func` is `"MarshalJSON"` or
+    /// Go `MarshalerError` (`v2_encode.go:245`). `source_func` is `"MarshalJSON"` or
     /// `"MarshalText"`; empty means `"MarshalJSON"`, as in Go.
     Marshaler {
         go_type: String,
@@ -37,9 +41,9 @@ pub enum Error {
 }
 
 impl fmt::Display for Error {
-    /// Go `SyntaxError.Error` (`scanner.go:54`), `UnsupportedValueError.Error`
-    /// (`encode.go:256`), `UnsupportedTypeError.Error` (`encode.go:245`),
-    /// `MarshalerError.Error` (`encode.go:282`).
+    /// Go `SyntaxError.Error` (`v2_scanner.go:52`), `UnsupportedValueError.Error`
+    /// (`v2_encode.go:225`), `UnsupportedTypeError.Error` (`v2_encode.go:214`),
+    /// `MarshalerError.Error` (`v2_encode.go:251`).
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Error::Syntax { msg, .. } => f.write_str(msg),

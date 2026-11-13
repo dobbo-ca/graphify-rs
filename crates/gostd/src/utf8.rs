@@ -28,6 +28,16 @@ pub fn decode_rune(b: &[u8]) -> (char, usize) {
     }
 }
 
+/// Go `utf8.FullRune`: whether `p` starts with a whole encoded rune. An invalid sequence counts
+/// as whole (it decodes as `(RUNE_ERROR, 1)`); only a valid but cut-off prefix does not.
+pub fn full_rune(p: &[u8]) -> bool {
+    // Rust and Go reject the same bytes, so Rust's "incomplete at end of input" is Go's cut-off
+    // prefix. Four bytes always hold a whole rune.
+    !p.is_empty()
+        && !matches!(std::str::from_utf8(&p[..p.len().min(UTF_MAX)]),
+            Err(e) if e.valid_up_to() == 0 && e.error_len().is_none())
+}
+
 /// Go `utf8.DecodeLastRune`: the last rune of `b` and its width.
 pub fn decode_last_rune(b: &[u8]) -> (char, usize) {
     let end = b.len();
