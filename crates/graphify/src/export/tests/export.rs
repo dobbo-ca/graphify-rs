@@ -440,7 +440,8 @@ fn test_to_json_edge_weight() {
 
 /// Go `struct{ Links []map[string]any }`: the `links` of a graph.json as raw objects.
 fn raw_links(data: &[u8]) -> Vec<BTreeMap<String, Value>> {
-    let Value::Object(top) = unmarshal::<Value>(data).expect("unmarshal raw") else {
+    let doc = unmarshal::<Value>(data).expect("unmarshal raw");
+    let Value::Object(top) = &doc else {
         panic!("graph.json is not an object");
     };
     let Some(Value::Array(links)) = top.get("links") else {
@@ -571,9 +572,8 @@ fn test_to_json_valid_json() {
     let dir = TempDir::new();
     let out = dir.join("graph.json");
     to_json_at(&g, &communities, &out, "", false).expect("ToJSON");
-    let Value::Object(top) =
-        unmarshal::<Value>(&fs::read(&out).expect("read")).expect("graph.json is valid JSON")
-    else {
+    let doc = unmarshal::<Value>(&fs::read(&out).expect("read")).expect("graph.json is valid JSON");
+    let Value::Object(top) = &doc else {
         panic!("graph.json is not an object");
     };
     assert!(top.contains_key("nodes"), "no nodes key");
@@ -589,8 +589,8 @@ fn test_to_json_nodes_have_community() {
     let dir = TempDir::new();
     let out = dir.join("graph.json");
     to_json_at(&g, &communities, &out, "", false).expect("ToJSON");
-    let Value::Object(top) = unmarshal::<Value>(&fs::read(&out).expect("read")).expect("decode")
-    else {
+    let doc = unmarshal::<Value>(&fs::read(&out).expect("read")).expect("decode");
+    let Value::Object(top) = &doc else {
         panic!("graph.json is not an object");
     };
     let Some(Value::Array(nodes)) = top.get("nodes") else {
@@ -698,7 +698,8 @@ fn test_to_json_hyperedges_empty_when_none() {
     let path = dir.join("graph.json");
     to_json_at(&g, &communities, &path, "", false).expect("ToJSON");
     let data = fs::read(&path).expect("read");
-    let Value::Object(top) = unmarshal::<Value>(&data).expect("decode") else {
+    let doc = unmarshal::<Value>(&data).expect("decode");
+    let Value::Object(top) = &doc else {
         panic!("graph.json is not an object");
     };
     assert_eq!(
