@@ -1,0 +1,11 @@
+^[A-Za-z_][\w.\[\]*-]*$
+module example.com/m
+require (
+	github.com/a/b v1.2.3
+)
+# Heading
+[t](u) password=x://u:p@h id_rsa x.pem ADR-12 <script lang="ts">1</script>
+---
+name: x
+---
+café Σς ${p} a::b.c

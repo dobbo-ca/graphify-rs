@@ -40,6 +40,11 @@ The `testinputs` stage builds `/gotest`, which the `test` and `arm64` stages bin
 | `/gotest/regexp/re2-exhaustive.txt` | `go1.27.4` `src/regexp/testdata/re2-exhaustive.txt.bz2`, decompressed |
 | `/gotest/toml-test/` | `github.com/BurntSushi/toml@v1.4.0` `internal/toml-test/tests` (checked by `go.sum`) |
 
+### Fuzz and bench
+
+- Fuzz: `fuzz/` is its own cargo workspace (own `Cargo.lock`, `libfuzzer-sys`; the root workspace has `exclude = ["fuzz"]`, so `cargo deny` never sees it). Targets `json_syntax` (valid, compact, indent), `regexp_compile_match` and `toml_decode`; seeds in `fuzz/seeds/<target>/`. The `fuzz` workflow (`workflow_dispatch` only, input `max_total_time`, default 600 s) runs each target in the `fuzz` stage of `ci/Dockerfile` and uploads crash inputs as an artifact.
+- Bench: the `bench` workflow (`workflow_dispatch`) builds the `bench` stage, which holds the Go oracle and `crates/gostd/examples/bench.rs`, and runs `sh parity/bench.sh`. Both sides time the same workloads (regexp: the 43 constant patterns over 20,000 lines of Go source; json: `marshal_indent`, `compact` and `valid` of a generated ~50 MB graph, decode is skipped until graphify-rs-aa6.10; norm: NFKC of the xtext inputs; sha256: 1 GiB; toml: the toml-test valid files x100). The table is in the job log and summary: Rust/Go ratio against the 1.10x target. It is not a gate.
+
 ### Count table
 
 Source tests are Go `func Test*` (and, where noted, toml-test cases). "Not ported" names what is not

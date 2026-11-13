@@ -1,0 +1,9 @@
+[project]
+name = "p"
+requires = [">=3.8,<4"]
+[project.optional-dependencies]
+dev = ["a", "b"]
+[build-system]
+requires = ["setuptools"]
+[[tool.mypy.overrides]]
+module = "x"

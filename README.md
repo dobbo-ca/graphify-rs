@@ -32,6 +32,7 @@ No `cc`, `bindgen`, `-sys` crate or FFI to C. `deny.toml` bans `cc`, `cmake`, `b
 | Tracked in the rust-ports checklist | Tracked in this repo's beads | Owner decision: rust-ports is for image libraries only. |
 | CI on ARC only | ARC, plus GitHub-hosted macOS for darwin test and release jobs (from P2) | ARC is Linux only and darwin binaries ship. |
 | Limits / cancel / max_alloc / max_threads | Library crates: yes. CLI: no allocation cap | The CLI reproduces graphify-go, which has neither. |
+| Fuzz targets in the library workspace | `fuzz/` is a separate cargo workspace with its own `Cargo.lock`, outside the root lock and `cargo deny`; it uses `libfuzzer-sys` (as gositter-rs and deflate-rs) | Only `fuzz/` may depend on `libfuzzer-sys`, which builds C++ (the root workspace has no C). |
 
 ## Building
 

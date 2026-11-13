@@ -1,0 +1,6 @@
+[workspace]
+members = ["a", "b"]
+[workspace.dependencies]
+x = { git = "u", branch = "m" }
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"

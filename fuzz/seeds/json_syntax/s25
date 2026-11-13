@@ -1,0 +1,1 @@
+{"directed":false,"nodes":[{"id":"a","label":"A","community":0},{"id":"b","label":"B","community":1}],"links":[{"source":"a","target":"b","relation":"calls","confidence":"EXTRACTED","weight":1.5}]}

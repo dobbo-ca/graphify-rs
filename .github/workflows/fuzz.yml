@@ -1,0 +1,74 @@
+name: fuzz
+on:
+  workflow_dispatch:
+    inputs:
+      max_total_time:
+        description: Seconds per target
+        default: '600'
+permissions:
+  contents: read
+# A new run waits for the one before it; it does not cancel it.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  # fuzz/ is its own cargo workspace (libfuzzer-sys); the targets are built in ci/Dockerfile `fuzz`.
+  fuzz:
+    runs-on: github-arc-runner-set
+    strategy:
+      fail-fast: false
+      # The ARC runners are shared: two fuzz jobs at a time, at most.
+      max-parallel: 2
+      matrix:
+        target: [json_syntax, regexp_compile_match, toml_decode]
+    timeout-minutes: 60
+    env:
+      MAX_TOTAL_TIME: ${{ inputs.max_total_time || '600' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { lfs: false }
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+        with:
+          driver: remote
+          endpoint: tcp://buildkitd.github-arc.svc.cluster.local:1234
+      - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          file: ci/Dockerfile
+          target: fuzz
+          load: true
+          push: false
+          tags: graphify-rs-fuzz:local
+          cache-from: type=gha,scope=graphify-rs-fuzz
+          cache-to: type=gha,mode=max,scope=graphify-rs-fuzz
+      # The corpus is kept between runs: restored here, copied into the container, copied back
+      # out and saved, so a run goes on from where the last one stopped. One cache per target;
+      # the newest is restored.
+      - id: corpus
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: corpus
+          key: fuzz-corpus-${{ matrix.target }}-${{ github.run_id }}
+          restore-keys: fuzz-corpus-${{ matrix.target }}-
+      # docker create + start, not a RUN layer: a BuildKit cache hit would skip the fuzzing.
+      # Seeds: fuzz/seeds/<target>; new inputs go to the first corpus dir.
+      - run: |
+          mkdir -p corpus/${{ matrix.target }}
+          docker create --name fuzz -e MAX_TOTAL_TIME -e TARGET=${{ matrix.target }} graphify-rs-fuzz:local \
+            sh -c 'cargo +nightly fuzz run $TARGET fuzz/corpus/$TARGET fuzz/seeds/$TARGET -- -max_total_time=$MAX_TOTAL_TIME -timeout=20 -rss_limit_mb=2048 -malloc_limit_mb=512'
+          docker cp corpus fuzz:/src/fuzz/
+          docker start -a fuzz
+      - if: failure()
+        run: docker cp fuzz:/src/fuzz/artifacts/${{ matrix.target }} ./crashers
+      - if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: crashers-${{ matrix.target }}
+          path: crashers
+      - if: always()
+        run: docker cp fuzz:/src/fuzz/corpus/${{ matrix.target }}/. corpus/${{ matrix.target }}/ || true
+      - if: always()
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: corpus
+          key: fuzz-corpus-${{ matrix.target }}-${{ github.run_id }}

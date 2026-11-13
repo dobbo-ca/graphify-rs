@@ -1,0 +1,6 @@
+[features]
+default = []
+[[example]]
+name = "e"
+[[workspace.members]]
+path = "p"
