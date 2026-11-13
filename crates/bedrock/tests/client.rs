@@ -179,7 +179,6 @@ fn today() -> String {
 
 // Port of client_test.go:59 TestRetryAfter (anthropic-sdk-go v1.51.0)
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn retry_after() {
     let script: Vec<MockReply> = (0..3)
         .map(|_| reply(429, &[("Retry-After", "0.1")], ""))
@@ -195,7 +194,6 @@ fn retry_after() {
 
 // Port of client_test.go:186 TestRetryAfterMs (anthropic-sdk-go v1.51.0)
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn retry_after_ms() {
     let script: Vec<MockReply> = (0..3)
         .map(|_| reply(429, &[("Retry-After-Ms", "100")], ""))
@@ -212,7 +210,6 @@ fn retry_after_ms() {
 // deadline is `attempt_timeout` (100 ms), the mock never answers in time, and the error is
 // `Error::Timeout` with Go's text. Tolerance is 1.5 s, not 30 ms, for a loaded CI runner.
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn context_deadline() {
     let slow = MockReply {
         delay: Duration::from_secs(2),
@@ -242,7 +239,6 @@ fn context_deadline() {
 // Port of internal/requestconfig/requestconfig_test.go:24 TestErrorWithRequestID
 // (anthropic-sdk-go v1.51.0), adapted to bedrock::Error::Api
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn error_with_request_id() {
     let body = r#"{"error":{"type":"invalid_request_error","message":"Invalid request"}}"#;
     let (_server, client) = setup_cfg(
@@ -265,7 +261,6 @@ fn error_with_request_id() {
 // Port of internal/requestconfig/requestconfig_test.go:69 TestErrorType (anthropic-sdk-go
 // v1.51.0), adapted: Rust has no `Type()` accessor, so the error type is checked in the body.
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn error_type() {
     let body =
         r#"{"type":"error","error":{"type":"invalid_request_error","message":"Bad request"}}"#;
@@ -291,7 +286,6 @@ fn error_type() {
 // Port of internal/requestconfig/requestconfig_test.go:97 TestErrorTypeAbsent
 // (anthropic-sdk-go v1.51.0), adapted: no error type in the body, and no request id header.
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn error_type_absent() {
     let body = r#"{"message":"Internal error"}"#;
     let (_server, client) = setup_cfg(
@@ -315,7 +309,6 @@ fn error_type_absent() {
 // Port of bedrock/bedrockmantle_test.go:94 TestMantleRequiresBaseURLOrRegion
 // (anthropic-sdk-go v1.51.0)
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn mantle_requires_base_url_or_region() {
     let mut c = cfg(env(None, &[("AWS_BEARER_TOKEN_BEDROCK", "my-key")]));
     c.region = String::new();
@@ -331,7 +324,6 @@ fn mantle_requires_base_url_or_region() {
 // Port of bedrock/bedrockmantle_test.go:106 TestMantleRegionRequiredForSigV4
 // (anthropic-sdk-go v1.51.0). No base URL is set; the region check comes first (awsauth.go:135).
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn mantle_region_required_for_sigv4() {
     let mut c = cfg(env(None, SIGV4));
     c.region = String::new();
@@ -346,7 +338,6 @@ fn mantle_region_required_for_sigv4() {
 // Port of bedrock/bedrockmantle_test.go:122 TestMantleAPIKeyModeHeaders (anthropic-sdk-go
 // v1.51.0)
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn mantle_api_key_mode_headers() {
     let (server, client) = setup(vec![ok()], &[("AWS_BEARER_TOKEN_BEDROCK", "my-api-key")]);
     call(&client).expect("request failed");
@@ -362,7 +353,6 @@ fn mantle_api_key_mode_headers() {
 // Port of bedrock/bedrockmantle_test.go:142 TestMantleSigV4ModeHeaders (anthropic-sdk-go
 // v1.51.0), adapted: keys come from the AWS env vars (AKIDEXAMPLE doc keys).
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn mantle_sigv4_mode_headers() {
     let (server, client) = setup(vec![ok()], SIGV4);
     call(&client).expect("request failed");
@@ -387,7 +377,6 @@ fn mantle_sigv4_mode_headers() {
 // Port of bedrock/bedrockmantle_test.go:171 TestMantleSigV4ServiceName (anthropic-sdk-go
 // v1.51.0), adapted: Go calls the middleware directly, here the scope is read off the wire.
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn mantle_sigv4_service_name() {
     let (server, client) = setup(vec![ok()], SIGV4);
     call(&client).expect("request failed");
@@ -402,7 +391,6 @@ fn mantle_sigv4_service_name() {
 // Port of bedrock/bedrockmantle_test.go:201 TestMantleAPIKeyFallbackToAWSEnv
 // (anthropic-sdk-go v1.51.0), adapted to Env
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn mantle_api_key_fallback_to_aws_env() {
     let (server, client) = setup(vec![ok()], &[("ANTHROPIC_AWS_API_KEY", "aws-fallback-key")]);
     call(&client).expect("request failed");
@@ -413,7 +401,6 @@ fn mantle_api_key_fallback_to_aws_env() {
 // Port of bedrock/bedrockmantle_test.go:214 TestMantleAPIKeyMantleEnvOverridesAWSEnv
 // (anthropic-sdk-go v1.51.0), adapted to Env
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn mantle_api_key_mantle_env_overrides_aws_env() {
     let (server, client) = setup(
         vec![ok()],
@@ -435,7 +422,6 @@ fn mantle_api_key_mantle_env_overrides_aws_env() {
 // v1.51.0), adapted: the env base URL is the mock, and the request lands on it. No region is
 // set (Go's config is empty too); a bearer key needs none.
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn mantle_base_url_from_env() {
     let server = MockServer::start(false, vec![ok()]);
     let base = format!("{}/anthropic", server.url());
@@ -452,7 +438,6 @@ fn mantle_base_url_from_env() {
 // (anthropic-sdk-go v1.51.0): our only explicit base is the env var. A region is set too
 // (us-east-1) and the request still goes to the mock, not to bedrock-mantle.us-east-1.api.aws.
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn mantle_base_url_explicit_overrides_region() {
     let (server, client) = setup(vec![ok()], KEY);
     call(&client).expect("request failed");
@@ -463,7 +448,6 @@ fn mantle_base_url_explicit_overrides_region() {
 // Port of bedrock/bedrockmantle_test.go:313 TestNewMantleClientMessages (anthropic-sdk-go
 // v1.51.0)
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn new_mantle_client_messages() {
     let (server, client) = setup(vec![ok()], &[("AWS_BEARER_TOKEN_BEDROCK", "test-key")]);
     let out = call(&client).expect("request failed");
@@ -477,7 +461,6 @@ fn new_mantle_client_messages() {
 // signature covers the request as sent. `content-length` is signed, equals the length of the
 // body on the wire, and the body is the golden request body.
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn mantle_user_middleware_runs_before_sigv4_signing() {
     let (server, client) = setup(vec![ok()], SIGV4);
     call(&client).expect("request failed");
@@ -501,7 +484,6 @@ fn mantle_user_middleware_runs_before_sigv4_signing() {
 // Port of bedrock/bedrockmantle_test.go:514 TestMantleDoesNotLeakAnthropicAPIKey
 // (anthropic-sdk-go v1.51.0)
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn mantle_does_not_leak_anthropic_api_key() {
     let mut extra = SIGV4.to_vec();
     extra.push(("ANTHROPIC_API_KEY", "should-not-appear"));
@@ -532,7 +514,6 @@ fn mantle_does_not_leak_anthropic_api_key() {
 // adapted: max_tokens is always 1024, so the timeout is the 10 minute default; the
 // `Config::new` half is in src/client/tests.rs (calculate_non_streaming_timeout).
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn non_streaming_timeout_header() {
     let (server, client) = setup(vec![ok()], KEY);
     call(&client).expect("request failed");
@@ -543,7 +524,6 @@ fn non_streaming_timeout_header() {
 // ---- new tests ----
 
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn request_headers_shape() {
     let (server, client) = setup(vec![ok()], KEY);
     call(&client).expect("request failed");
@@ -573,7 +553,6 @@ fn request_headers_shape() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn wire_body_matches_golden() {
     let (server, client) = setup(vec![ok()], KEY);
     call(&client).expect("request failed");
@@ -585,7 +564,6 @@ fn wire_body_matches_golden() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn bearer_header_and_no_aws_files() {
     let home = common::tmp_dir("brokenhome");
     std::fs::create_dir_all(home.join(".aws")).unwrap();
@@ -623,7 +601,6 @@ fn bearer_header_and_no_aws_files() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn sigv4_headers_shape() {
     let before = today();
     let (server, client) = setup(vec![ok()], SIGV4);
@@ -654,7 +631,6 @@ fn sigv4_headers_shape() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn each_attempt_signed_again() {
     let script = vec![reply(503, &[FAST], ""), reply(503, &[FAST], ""), ok()];
     let (server, client) = setup(script, SIGV4);
@@ -686,7 +662,6 @@ fn each_attempt_signed_again() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn retry_rules() {
     struct Case {
         name: &'static str,
@@ -773,7 +748,6 @@ fn retry_rules() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn retry_after_past_deadline_is_timeout() {
     let (server, client) = setup_cfg(
         vec![reply(429, &[("Retry-After", "5")], ""), ok()],
@@ -794,7 +768,6 @@ fn retry_after_past_deadline_is_timeout() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn api_error_display() {
     let body = r#"{"type":"error","error":{"type":"invalid_request_error","message":"bad"}}"#;
     struct Case {
@@ -842,7 +815,6 @@ fn api_error_display() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn tool_input_raw() {
     // The first record_concepts block wins; its input text is kept byte for byte.
     let body = r#"{"id":"m","content":[{"type":"text","text":"hi"},{"type":"tool_use","id":"t0","name":"other","input":{"x":1}},{"type":"tool_use","id":"t1","name":"record_concepts","input": {"concepts" : [ ]} },{"type":"tool_use","id":"t2","name":"record_concepts","input":{"second":true}}],"stop_reason":"tool_use"}"#;
@@ -852,7 +824,6 @@ fn tool_input_raw() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn tool_use_without_input_is_empty() {
     let body = r#"{"content":[{"type":"tool_use","id":"t1","name":"record_concepts"}]}"#;
     let (_server, client) = setup(vec![MockReply::json(200, body)], KEY);
@@ -861,7 +832,6 @@ fn tool_use_without_input_is_empty() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn no_tool_use_is_none() {
     let cases = [
         (
@@ -883,7 +853,6 @@ fn no_tool_use_is_none() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn json_media_types_accepted() {
     for ct in [
         "application/json",
@@ -900,7 +869,6 @@ fn json_media_types_accepted() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn non_json_content_type_error() {
     let (_server, client) = setup(
         vec![reply(200, &[("content-type", "text/plain")], "hi")],
@@ -916,7 +884,6 @@ fn non_json_content_type_error() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn bad_json_is_decode_error() {
     let (_server, client) = setup(vec![MockReply::json(200, "not json")], KEY);
     let err = call(&client).expect_err("expected a decode error");
@@ -928,7 +895,6 @@ fn bad_json_is_decode_error() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn note_cut_mid_rune() {
     // MAX_NOTE_BYTES - 1 ASCII bytes, then a 2-byte rune: the byte cut leaves its lead byte
     // alone, which Go (and we) write as one U+FFFD.
@@ -951,7 +917,6 @@ fn note_cut_mid_rune() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn expired_creds_are_fetched_again() {
     let dir = common::tmp_dir("expired");
     let count = dir.join("count");
@@ -998,4 +963,75 @@ fn expired_creds_are_fetched_again() {
         let auth = req.header("Authorization").expect("Authorization header");
         assert!(auth.contains(&format!("Credential={AKID}/")), "got: {auth}");
     }
+}
+
+/// A `credential_process` script: run 1 (in `Client::new`) prints expired credentials; later
+/// runs fail when their number is in `fail_runs`, else print expired credentials again.
+fn flaky_creds(tag: &str, fail_runs: &str) -> (std::path::PathBuf, Vec<(String, String)>) {
+    let dir = common::tmp_dir(tag);
+    let count = dir.join("count");
+    let script = common::write_script(
+        &dir,
+        "creds.sh",
+        &format!(
+            "echo run >> {count}\n\
+             n=$(wc -l < {count} | tr -d ' ')\n\
+             case \" {fail_runs} \" in *\" $n \"*) echo boom >&2; exit 1;; esac\n\
+             echo '{{\"Version\":1,\"AccessKeyId\":\"{AKID}\",\"SecretAccessKey\":\"{SECRET}\",\"SessionToken\":\"{TOKEN}\",\"Expiration\":\"2020-01-01T00:00:00Z\"}}'",
+            count = path_str(&count)
+        ),
+    );
+    let config = dir.join("config");
+    std::fs::write(
+        &config,
+        format!("[default]\ncredential_process = {}\n", path_str(&script)),
+    )
+    .unwrap();
+    let env = vec![
+        ("HOME".to_string(), path_str(&dir)),
+        ("AWS_CONFIG_FILE".to_string(), path_str(&config)),
+        (
+            "AWS_SHARED_CREDENTIALS_FILE".to_string(),
+            path_str(&dir.join("credentials")),
+        ),
+        ("PATH".to_string(), "/usr/bin:/bin".to_string()),
+    ];
+    (count, env)
+}
+
+fn lines_in(path: &Path) -> usize {
+    std::fs::read_to_string(path)
+        .unwrap_or_default()
+        .lines()
+        .count()
+}
+
+#[test]
+fn credential_refresh_failure_is_retried() {
+    // awsauth.go:226-229 + requestconfig.go:256: a refresh error has no response, so it is
+    // retried like a connection error. Run 2 (the first attempt's refresh) fails.
+    let (count, env) = flaky_creds("refresh-once", "2");
+    let env: Vec<(&str, &str)> = env.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+    let (server, client) = setup(vec![ok()], &env);
+    call(&client).expect("the retry succeeds");
+    assert_eq!(lines_in(&count), 3, "new, failed refresh, refresh on retry");
+    let reqs = server.requests();
+    assert_eq!(reqs.len(), 1, "only the retry reaches the server");
+    assert_eq!(reqs[0].header("X-Stainless-Retry-Count"), Some("1"));
+}
+
+#[test]
+fn credential_refresh_always_failing_reports_go_text() {
+    let (count, env) = flaky_creds("refresh-never", "2 3 4");
+    let env: Vec<(&str, &str)> = env.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+    let (server, client) = setup(vec![ok()], &env);
+    let err = call(&client).expect_err("every refresh fails");
+    assert!(matches!(err, Error::RetrieveCredentials(_)), "got {err:?}");
+    assert!(
+        err.to_string()
+            .starts_with("failed to retrieve AWS credentials: "),
+        "got: {err}"
+    );
+    assert_eq!(lines_in(&count), 4, "new + 3 attempts (2 retries)");
+    assert!(server.requests().is_empty(), "no request is sent");
 }

@@ -20,7 +20,6 @@ fn response(status: u16, headers: &[(&str, &str)]) -> Response {
 // gives (`Config::new`); the `X-Stainless-Timeout: 600` header half is
 // tests/client.rs non_streaming_timeout_header.
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn calculate_non_streaming_timeout() {
     let cfg = Config::new("us-east-1");
     assert_eq!(cfg.attempt_timeout, Duration::from_secs(600));
@@ -32,7 +31,6 @@ fn calculate_non_streaming_timeout() {
 // (anthropic-sdk-go v1.51.0), adapted: this only joins a hard-coded URL. Region derivation
 // itself is NOT tested here (no mock can receive a request for the derived host).
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn mantle_base_url_derived_from_region() {
     assert_eq!(
         join_base("https://bedrock-mantle.us-west-2.api.aws/anthropic").as_deref(),
@@ -41,7 +39,6 @@ fn mantle_base_url_derived_from_region() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn base_url_join() {
     const CASES: &[(&str, &str)] = &[
         ("https://h/anthropic", "https://h/anthropic/v1/messages"),
@@ -56,7 +53,6 @@ fn base_url_join() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn should_retry_table() {
     struct Case {
         name: &'static str,
@@ -175,7 +171,6 @@ fn should_retry_table() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.8"]
 fn retry_delay_table() {
     let now = UNIX_EPOCH + Duration::from_secs(1_136_214_243); // 2006-01-02 15:04:03 UTC
     let ms = Duration::from_millis;

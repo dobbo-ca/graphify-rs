@@ -8,6 +8,7 @@ use super::ini::{self, IniValue, Section, Sections};
 use crate::env::Env;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(not(test), allow(dead_code))]
 pub(crate) struct Profile {
     pub name: String,
     /// Merged across files, keys lowercased.
@@ -125,6 +126,7 @@ pub(crate) fn load(env: &Env) -> Result<Option<Profile>, String> {
 }
 
 /// Every section after renaming and merging, by profile name (for the ported config tests).
+#[cfg_attr(not(test), allow(dead_code))]
 pub(crate) fn load_all(
     config_files: &[&str],
     credentials_files: &[&str],
