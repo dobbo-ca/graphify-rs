@@ -7,3 +7,6 @@
 mod fsutil;
 
 pub use fsutil::*;
+
+#[cfg(test)]
+mod tests;
