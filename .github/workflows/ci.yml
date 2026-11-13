@@ -3,8 +3,11 @@ on: { pull_request: {}, push: { branches: [main] }, workflow_dispatch: {} }
 permissions:
   contents: read
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # A push to main gets its own group (by commit), so no main run is cancelled or replaced while
+  # pending: every merge must get its main-only stages (arm64, parity). PR runs share a group per
+  # ref and cancel the older run.
+  group: ${{ github.workflow }}-${{ github.event_name == 'push' && github.sha || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   # The checks run inside ci/Dockerfile on the in-cluster BuildKit (pattern from dobbo-ca/deflate-rs).
   # A PR needs only `test`; arm64, parity and parity-arm64 run on main and on workflow_dispatch. A bead is done only when
