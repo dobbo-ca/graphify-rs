@@ -129,7 +129,8 @@ Oracle package: none yet.
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| - | - | - | - | not started |
+| `sort/sort_test.go` | 21 | 15 | 0 | TestSortFloat64Slice, TestSortFloat64sCompareSlicesSort, TestFloat64s (floats with NaN, graphify-go sorts no floats); TestReverseSortIntSlice (sort.Reverse, sort.Interface only); TestHeapsortBM (Heapsort called directly, reached only through pdqsort); TestStableBM (Swap bound of sort.Stable symMerge, std `sort_by` used); TestSortBM without its Swap budget; TestSortLarge_Random at the testing.Short() size |
+| `slices/sort_test.go` | 13 | 7 | 0 | TestSortFloat64Slice (floats, graphify-go sorts no floats); TestBinarySearchFloats (BinarySearch on floats with NaN, not called by graphify-go); TestMinMax, TestMinMaxNaNs, TestMinMaxPanics (slices.Min/Max not called); TestBinarySearchInts (same path as TestBinarySearch, graphify-go calls only BinarySearchFunc); TestSortLarge_Random at the testing.Short() size; TestSortIntSlice and TestSortStringSlice run through `sort_func`, not slices.Sort |
 
 #### strconv
 
