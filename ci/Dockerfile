@@ -55,7 +55,11 @@ RUN mkdir -p /gotest/regexp \
 
 FROM go-mods AS go-oracle
 COPY parity/go/oracle ./
-RUN --mount=type=cache,target=/root/.cache/go-build go vet ./... && go build -o /out/oracle .
+# The oracle must run with graphify-go's GODEBUG defaults (its go.mod says go 1.25.0): go.mod has
+# `godebug default=go1.25`. Print the effective defaults and fail if net/url is not lenient.
+RUN --mount=type=cache,target=/root/.cache/go-build go vet ./... && go build -o /out/oracle . \
+    && echo "oracle DefaultGODEBUG: $(go list -f '{{.DefaultGODEBUG}}' .)" \
+    && go list -f '{{.DefaultGODEBUG}}' . | tr ',' '\n' | grep -qx 'urlstrictcolons=0'
 
 FROM go-oracle AS go-run
 RUN /out/oracle -gen /inputs && /out/oracle /inputs /go-out \
@@ -144,9 +148,9 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
     --mount=type=bind,from=go-run,source=/inputs,target=/inputs,rw \
     --mount=type=bind,from=go-run,source=/go-out,target=/go-out,rw \
     sh ci/fresh.sh && cargo run --locked --release -p gostd --example oracle -- /inputs /rust-out \
-    && { diff -r /go-out /rust-out >/tmp/diff.txt || { head -50 /tmp/diff.txt; wc -l /tmp/diff.txt; exit 1; }; } \
+    && sh ci/paritydiff.sh /go-out /rust-out \
     && GOSTD_SIMD=scalar cargo run --locked --release -p gostd --example oracle -- /inputs /rust-out-scalar \
-    && { diff -r /go-out /rust-out-scalar >/tmp/diff.txt || { head -50 /tmp/diff.txt; wc -l /tmp/diff.txt; exit 1; }; } \
+    && sh ci/paritydiff.sh /go-out /rust-out-scalar \
     && rm -rf /rust-out /rust-out-scalar
 
 # The same on aarch64 under qemu-user (the ARMv8 SHA-256 tier, unsigned char paths).
@@ -156,7 +160,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
     --mount=type=bind,from=go-run,source=/inputs,target=/inputs,rw \
     --mount=type=bind,from=go-run,source=/go-out,target=/go-out,rw \
     sh ci/fresh.sh && cargo run --locked --release -p gostd --target aarch64-unknown-linux-gnu --example oracle -- /inputs /arm-out \
-    && { diff -r /go-out /arm-out >/tmp/diff.txt || { head -50 /tmp/diff.txt; wc -l /tmp/diff.txt; exit 1; }; } \
+    && sh ci/paritydiff.sh /go-out /arm-out \
     && GOSTD_SIMD=scalar cargo run --locked --release -p gostd --target aarch64-unknown-linux-gnu --example oracle -- /inputs /arm-out-scalar \
-    && { diff -r /go-out /arm-out-scalar >/tmp/diff.txt || { head -50 /tmp/diff.txt; wc -l /tmp/diff.txt; exit 1; }; } \
+    && sh ci/paritydiff.sh /go-out /arm-out-scalar \
     && rm -rf /arm-out /arm-out-scalar
