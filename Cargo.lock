@@ -59,12 +59,12 @@ dependencies = [
 [[package]]
 name = "gositter"
 version = "0.1.0"
-source = "git+https://github.com/dobbo-ca/gositter-rs?rev=e584616a8d966f0b9881274070b08e64c8994679#e584616a8d966f0b9881274070b08e64c8994679"
+source = "git+https://github.com/dobbo-ca/gositter-rs?rev=2543d2c4ad18e378ede3dacf2aa46f85056c8c03#2543d2c4ad18e378ede3dacf2aa46f85056c8c03"
 
 [[package]]
 name = "gositter-grammars"
 version = "0.1.0"
-source = "git+https://github.com/dobbo-ca/gositter-rs?rev=e584616a8d966f0b9881274070b08e64c8994679#e584616a8d966f0b9881274070b08e64c8994679"
+source = "git+https://github.com/dobbo-ca/gositter-rs?rev=2543d2c4ad18e378ede3dacf2aa46f85056c8c03#2543d2c4ad18e378ede3dacf2aa46f85056c8c03"
 dependencies = [
  "gositter",
 ]
