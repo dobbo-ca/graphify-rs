@@ -28,3 +28,14 @@ pub(crate) fn write_script(dir: &Path, name: &str, body: &str) -> PathBuf {
     std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o755)).unwrap();
     path
 }
+
+/// `d` times `BEDROCK_TEST_TIME_SCALE` (default 1). The `arm64` stage sets 10: under qemu-user every
+/// safety deadline needs a wide margin. Only deadlines a test must never hit are scaled.
+pub(crate) fn scaled(d: std::time::Duration) -> std::time::Duration {
+    let k = std::env::var("BEDROCK_TEST_TIME_SCALE")
+        .ok()
+        .and_then(|v| v.parse::<u32>().ok())
+        .unwrap_or(1)
+        .max(1);
+    d * k
+}

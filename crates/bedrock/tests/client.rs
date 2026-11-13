@@ -226,7 +226,7 @@ fn context_deadline() {
     // Go returns the bare ctx.Err() (requestconfig.go:451/:477), with no "Post" prefix.
     assert_eq!(err.to_string(), "context deadline exceeded");
     assert!(
-        took >= Duration::from_millis(90) && took < Duration::from_millis(1500),
+        took >= Duration::from_millis(90) && took < common::scaled(Duration::from_millis(1500)),
         "client returned after {took:?}, expected about 100 ms"
     );
 }
@@ -762,7 +762,7 @@ fn retry_after_past_deadline_is_timeout() {
     assert_eq!(err.to_string(), "context deadline exceeded");
     assert_eq!(server.requests().len(), 1, "no second attempt");
     assert!(
-        start.elapsed() < Duration::from_secs(3),
+        start.elapsed() < common::scaled(Duration::from_secs(3)),
         "waited for the Retry-After"
     );
 }

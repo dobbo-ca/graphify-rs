@@ -118,11 +118,15 @@ COPY . .
 
 # The full test suite for aarch64 under qemu-user.
 FROM qemu-arm64 AS arm64
+# bedrock's tests start child processes (credential_process, the aws CLI). Under qemu-user a fork
+# while other test threads run can hang the child before its exec, so bedrock runs on one test
+# thread here, with its safety deadlines scaled 10x (BEDROCK_TEST_TIME_SCALE).
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
     --mount=type=cache,target=/src/target,sharing=private \
     --mount=type=bind,from=testinputs,source=/gotest,target=/gotest \
     --mount=type=bind,from=ucd,source=/ucd,target=/ucd \
-    sh ci/fresh.sh && GOSTD_GOTEST=/gotest GOSTD_UCD=/ucd cargo test --locked --workspace --target aarch64-unknown-linux-gnu
+    sh ci/fresh.sh && GOSTD_GOTEST=/gotest GOSTD_UCD=/ucd cargo test --locked --workspace --exclude bedrock --target aarch64-unknown-linux-gnu \
+    && BEDROCK_TEST_TIME_SCALE=10 cargo test --locked -p bedrock --target aarch64-unknown-linux-gnu -- --test-threads=1
 # The scalar SHA-256 tier on aarch64 (the default run above uses the ARMv8 tier).
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
     --mount=type=cache,target=/src/target,sharing=private \

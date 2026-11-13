@@ -6,7 +6,7 @@ mod common;
 use common::{MockProxy, MockReply, MockServer};
 
 fn deadline() -> Instant {
-    Instant::now() + Duration::from_secs(10)
+    Instant::now() + crate::testutil::scaled(Duration::from_secs(10))
 }
 
 fn headers() -> Vec<(String, String)> {
@@ -179,7 +179,7 @@ fn deadline_while_reading() {
     );
     assert_eq!(res, Err(SendError::Timeout));
     assert!(
-        start.elapsed() < Duration::from_millis(1500),
+        start.elapsed() < crate::testutil::scaled(Duration::from_millis(1500)),
         "returned after {:?}",
         start.elapsed()
     );
