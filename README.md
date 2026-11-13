@@ -21,7 +21,8 @@ No `cc`, `bindgen`, `-sys` crate or FFI to C. `deny.toml` bans `cc`, `cmake`, `b
 | Crate | Reason |
 |---|---|
 | [gositter-rs](https://github.com/dobbo-ca/gositter-rs) | Own port; git dependency pinned by rev (from P2) |
-| `rustls`, `rustls-graviola`, `webpki-roots` | TLS for the Bedrock client with no C (from P1') |
+| `rustls`, `rustls-graviola` | TLS for the Bedrock client with no C (from P1') |
+| `webpki-roots` | TLS root store for the Bedrock client (from P1'); root certificates under CDLA-Permissive-2.0 (deny.toml exception) |
 
 ## Differences from the dobbo-ca/rust-ports conventions
 
