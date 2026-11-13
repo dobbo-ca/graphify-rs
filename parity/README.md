@@ -289,7 +289,7 @@ One block per module, in the plan's module order. A PR edits only its own module
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| graphify-go `internal/model/code_test.go`, `model_test.go` (`graphify-rs-ihc.7`) | 5 + 3 | 8 (`TestEdgeLayout`: its JSON round trip; `TestAddEdgesAtMatchesAddEdge` without the pointer checks) (+2 added: `append_json_float_thresholds`, `append_json_string_matches_marshal`) | 0 | the `unsafe.Sizeof`/`Offsetof` layout checks and the decode into a sub-slice (Go memory layout); the in-place and no-write checks of `AddEdgesAt` (Rust takes the edges by value) |
+| graphify-go `internal/model/code_test.go`, `model_test.go` (`graphify-rs-ihc.7`) | 5 + 3 | 8 (`TestEdgeLayout`: its JSON round trip; `TestAddEdgesAtMatchesAddEdge` without the pointer checks) (+2 added: `append_json_float_thresholds`, `append_json_string_matches_marshal`) | 5 (the 5 `code_test.go` tests decode JSON: with PR #89) | the `unsafe.Sizeof`/`Offsetof` layout checks and the decode into a sub-slice (Go memory layout); the in-place and no-write checks of `AddEdgesAt` (Rust takes the edges by value) |
 | upstream `test_confidence.py` | 7 | 0 | 0 | they test `to_json` score defaults and the report's confidence lines, not `model`: export (Task 11, `graphify-rs-ihc.12`) and report (Task 10, `graphify-rs-ihc.11`) decide which hold (Go's INFERRED default is 0.5, upstream's 0.55) |
 
 #### graph
