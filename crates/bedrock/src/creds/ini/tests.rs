@@ -4,7 +4,6 @@ use crate::testutil::testdata;
 
 // Port of internal/ini@v1.8.0/ini_test.go:13 TestValidDataFiles
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn valid_data_files() {
     let dir = testdata("ini/valid");
     let mut names: Vec<String> = std::fs::read_dir(&dir)
