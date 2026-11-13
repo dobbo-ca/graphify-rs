@@ -97,7 +97,7 @@ const IN_PROP_TEST: &[(char, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_categories() {
     let mut not_tested: HashSet<&str> = CATEGORIES.iter().map(|(k, _)| *k).collect();
     for &(r, name) in IN_CATEGORY_TEST {
@@ -115,7 +115,7 @@ fn test_categories() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_properties() {
     let mut not_tested: HashSet<&str> = PROPERTIES.iter().map(|(k, _)| *k).collect();
     for &(r, name) in IN_PROP_TEST {
@@ -130,7 +130,7 @@ fn test_properties() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn lookups_match_maps() {
     type Lookup = fn(&str) -> Option<&'static gostd::unicode::RangeTable>;
     let maps: [(_, Lookup); 5] = [

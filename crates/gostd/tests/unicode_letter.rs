@@ -228,7 +228,7 @@ fn case_string(c: usize) -> &'static str {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_is_letter() {
     for r in UPPER_TEST {
         assert!(
@@ -254,7 +254,7 @@ fn test_is_letter() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_is_upper() {
     for r in UPPER_TEST {
         assert!(
@@ -280,7 +280,7 @@ fn test_is_upper() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_to() {
     for (cas, inp, out) in CASE_TEST {
         let r = to(cas, inp);
@@ -297,7 +297,7 @@ fn test_to() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_to_upper_case() {
     for (cas, inp, out) in CASE_TEST {
         if cas != UPPER_CASE {
@@ -313,7 +313,7 @@ fn test_to_upper_case() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_to_lower_case() {
     for (cas, inp, out) in CASE_TEST {
         if cas != LOWER_CASE {
@@ -329,7 +329,7 @@ fn test_to_lower_case() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_to_title_case() {
     for (cas, inp, out) in CASE_TEST {
         if cas != TITLE_CASE {
@@ -345,7 +345,7 @@ fn test_to_title_case() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_is_space() {
     for c in SPACE_TEST {
         assert!(
@@ -366,7 +366,7 @@ fn test_is_space() {
 // Check that the optimizations for IsLetter etc. agree with the tables.
 // Only the Latin-1 range (plus U+0100) is checked.
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_letter_optimizations() {
     for i in 0..=0x100u32 {
         let r = char::from_u32(i).unwrap();
@@ -417,7 +417,7 @@ const SIMPLE_FOLD_TESTS: [&[char]; 9] = [
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_simple_fold() {
     for cycle in SIMPLE_FOLD_TESTS {
         let mut r = cycle[cycle.len() - 1];
@@ -435,7 +435,7 @@ fn test_simple_fold() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_latin_offset() {
     let maps: [&[(&str, &RangeTable)]; 5] =
         [CATEGORIES, FOLD_CATEGORY, FOLD_SCRIPT, PROPERTIES, SCRIPTS];
@@ -456,7 +456,7 @@ fn test_latin_offset() {
 
 /// Not from Go: places where Go's unicode differs from Rust's `char` and `str` methods.
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn go_not_rust_semantics() {
     assert!(!is_letter('\u{2160}')); // Nl; Rust is_alphabetic is true
     assert!(!is_upper('\u{24B6}')); // Other_Uppercase
