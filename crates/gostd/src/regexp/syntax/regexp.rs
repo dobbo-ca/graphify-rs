@@ -45,12 +45,7 @@ pub(super) fn equal(x: &Regexp, y: &Regexp) -> bool {
         return false;
     }
     match x.op {
-        Op::EndText => {
-            // The parse flags remember whether this is \z or \Z.
-            if x.flags & Flags::WAS_DOLLAR != y.flags & Flags::WAS_DOLLAR {
-                return false;
-            }
-        }
+        Op::EndText if x.flags & Flags::WAS_DOLLAR != y.flags & Flags::WAS_DOLLAR => return false,
         Op::Literal | Op::CharClass => {
             return x.flags & Flags::FOLD_CASE == y.flags & Flags::FOLD_CASE && x.rune == y.rune;
         }
@@ -58,26 +53,22 @@ pub(super) fn equal(x: &Regexp, y: &Regexp) -> bool {
             return x.sub.len() == y.sub.len()
                 && x.sub.iter().zip(&y.sub).all(|(a, b)| equal(a, b));
         }
-        Op::Star | Op::Plus | Op::Quest => {
+        Op::Star | Op::Plus | Op::Quest
             if x.flags & Flags::NON_GREEDY != y.flags & Flags::NON_GREEDY
-                || !equal(&x.sub[0], &y.sub[0])
-            {
-                return false;
-            }
+                || !equal(&x.sub[0], &y.sub[0]) =>
+        {
+            return false;
         }
-        Op::Repeat => {
+        Op::Repeat
             if x.flags & Flags::NON_GREEDY != y.flags & Flags::NON_GREEDY
                 || x.min != y.min
                 || x.max != y.max
-                || !equal(&x.sub[0], &y.sub[0])
-            {
-                return false;
-            }
+                || !equal(&x.sub[0], &y.sub[0]) =>
+        {
+            return false;
         }
-        Op::Capture => {
-            if x.cap != y.cap || x.name != y.name || !equal(&x.sub[0], &y.sub[0]) {
-                return false;
-            }
+        Op::Capture if x.cap != y.cap || x.name != y.name || !equal(&x.sub[0], &y.sub[0]) => {
+            return false;
         }
         _ => {}
     }

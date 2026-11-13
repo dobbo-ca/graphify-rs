@@ -835,11 +835,8 @@ impl<'a> Parser<'a> {
             return false;
         }
         match a.op {
-            Op::EndText => {
-                // The parse flags remember whether this is \z or \Z.
-                if (a.flags & Flags::WAS_DOLLAR) != (b.flags & Flags::WAS_DOLLAR) {
-                    return false;
-                }
+            Op::EndText if (a.flags & Flags::WAS_DOLLAR) != (b.flags & Flags::WAS_DOLLAR) => {
+                return false;
             }
             Op::Literal | Op::CharClass => {
                 return (a.flags & Flags::FOLD_CASE) == (b.flags & Flags::FOLD_CASE)
@@ -849,26 +846,24 @@ impl<'a> Parser<'a> {
                 return a.sub.len() == b.sub.len()
                     && a.sub.iter().zip(&b.sub).all(|(&p, &q)| self.equal(p, q));
             }
-            Op::Star | Op::Plus | Op::Quest => {
+            Op::Star | Op::Plus | Op::Quest
                 if (a.flags & Flags::NON_GREEDY) != (b.flags & Flags::NON_GREEDY)
-                    || !self.equal(a.sub[0], b.sub[0])
-                {
-                    return false;
-                }
+                    || !self.equal(a.sub[0], b.sub[0]) =>
+            {
+                return false;
             }
-            Op::Repeat => {
+            Op::Repeat
                 if (a.flags & Flags::NON_GREEDY) != (b.flags & Flags::NON_GREEDY)
                     || a.min != b.min
                     || a.max != b.max
-                    || !self.equal(a.sub[0], b.sub[0])
-                {
-                    return false;
-                }
+                    || !self.equal(a.sub[0], b.sub[0]) =>
+            {
+                return false;
             }
-            Op::Capture => {
-                if a.cap != b.cap || a.name != b.name || !self.equal(a.sub[0], b.sub[0]) {
-                    return false;
-                }
+            Op::Capture
+                if a.cap != b.cap || a.name != b.name || !self.equal(a.sub[0], b.sub[0]) =>
+            {
+                return false;
             }
             _ => {}
         }
