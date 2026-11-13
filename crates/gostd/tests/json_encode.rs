@@ -58,15 +58,17 @@
 //!   through `append_string` with HTML escape on (a Rust `str` cannot
 //!   hold invalid UTF-8, so `marshal` cannot take these inputs), 6 of 6 rows
 //!
-//! Added (no Go source): invalid_utf8_per_byte, float_format (the plan's Task 9 cases).
+//! Added (no Go source): invalid_utf8_per_byte, float_format (the plan's Task 9 cases);
+//! deep_value_on_default_stack, marshal_max_depth, raw_message_error_type (traced from the Go
+//! source, Go has no test rows for them).
 //!
 //! Go 1.27.4 runs the GOEXPERIMENT=jsonv2 copies of these tests (v2_encode_test.go, v2_decode_test.go);
 //! v2_encode_test.go has the same rows as encode_test.go, and TestMarshal is the same in
 //! v2_decode_test.go (:1338). Only TestMarshalInvalidUTF8 changed.
 
 use gostd::json::{
-    EncodeState, Error, Marshal, RawMessage, Value, append_float, append_string, html_escape,
-    marshal, marshal_indent,
+    EncodeState, Encoder, Error, Marshal, RawMessage, Value, append_float, append_string, compact,
+    html_escape, marshal, marshal_indent,
 };
 use std::collections::{BTreeMap, HashMap};
 use std::panic::{AssertUnwindSafe, catch_unwind, panic_any};
@@ -1250,4 +1252,144 @@ fn test_issue63379() {
             "expected error for {v:?}"
         );
     }
+}
+
+// ---- Added: deep_value_on_default_stack, marshal_max_depth ----
+
+/// `n` arrays around `inner`, built without recursion.
+fn nest(n: usize, inner: Value) -> Value {
+    (0..n).fold(inner, |v, _| Value::Array(vec![v]))
+}
+
+/// `n` objects `{"a": ...}` around `inner`.
+fn nest_obj(n: usize, inner: Value) -> Value {
+    (0..n).fold(inner, |v, _| {
+        Value::Object(BTreeMap::from([("a".to_string(), v)]))
+    })
+}
+
+/// Go `struct{ A, B any }`.
+struct TwoValues {
+    a: Value,
+    b: Value,
+}
+gostd::json_fields!(TwoValues, "struct { A any; B any }", { a => "A", b => "B" });
+
+fn deep_value() {
+    // 9,999 levels, as a decode can return: 5,000 arrays around 4,999 objects.
+    let v = nest(5000, nest_obj(4999, Value::Number(1.0)));
+    let want = format!(
+        "{}{}1{}{}",
+        "[".repeat(5000),
+        "{\"a\":".repeat(4999),
+        "}".repeat(4999),
+        "]".repeat(5000)
+    );
+    assert!(text(&v) == want, "Marshal of a 9,999-level value");
+    let ind = marshal_indent(&v, "", " ").expect("MarshalIndent");
+    let mut c = Vec::new();
+    compact(&mut c, &ind, false).expect("Compact of the MarshalIndent output");
+    assert!(c == want.as_bytes(), "MarshalIndent of a 9,999-level value");
+    let mut buf = Vec::new();
+    Encoder::new(&mut buf).encode(&v).expect("Encode");
+    assert!(buf == format!("{want}\n").as_bytes(), "Encode");
+    let mut buf = Vec::new();
+    {
+        let mut enc = Encoder::new(&mut buf);
+        enc.set_indent("", " ");
+        enc.encode(&v).expect("Encode with SetIndent");
+    }
+    let mut want_ind = ind;
+    want_ind.push(b'\n');
+    assert!(buf == want_ind, "Encode with SetIndent");
+
+    // Clone, PartialEq and Debug walk the value without recursion too.
+    let c = v.clone();
+    assert!(c == v, "a clone equals its source");
+    assert!(nest(5000, nest_obj(4999, Value::Number(2.0))) != v);
+    let dbg = format!(
+        "{}{}Number(1.0){}{}",
+        "Array([".repeat(5000),
+        "Object({\"a\": ".repeat(4999),
+        "})".repeat(4999),
+        "])".repeat(5000)
+    );
+    assert!(format!("{v:?}") == dbg, "Debug of a 9,999-level value");
+
+    // Each field leaves the depth as it found it: both are at 10,000 levels.
+    let two = TwoValues { a: c, b: v };
+    let got = marshal(&two).expect("Marshal of two 9,999-level fields");
+    assert!(got == format!(r#"{{"A":{want},"B":{want}}}"#).as_bytes());
+}
+
+#[test]
+fn deep_value_on_default_stack() {
+    // A default (2 MiB) thread: a 9,999-level Value, which unmarshal can return, must marshal,
+    // clone, compare and print without relying on the caller's stack (Go's stacks grow).
+    std::thread::Builder::new()
+        .spawn(deep_value)
+        .expect("spawn")
+        .join()
+        .unwrap_or_else(|e| std::panic::resume_unwind(e));
+}
+
+#[test]
+fn marshal_max_depth() {
+    // Traced, no Go row: the encoder's state machine refuses the 10,001st open array or object
+    // (jsontext/state.go:308,343) with errMaxDepth at the offset before it, plus one
+    // (jsontext/encode.go:356,423, jsontext/errors.go:102-115); Marshal returns it as a
+    // SyntaxError (v2_inject.go:66, v2_scanner.go:67-71). An empty one is written without the
+    // check (v2/arshal_any.go:118-131,234-247).
+    let depth = |offset| {
+        Err(Error::Syntax {
+            msg: "exceeded max depth".into(),
+            offset,
+        })
+    };
+    assert!(marshal(&nest(10000, Value::Null)).is_ok());
+    assert!(marshal(&nest(10000, Value::Array(Vec::new()))).is_ok());
+    assert!(marshal(&nest(10000, Value::Object(BTreeMap::new()))).is_ok());
+    assert_eq!(marshal(&nest(10001, Value::Null)), depth(10001));
+    assert_eq!(marshal(&nest_obj(10001, Value::Null)), depth(50001));
+    assert_eq!(
+        marshal(&nest(10000, Value::Array(vec![Value::Null]))),
+        depth(10001)
+    );
+    // Outer containers count: a slice, a map and a struct around 10,000 levels.
+    assert_eq!(marshal(&[nest(10000, Value::Null)][..]), depth(10001));
+    let m = BTreeMap::from([("k".to_string(), nest(10000, Value::Null))]);
+    assert_eq!(marshal(&m), depth(10005));
+    let two = TwoValues {
+        a: nest(10000, Value::Null),
+        b: Value::Null,
+    };
+    assert_eq!(marshal(&two), depth(10005));
+    // MarshalIndent and Encoder.Encode return Marshal's error.
+    assert_eq!(
+        marshal_indent(&nest(10001, Value::Null), "", " "),
+        depth(10001)
+    );
+    let mut buf = Vec::new();
+    assert_eq!(
+        Encoder::new(&mut buf)
+            .encode(&nest(10001, Value::Null))
+            .map(|()| Vec::new()),
+        depth(10001)
+    );
+    assert!(buf.is_empty());
+}
+
+#[test]
+fn raw_message_error_type() {
+    // Traced, no Go row: RawMessage is an alias of jsontext.Value (v2_stream.go:190), and the
+    // MarshalerError for its invalid MarshalJSON output names the address's type
+    // (v2/arshal_methods.go:248-251, v2_inject.go:25-27). The parity oracle's `raw` input
+    // checks more values.
+    assert_eq!(
+        marshal(&RawMessage(b"{".to_vec())).map_err(|e| e.to_string()),
+        Err(
+            "json: error calling MarshalJSON for type *jsontext.Value: unexpected end of JSON input"
+                .to_string()
+        )
+    );
 }

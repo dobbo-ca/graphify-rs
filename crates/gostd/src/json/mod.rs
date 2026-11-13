@@ -192,7 +192,7 @@ macro_rules! json_fields {
                         $crate::json_fields!(@skip self.$field, $($oe)?),
                     )?;
                 )*
-                e.write_raw(if first { &b"{}"[..] } else { &b"}"[..] });
+                e.end_object(first);
                 ::core::result::Result::Ok(())
             }
         }

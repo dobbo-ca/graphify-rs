@@ -11,7 +11,7 @@ use super::indent::push_u00;
 use crate::utf8::{RUNE_ERROR, decode_rune, rune_count};
 
 /// Go `maxNestingDepth` (jsontext/state.go:53).
-const MAX_NESTING_DEPTH: usize = 10000;
+pub(super) const MAX_NESTING_DEPTH: usize = 10000;
 
 /// The options of one walk.
 pub(super) struct Opts<'a> {

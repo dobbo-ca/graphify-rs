@@ -324,6 +324,26 @@ fn floats(input: &[u8]) -> Vec<Op> {
     vec![("json", Ok(out))]
 }
 
+/// json.go `jsRawField`.
+struct RawField {
+    m: RawMessage,
+}
+gostd::json_fields!(RawField, "main.jsRawField", { m => "M" });
+
+/// The `raw` op: `marshal` of a `RawField` per record, or the error text.
+fn raw(input: &[u8]) -> Vec<Op> {
+    let mut out = Vec::new();
+    for d in records(input) {
+        match json::marshal(&RawField {
+            m: RawMessage(d.to_vec()),
+        }) {
+            Ok(b) => line(&mut out, &b),
+            Err(e) => line(&mut out, e.to_string().as_bytes()),
+        }
+    }
+    vec![("marshal", Ok(out))]
+}
+
 fn docs(input: &[u8]) -> Vec<Op> {
     let (mut valid, mut compact, mut compact_html, mut indent) =
         (Vec::new(), Vec::new(), Vec::new(), Vec::new());
@@ -363,6 +383,8 @@ pub fn run(name: &str, input: &[u8]) -> Vec<Op> {
         strings(input)
     } else if name == "floats" {
         floats(input)
+    } else if name == "raw" {
+        raw(input)
     } else if name.starts_with("docs-") {
         docs(input)
     } else if let Some(rest) = name.strip_prefix("typed-") {
