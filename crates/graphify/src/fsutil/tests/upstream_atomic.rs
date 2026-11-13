@@ -4,7 +4,7 @@
 //! mode is kept; a new file follows the umask; a symlinked destination is written through;
 //! a read-only destination is refused; the Windows and JSON-helper cases.
 
-use std::io::{self, Write};
+use std::io;
 use std::os::unix::fs::symlink;
 
 use super::fsutil::names;
