@@ -4,9 +4,16 @@
 //! graphify-rs-ihc.16 (plan Task 15).
 #![allow(dead_code, unused_variables, clippy::ptr_arg)]
 
+mod builder;
+mod c;
 #[allow(clippy::module_inception)]
 mod extract;
+mod golang;
+mod java;
+pub mod kinds;
 mod resolve;
+mod verilog;
+mod zig;
 
 pub use extract::{
     Call, Def, Imp, ImportAlias, LabelInputs, MdRef, ModInvoke, ModRef, NullLabelRef, Result,
