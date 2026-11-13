@@ -614,7 +614,7 @@ fn check_path_unescape(input: &str, out: &str, err: Option<&str>) {
     match (path_unescape(input), err) {
         (Ok(got), None) => assert_eq!(got, out.as_bytes(), "PathUnescape({input:?})"),
         (Err(got), Some(want)) => {
-            assert_eq!(got.0, want, "PathUnescape({input:?})");
+            assert_eq!(got.0, want.as_bytes(), "PathUnescape({input:?})");
             assert_eq!(
                 out, "",
                 "PathUnescape({input:?}): rows with an error have empty out"
