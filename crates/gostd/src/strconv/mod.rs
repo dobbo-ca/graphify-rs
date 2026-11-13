@@ -4,6 +4,7 @@
 //! `Itoa`, `AppendInt` and `AppendUint` are Rust's `{}` (the same digits), so they have no
 //! function here.
 #![allow(unused_variables)] // graphify-rs-aa6.5: stubs until the code PR
+#![allow(clippy::ptr_arg)] // graphify-rs-aa6.5: the stub bodies do not push yet
 
 use std::fmt;
 
