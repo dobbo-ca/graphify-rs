@@ -9,5 +9,10 @@ publish.workspace = true
 
 [dependencies]
 
+[dev-dependencies]
+# The oracle example's bedrock-body package (graphify-rs-1kw) compares bedrock's request body
+# with anthropic-sdk-go's. A dev-dependency cycle (bedrock depends on gostd) is allowed.
+bedrock = { path = "../bedrock" }
+
 [lints]
 workspace = true

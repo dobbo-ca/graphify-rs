@@ -21,6 +21,9 @@ use std::fmt;
 use std::time::Duration;
 
 pub use client::Client;
+/// The exact request body (graphify-rs-1kw: the gostd Go oracle compares it with Go's).
+#[doc(hidden)]
+pub use client::request_body;
 pub use env::Env;
 
 /// Claude Opus 4.8 on Bedrock mantle (graphify-go bedrock.go:17).

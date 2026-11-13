@@ -219,9 +219,11 @@ Oracle package `xtext`: inputs `sweep`, `cgj-31`, 12 fixed `q*` cases, 5,000 gen
 ## bedrock (P1')
 
 `crates/bedrock` makes graphify-go's Bedrock call with anthropic-sdk-go v1.51.0 behaviour. There is
-no oracle stage (plan decision 6); the evidence is the ported tests below, the aws-c-auth SigV4
-vectors, and the request-body golden `crates/bedrock/testdata/request_body.json` (graphify-rs-1kw
-adds that case to the gostd Go oracle). Plan: `docs/superpowers/plans/2026-11-13-bedrock.md`.
+no oracle stage of its own (plan decision 6); the evidence is the ported tests below, the aws-c-auth
+SigV4 vectors, the request-body golden `crates/bedrock/testdata/request_body.json`, and the gostd
+oracle package `bedrock-body` (graphify-rs-1kw, minimum 201: the golden note and 200 generated
+notes): Go 1.27.4 with anthropic-sdk-go v1.51.0 marshals graphify-go's `MessageNewParams`, and the
+bytes must equal `bedrock::request_body`. Plan: `docs/superpowers/plans/2026-11-13-bedrock.md`.
 
 Passing counts a test that runs (not ignored) and is green on main. Tests land ignored with their
 bead id (graphify-rs-u2o.3 … .8) and lose the ignore in that bead's PR.

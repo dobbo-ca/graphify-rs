@@ -59,6 +59,9 @@ dependencies = [
 [[package]]
 name = "gostd"
 version = "0.1.0"
+dependencies = [
+ "bedrock",
+]
 
 [[package]]
 name = "gostd-gen"
