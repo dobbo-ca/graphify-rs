@@ -74,6 +74,13 @@ reached by graphify-go.
 | regexp/syntax | `regexp/syntax/parse_test.go` | 10 | 9 (+1 added) | 0 | TestAppendRangeCollapse (internal appendRange); 4 invalidRegexps rows with invalid UTF-8 (`&str` input) |
 | regexp/syntax | `regexp/syntax/prog_test.go` | 1 | 1 | 0 | - |
 | regexp/syntax | `regexp/syntax/simplify_test.go` | 1 | 1 | 0 | - |
+| strconv | `strconv/number_test.go`, `strconv/strconv_test.go` | 26 + 3 | 18 + 1 | 0 | Bool, Complex (4 + 3 funcs); TestNumErrorUnwrap (Go errors.Is); malloc counts; rows with base -1 / bit size -1 and bases other than 10 |
+| strconv | `strconv/quote_test.go` | 11 | 2 (+1 added) | 0 | IsGraphic, QuoteToASCII, QuoteToGraphic, QuoteRune*, CanBackquote, Unquote* (not reached) |
+| strconv | `internal/strconv/ftoa_test.go` | 4 | 3 | 0 | TestFormatFloatInvalidBitSize; 111 of 148 ftoatests rows (fixed precision, 'b', 'x', invalid fmt) |
+| strconv | `internal/strconv/atof_test.go` | 7 | 5 | 0 | TestRoundTrip32, TestParseFloatIncorrectBitSize (float32, bit size); ParseFloatPrefix reduced to whole-string parses |
+| strconv | `internal/strconv/fp_test.go` (atof1k.txt) | 3 | 1 | 0 | TestFp, TestFormatFloatTestdata (every line is fixed precision) |
+| strconv | `internal/strconv/{atoi,itoa}_test.go` | 16 | 0 | 0 | the same tables as number_test.go, ported there |
+| strconv | `internal/strconv/{decimal,math}_test.go` | 5 | 0 | 0 | internals (decimal fallback, log helpers) |
 
 ## bedrock (P1')
 
