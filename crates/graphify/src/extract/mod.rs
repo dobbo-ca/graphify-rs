@@ -6,8 +6,10 @@
 
 #[allow(clippy::module_inception)]
 mod extract;
+mod resolve;
 
 pub use extract::{
     Call, Def, Imp, ImportAlias, LabelInputs, MdRef, ModInvoke, ModRef, NullLabelRef, Result,
     SegVal, TypeRef, file, file_from_bytes,
 };
+pub use resolve::{join, resolve, resolve_parts};
