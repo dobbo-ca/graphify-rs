@@ -15,6 +15,7 @@ mod sha256;
 mod sort;
 mod strconv;
 mod strings;
+mod toml;
 mod unicode17;
 mod xml_dec;
 mod xml_enc;
@@ -44,6 +45,7 @@ const PKGS: &[(&str, usize, Run)] = &[
     ("sort", 1200, sort::run),
     ("strconv", 36, strconv::run),
     ("strings", 8000, strings::run),
+    ("toml", 2756, toml::run),
     ("unicode17", 3, unicode17::run),
     ("xml-dec", 3300, xml_dec::run),
     ("xml-enc", 500, xml_enc::run),

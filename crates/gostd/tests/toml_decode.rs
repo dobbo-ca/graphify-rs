@@ -38,14 +38,12 @@ fn table(src: &[u8]) -> Table {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.11"]
 fn test_decode_file() {
     let t = table(b"a = 42");
     assert_eq!(t, Table::from([("a".to_string(), Value::Integer(42))]));
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.11"]
 fn test_decode_bom() {
     for tt in [
         &b"\xff\xfea = \"b\""[..],
@@ -137,7 +135,6 @@ const DECODE_ERRORS: [(&str, &str, &str, &str); 12] = [
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.11"]
 fn test_decode_errors() {
     for (toml, last_key, message, want_err) in DECODE_ERRORS {
         let err = ParseError {
@@ -158,7 +155,6 @@ fn test_decode_errors() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.11"]
 fn test_decode_bad_datetime() {
     for s in ["123", "1230"] {
         let t = table(format!("T = {s}").as_bytes());
@@ -167,7 +163,6 @@ fn test_decode_bad_datetime() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.11"]
 fn test_decode_int_overflow() {
     assert_eq!(table(b"value = 500")["value"], Value::Integer(500));
 }
@@ -176,7 +171,6 @@ const MAX_SAFE_FLOAT32_INT: i64 = 16777215; // 2^24-1
 const MAX_SAFE_FLOAT64_INT: i64 = 9007199254740991; // 2^53-1
 
 #[test]
-#[ignore = "graphify-rs-aa6.11"]
 fn test_decode_float_overflow() {
     let max64 = f64::MAX;
     let max32 = f64::from(f32::MAX);
@@ -215,7 +209,6 @@ fn test_decode_float_overflow() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.11"]
 fn test_decode_signbit() {
     let m = table(
         b"
@@ -266,7 +259,6 @@ fn dt(
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.11"]
 fn test_decode_datetime() {
     use DatetimeKind::{LocalDate, LocalDateTime, LocalTime, OffsetDateTime};
     let tz7 = Some(-3600 * 7);
@@ -342,7 +334,6 @@ fn test_decode_datetime() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.11"]
 fn array_of_tables_is_distinct() {
     // Review Focus 3: `[[x]]` is Go `[]map[string]any`, an inline array is `[]any`.
     let t = table(b"[[workspace.members]]\nname = 'a'\n");
