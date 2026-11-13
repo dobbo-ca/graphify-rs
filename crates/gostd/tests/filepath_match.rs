@@ -103,7 +103,6 @@ const MATCH_TESTS: &[(&str, &str, bool, Option<BadPattern>)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_match() {
     for (pattern, s, matched, err) in MATCH_TESTS {
         let want = err.map_or(Ok(*matched), Err);
@@ -124,7 +123,6 @@ const GLOB_TESTS: &[(&str, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_glob() {
     let td = TempDir::new();
     // Go runs in the filepath package dir, whose parent holds it as "filepath".
@@ -157,7 +155,6 @@ fn test_glob() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_cve202230632() {
     // Prior to CVE-2022-30632, this would cause a stack exhaustion given a
     // large number of separators (more than 4,000,000). There is now a limit
@@ -167,7 +164,6 @@ fn test_cve202230632() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_glob_error() {
     for pattern in ["[]", "nonexist/[]"] {
         assert_eq!(
@@ -183,7 +179,6 @@ const GLOB_SYMLINK_TESTS: &[(&str, &str, bool)] =
     &[("test1", "link1", false), ("test2", "link2", true)];
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_glob_symlink() {
     let td = TempDir::new();
     for (path, dest, broken_link) in GLOB_SYMLINK_TESTS {
@@ -205,7 +200,6 @@ fn test_glob_symlink() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_non_windows_glob_escape() {
     let td = TempDir::new();
     fs::write(td.0.join("match.go"), b"").unwrap();
