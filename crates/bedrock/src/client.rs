@@ -263,7 +263,7 @@ impl Client {
 }
 
 /// The exact request body graphify-go sends (testdata/request_body.json).
-pub(crate) fn request_body(note_file: &str, note_content: &[u8]) -> String {
+pub fn request_body(note_file: &str, note_content: &[u8]) -> String {
     let mut note = format!("Note path: {note_file}\n\n").into_bytes();
     note.extend_from_slice(note_content);
     let mut out = String::from(r#"{"max_tokens":1024,"messages":[{"content":[{"text":"#);
