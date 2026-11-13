@@ -2,4 +2,5 @@
 //! hold for graphify-go (plan, "Port rules").
 
 mod fsutil;
+mod go_errors;
 mod upstream_atomic;

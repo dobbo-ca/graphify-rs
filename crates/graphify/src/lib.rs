@@ -11,6 +11,7 @@ pub mod detect;
 pub mod export;
 pub mod extract;
 pub mod fsutil;
+pub mod goerr;
 pub mod graph;
 pub mod idutil;
 pub mod langfamily;
