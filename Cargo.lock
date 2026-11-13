@@ -11,5 +11,9 @@ name = "gostd"
 version = "0.1.0"
 
 [[package]]
+name = "gostd-gen"
+version = "0.1.0"
+
+[[package]]
 name = "graphify"
 version = "0.1.0"

@@ -29,6 +29,32 @@ jobs:
           cache-from: type=gha,scope=graphify-rs-test
           cache-to: ${{ github.event_name != 'pull_request' && 'type=gha,mode=max,scope=graphify-rs-test' || '' }}
 
+  # The gostd Unicode tables, generated from the pinned UCD files (ci/Dockerfile `gen`), as an
+  # artifact. To change them: download it (`gh run download -n ucd-tables`), copy unicode17.rs
+  # into crates/gostd/src/tables/ and ucd.lock into crates/gostd-gen/, and commit. The `test`
+  # job fails while the committed files differ from it.
+  gen:
+    runs-on: github-arc-runner-set
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { lfs: false }
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+        with:
+          driver: remote
+          endpoint: tcp://buildkitd.github-arc.svc.cluster.local:1234
+      - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          file: ci/Dockerfile
+          target: gen
+          push: false
+          outputs: type=local,dest=gen-out
+          cache-from: type=gha,scope=graphify-rs-gen
+          cache-to: ${{ github.event_name != 'pull_request' && 'type=gha,mode=max,scope=graphify-rs-gen' || '' }}
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with: { name: ucd-tables, path: gen-out, if-no-files-found: error }
+
   arm64:
     if: github.event_name != 'pull_request'
     runs-on: github-arc-runner-set

@@ -1,0 +1,13 @@
+[package]
+name = "gostd-gen"
+description = "Generates the gostd Unicode tables from pinned UCD files (run in CI only)."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+
+[lints]
+workspace = true
