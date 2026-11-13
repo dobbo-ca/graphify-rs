@@ -4,6 +4,7 @@
 //!
 //! `Result` here is Go's `extract.Result`; std's is written `std::result::Result`.
 
+use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::path::Path;
 
@@ -190,5 +191,19 @@ pub fn file(root: &Path, rel: &str) -> std::io::Result<Result> {
 
 /// Go `extract.FileFromBytes`: extracts `src` as the file `rel` (slash-separated).
 pub fn file_from_bytes(rel: &str, src: &[u8]) -> Result {
+    todo!("graphify-rs-ihc.16")
+}
+
+/// Go `FileFromBytes` (`extract.go:210`) with Go's package variable `ts.Budget` as a parameter:
+/// `file_from_bytes` is this with `ts::budget()`. Go's budget tests set the variable; Rust reads
+/// it once (plan R5), so they pass it here. `None` from an extractor becomes the file node
+/// with `over_budget` set, as Go's `recover` does.
+pub(crate) fn file_from_bytes_inner(rel: &str, src: &[u8], budget: u32) -> Result {
+    todo!("graphify-rs-ihc.16")
+}
+
+/// Go `toUTF8` (`extract.go:625`): valid UTF-8 is kept (borrowed); UTF-16 with a BOM is decoded
+/// (an unpaired surrogate becomes U+FFFD, an odd last byte is dropped); anything else is latin-1.
+pub(crate) fn to_utf8(src: &[u8]) -> Cow<'_, [u8]> {
     todo!("graphify-rs-ihc.16")
 }
