@@ -47,3 +47,11 @@ reached by graphify-go.
 | Module | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|---|
 | oracle harness | `parity/go/oracle` (`echo` op) | - | - | - | - |
+| UCD 17.0.0 tables (gostd-gen) | x/text v0.27.0 `internal/export/unicode/gen.go`, `internal/ucd`, `unicode/rangetable` (no Go tests for gen.go) | - | 9 generator unit tests + 4 table tests (`tables_unicode17.rs`) | 13 | Output checked against Go 1.27.4 `unicode/tables.go`: 260 tables, 336 CaseRanges, 94 caseOrbit pairs, 42 CategoryAliases equal |
+| unicode | `unicode/letter_test.go` | 14 | 10 (+1 added) | 0 | TestTurkishCase, TestSpecialCaseNoMapping (SpecialCase); TestCalibrate (Go perf); TestNegativeRune (no negative `char`) |
+| unicode | `unicode/graphic_test.go` | 10 | 5 | 0 | IsControl, IsLower, IsGraphic, IsPunct, IsSymbol |
+| unicode | `unicode/digit_test.go` | 2 | 0 | 0 | IsDigit |
+| unicode | `unicode/script_test.go` | 2 | 2 (+1 added) | 0 | row `{0xdb80, "Cs"}` (surrogate `char`) |
+| utf8 | `unicode/utf8/utf8_test.go` | 15 | 6 (+1 added) | 0 | Constants, FullRune, EncodeRune, AppendRune, RuntimeConversion, NegativeRune, RuneCountNonASCIIAllocation, RuneLen, ValidRune (Rust std encodes runes) |
+| strings | `strings/strings_test.go` | 41 | 7 | 0 | the 34 funcs that are not Unicode-table functions graphify-go calls; rows with invalid UTF-8 in `&str` inputs |
+| strings | `bytes/bytes_test.go` | 1 (TestTrimSpace) | 1 | 0 | - |
