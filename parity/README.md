@@ -269,7 +269,7 @@ One block per module, in the plan's module order. A PR edits only its own module
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| graphify-go `internal/idutil/idutil_test.go` (`graphify-rs-ihc.4`) | 4 + 1 Fuzz | 4 + FuzzCleanASCII seeds (+1 added: `make_id_cgj_run`) | 0 | the fuzz target itself (cargo-fuzz, plan "Port rules") |
+| graphify-go `internal/idutil/idutil_test.go` (`graphify-rs-ihc.4`) | 4 + 1 Fuzz | 4 + FuzzCleanASCII seeds (+1 added: `make_id_cgj_run`) | 6 | the fuzz target itself (cargo-fuzz, plan "Port rules") |
 | upstream `test_node_id_canonical.py` | 4 | 0 | 0 | whole-extraction tests of upstream id canonicalization (`indirect_call` edges, absolute-path slugs): Go has no `indirect_call`, and its ids differ by design (GOALS.md:83) |
 
 #### langfamily
