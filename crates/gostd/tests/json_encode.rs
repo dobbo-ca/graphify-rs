@@ -129,7 +129,6 @@ gostd::json_fields!(OptionalsEmpty, "json.OptionalsEmpty", {
 });
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_omit_empty() {
     const WANT: &str = r#"{
  "sr": "",
@@ -168,7 +167,6 @@ fn test_omit_empty() {
 // ---- TestUnsupportedValues ----
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_unsupported_values() {
     // 3 of 8 rows; pointerCycle, pointerCycleIndirect, mapCycle, sliceCycle, recursiveSliceCycle are cycles
     for f in [f64::NAN, f64::NEG_INFINITY, f64::INFINITY] {
@@ -202,7 +200,6 @@ impl Marshal for CText {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_marshaler_escaping() {
     assert_eq!(text(&C), r#""\u003c\u0026\u003e""#);
     assert_eq!(text(&CText), r#""\"\u003c\u0026\u003e\"""#);
@@ -262,7 +259,6 @@ struct MOptText {
 gostd::json_fields!(MOptText, "struct { M encoding.TextMarshaler }", { m => "M" });
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_nil_marshal() {
     // 12 of 13 rows; []byte(nil) is left out (base64 []byte)
     assert_eq!(text(&None::<i64>), "null"); // nil
@@ -298,7 +294,6 @@ struct Data {
 gostd::json_fields!(Data, "json.Data", { a => "A", i => "I" });
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_marshal_error_and_reuse_encode_state() {
     // Go triggers the error with cyclic data; a NaN stands in.
     assert!(
@@ -315,7 +310,6 @@ fn test_marshal_error_and_reuse_encode_state() {
 // ---- TestHTMLEscape ----
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_html_escape() {
     let m = "{\"M\":\"<html>foo &\u{2028} \u{2029}</html>\"}";
     let want = r#"{"M":"\u003chtml\u003efoo \u0026\u2028 \u2029\u003c/html\u003e"}"#;
@@ -362,7 +356,6 @@ const ENCODE_STRING_TESTS: &[(&str, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_encode_string() {
     for &(inp, out) in ENCODE_STRING_TESTS {
         let b = marshal(inp).unwrap_or_else(|e| panic!("Marshal({inp:?}) error: {e}"));
@@ -373,7 +366,6 @@ fn test_encode_string() {
 // ---- TestTextMarshalerMapKeysAreSorted, TestStringKindTextMarshalerMapKey ----
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_text_marshaler_map_keys_are_sorted() {
     // Go keys are unmarshalerText{A, B}, MarshalText is A + ":" + B
     let m: HashMap<String, i64> = HashMap::from([
@@ -396,7 +388,6 @@ impl Marshal for TextMarshalerString {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_string_kind_text_marshaler_map_key() {
     let m: HashMap<String, TextMarshalerString> =
         HashMap::from([("foo".to_string(), TextMarshalerString("bar".into()))]);
@@ -533,7 +524,6 @@ fn check_float(f: f64, fails: &mut Vec<String>) {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_marshal_float() {
     let mut fails: Vec<String> = Vec::new();
     let digits = "1.2345678901234567890123";
@@ -616,7 +606,6 @@ fn raw_rows(raw: &RawMessage, scalar: &str, arr: &str, obj: &str, t1: &str, t2: 
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_marshal_raw_message_value() {
     // Gap: Go's rawNil (`RawMessage(nil)`, marshals as `null`) and rawEmpty (`RawMessage([]byte{})`, an
     // error) are the same `RawMessage(vec![])` here, so the 18 rawEmpty rows (all `ok == false`, or `{}`
@@ -651,7 +640,6 @@ impl Marshal for MarshalPanic {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_marshal_panic() {
     match catch_unwind(AssertUnwindSafe(|| marshal(&MarshalPanic))) {
         Err(got) => assert_eq!(got.downcast_ref::<i32>(), Some(&0xdead), "panic() payload"),
@@ -673,7 +661,6 @@ gostd::json_fields!(Uncommon, "struct { A0, À, Aβ int }", {
 });
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_marshal_uncommon_field_names() {
     let v = Uncommon {
         a0: 0,
@@ -686,7 +673,6 @@ fn test_marshal_uncommon_field_names() {
 // ---- TestMarshalerError ----
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_marshaler_error() {
     const ERR_TEXT: &str = "json: test error";
     // reflect.TypeOf("test variable").String() is "string"
@@ -1153,7 +1139,6 @@ const PALL_VALUE_INDENT: &str = r#"{
 }"#;
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_marshal() {
     let want = strip_whitespace(ALL_VALUE_INDENT);
     assert_eq!(text(&all_value()), want, "Marshal(allValue)");
@@ -1162,7 +1147,6 @@ fn test_marshal() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_marshal_invalid_utf8() {
     // (in, want); `Marshal` of a string is appendString with HTML escape on
     let tests: &[(&[u8], &str)] = &[
@@ -1186,7 +1170,6 @@ fn test_marshal_invalid_utf8() {
 // ---- added ----
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn invalid_utf8_per_byte() {
     // Go's DecodeRune gives (U+FFFD, 1) for each bad byte: E2 and 82 are two errors, not one.
     let mut got = Vec::new();
@@ -1206,7 +1189,6 @@ fn invalid_utf8_per_byte() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn float_format() {
     // Checked against floatEncoder.encode (encode.go:570): 'e' format only when abs < 1e-6 or abs >= 1e21,
     // then `e-09` becomes `e-9`; `-0` takes the 'f' branch (abs == 0).
@@ -1241,7 +1223,6 @@ impl Marshal for MarshaledValue {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_issue63379() {
     for v in [
         "[]<",

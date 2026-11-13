@@ -48,7 +48,6 @@ fn check<T: gostd::json::Marshal>(raw: &T, want: &str) {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_struct_tag_object_key() {
     check(&BasicLatin2xTag { v: "2x".into() }, r#"{"$%-/":"2x"}"#);
     check(

@@ -1,12 +1,5 @@
 //! Go 1.27.4 `encoding/json` v1, encode half (`encode.go`, `indent.go`, `scanner.go`,
 //! `stream.go`, `tags.go`). The decode half arrives with graphify-rs-aa6.10.
-// graphify-rs-aa6.9: stubs until the code PR
-#![allow(clippy::ptr_arg)]
-// graphify-rs-aa6.9: stubs until the code PR
-#![allow(unused_variables)]
-// graphify-rs-aa6.9: stubs until the code PR
-#![allow(dead_code)]
-
 mod encode;
 mod indent;
 mod scanner;
@@ -16,6 +9,7 @@ use std::fmt;
 
 pub use encode::{
     EncodeState, Encoder, Marshal, append_float, append_string, marshal, marshal_indent,
+    write_field,
 };
 pub use indent::{compact, html_escape, indent};
 pub use scanner::valid;
@@ -88,16 +82,33 @@ impl std::error::Error for Error {}
 /// ```
 #[macro_export]
 macro_rules! json_fields {
-    ($ty:ty, $go_type:literal, { $($field:ident => $key:literal $(omitempty)?),* $(,)? }) => {
+    (@skip $v:expr, omitempty) => {
+        $crate::json::Marshal::is_empty_value(&$v)
+    };
+    (@skip $v:expr,) => {
+        false
+    };
+    ($ty:ty, $go_type:literal, { $($field:ident => $key:literal $($oe:ident)?),* $(,)? }) => {
         impl $crate::json::Marshal for $ty {
+            /// Go `structEncoder.encode` (`encode.go:716`). Every field is read, key `"-"`
+            /// included, so the caller's crate gets no dead_code warning.
             fn marshal_json(
                 &self,
                 e: &mut $crate::json::EncodeState,
             ) -> ::core::result::Result<(), $crate::json::Error> {
-                // graphify-rs-aa6.9 stub: touch every field and `e` so the caller's crate gets no
-                // dead_code / unused_variables warning before the real body lands.
-                let _ = (&e, $(&self.$field),*);
-                todo!("graphify-rs-aa6.9")
+                #[allow(unused_mut)]
+                let mut first = true;
+                $(
+                    $crate::json::write_field(
+                        e,
+                        &mut first,
+                        $key,
+                        &self.$field,
+                        $crate::json_fields!(@skip self.$field, $($oe)?),
+                    )?;
+                )*
+                e.write_raw(if first { &b"{}"[..] } else { &b"}"[..] });
+                ::core::result::Result::Ok(())
             }
         }
     };
