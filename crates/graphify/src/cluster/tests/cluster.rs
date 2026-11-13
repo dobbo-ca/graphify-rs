@@ -8,14 +8,12 @@ use crate::cluster::{cluster, cohesion, node_community, remap_to_previous, score
 use crate::model::{Confidence, Edge, Graph, Node};
 
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_cluster_empty() {
     let got = cluster(&Graph::new());
     assert!(got.is_empty(), "Cluster(empty) = {got:?}, want empty");
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_cluster_covers_every_node_once() {
     let g = two_triangles();
     let communities = cluster(&g);
@@ -45,7 +43,6 @@ fn test_cluster_covers_every_node_once() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_cohesion() {
     let g = two_triangles();
     // A full triangle has all 3 possible internal edges.
@@ -60,7 +57,6 @@ fn test_cohesion() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_node_community_and_scores() {
     let g = two_triangles();
     let communities = cluster(&g);
@@ -91,7 +87,6 @@ fn test_node_community_and_scores() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_remap_to_previous_empty() {
     let prev = BTreeMap::from([("a".to_string(), 0)]);
     let got = remap_to_previous(&BTreeMap::new(), &prev);
@@ -102,7 +97,6 @@ fn test_remap_to_previous_empty() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_remap_to_previous_stable_when_unchanged() {
     // Same grouping, but the new run permuted the integer IDs.
     let prev = communities(&[(0, &["a1", "a2", "a3"]), (1, &["b1", "b2"])]);
@@ -124,7 +118,6 @@ fn test_remap_to_previous_stable_when_unchanged() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_remap_to_previous_greedy_by_overlap() {
     // Old community 0 = {a1,a2,a3}, 1 = {b1,b2}.
     let prev = communities(&[(0, &["a1", "a2", "a3"]), (1, &["b1", "b2"])]);
@@ -146,7 +139,6 @@ fn test_remap_to_previous_greedy_by_overlap() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_remap_to_previous_fresh_ids_avoid_collisions() {
     // One new community matches old ID 0; an unmatched one must NOT reuse 0.
     let prev = communities(&[(0, &["a1", "a2"])]);
@@ -174,7 +166,6 @@ fn test_remap_to_previous_fresh_ids_avoid_collisions() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_remap_to_previous_no_previous_is_deterministic() {
     // With no previous assignment, all IDs are fresh, ordered size desc then
     // lexically, matching reindexBySize's contract.
@@ -201,7 +192,6 @@ fn test_remap_to_previous_no_previous_is_deterministic() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_cluster_deterministic() {
     let a = cluster(&two_triangles());
     let b = cluster(&two_triangles());
@@ -263,7 +253,6 @@ fn complete4() -> Graph {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_cohesion_score_complete_graph() {
     let g = complete4();
     let score = cohesion(&g, g.node_ids());
@@ -271,7 +260,6 @@ fn test_cohesion_score_complete_graph() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_cohesion_score_disconnected() {
     let g = graph(&["a", "b", "c"], &[]);
     let score = cohesion(&g, &strs(&["a", "b", "c"]));
@@ -279,7 +267,6 @@ fn test_cohesion_score_disconnected() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_cohesion_score_ignores_self_loops() {
     // #3558: a recursive calls self-loop must not inflate the ratio. Two nodes
     // with one real edge plus a self-loop is still fully cohesive (1.0), not 2.0.
@@ -289,7 +276,6 @@ fn test_cohesion_score_ignores_self_loops() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_cohesion_score_self_loops_only_is_zero() {
     // Self-loops alone are not inter-node connectivity.
     let g = graph(&["a", "b", "c"], &[("a", "a"), ("b", "b"), ("c", "c")]);
@@ -298,7 +284,6 @@ fn test_cohesion_score_self_loops_only_is_zero() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_cohesion_score_range_with_self_loops() {
     // The 0..1 bound holds even when every node carries a self-loop.
     let mut g = complete4();
@@ -314,7 +299,6 @@ fn test_cohesion_score_range_with_self_loops() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_remap_communities_to_previous_reuses_old_ids() {
     let current = communities(&[(10, &["a", "b", "c"]), (11, &["d", "e"])]);
     let previous: BTreeMap<String, i64> = [("a", 5), ("b", 5), ("c", 5), ("d", 1), ("e", 1)]
@@ -328,7 +312,6 @@ fn test_remap_communities_to_previous_reuses_old_ids() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_remap_communities_to_previous_assigns_deterministic_new_ids() {
     let current = communities(&[(7, &["x", "y", "z"]), (8, &["m"])]);
     let previous = BTreeMap::from([("a".to_string(), 3)]);
@@ -342,7 +325,6 @@ fn test_remap_communities_to_previous_assigns_deterministic_new_ids() {
 /// order depend on node insertion order (node index = position), so the upstream shuffled-node
 /// build is not an invariant of graphify-go v0.12.0.
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_partition_is_invariant_to_edge_endpoint_orientation() {
     // #3146
     let edges = [
@@ -392,7 +374,6 @@ fn cover_all(g: &Graph) {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_scale_zero_still_partitions() {
     // Two 4-node cliques linked by five AMBIGUOUS cross-edges (#4199).
     let mut g = Graph::new();
@@ -423,7 +404,6 @@ fn test_scale_zero_still_partitions() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_no_copy_when_no_ambiguous_edges() {
     let mut g = Graph::new();
     for i in 0..4 {
