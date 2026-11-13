@@ -282,8 +282,8 @@ One block per module, in the plan's module order. A PR edits only its own module
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| graphify-go `internal/security/security_test.go` (`graphify-rs-ihc.6`) | 5 (+8 `t.Run` rows) | 5 (`TestMaxGraphFileBytes` against the parse, not the env var: `set_var` is `unsafe` in edition 2024) | 0 | - |
-| upstream `test_security.py`, `test_frontmatter_and_ssrf_hardening.py` | 69 + 3 | 9 functions (scheme, no host, bad port, graph path, label, size cap, `GRAPHIFY_MAX_GRAPH_BYTES` parse, IP blocklist) | 0 | `safe_fetch*`, `sanitize_metadata*`, `redact_secrets*`, Obsidian/YAML helpers (no Go function); embedded credentials, ports 0/65536, `239.1.1.1`, default graph base, `None` label (Go differs); the accept cases (need DNS) |
+| graphify-go `internal/security/security_test.go` (`graphify-rs-ihc.6`) | 5 (+8 `t.Run` rows) | 5 (`TestMaxGraphFileBytes` against the parse, not the env var: `set_var` is `unsafe` in edition 2024) | 5 | - |
+| upstream `test_security.py`, `test_frontmatter_and_ssrf_hardening.py` | 69 + 3 | 9 functions (scheme, no host, bad port, graph path, label, size cap, `GRAPHIFY_MAX_GRAPH_BYTES` parse, IP blocklist) | 9 | `safe_fetch*`, `sanitize_metadata*`, `redact_secrets*`, Obsidian/YAML helpers (no Go function); embedded credentials, ports 0/65536, `239.1.1.1`, default graph base, `None` label (Go differs); the accept cases (need DNS) |
 
 #### model
 

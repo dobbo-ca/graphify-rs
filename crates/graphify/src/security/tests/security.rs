@@ -5,7 +5,6 @@ use crate::security::{MAX_GRAPH_FILE_BYTES, sanitize_label, validate_graph_path,
 use crate::testutil::TempDir;
 
 #[test]
-#[ignore = "graphify-rs-ihc.6"]
 fn test_validate_url_scheme() {
     for bad in ["file:///etc/passwd", "ftp://host/x", "data:text/plain,hi"] {
         assert!(
@@ -16,7 +15,6 @@ fn test_validate_url_scheme() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.6"]
 fn test_validate_url_blocks_loopback() {
     // Resolves to 127.0.0.1 without a network call.
     assert!(
@@ -26,7 +24,6 @@ fn test_validate_url_blocks_loopback() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.6"]
 fn test_validate_graph_path_containment() {
     let base = TempDir::new();
     let inside = base.write("graph.json", b"{}");
@@ -42,14 +39,12 @@ fn test_validate_graph_path_containment() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.6"]
 fn test_sanitize_label() {
     assert_eq!(sanitize_label("a\x00b\x1fc"), "abc");
 }
 
 /// Go sets GRAPHIFY_MAX_GRAPH_BYTES per case; here the value goes to the parse directly.
 #[test]
-#[ignore = "graphify-rs-ihc.6"]
 fn test_max_graph_file_bytes() {
     let cases: &[(&str, Option<&str>, i64)] = &[
         ("unset", None, MAX_GRAPH_FILE_BYTES),

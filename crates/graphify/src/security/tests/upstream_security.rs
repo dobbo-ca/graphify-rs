@@ -17,7 +17,6 @@ fn err_text(r: Result<(), crate::security::Error>) -> String {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.6"]
 fn validate_url_rejects_schemes() {
     for (url, scheme) in [
         ("file:///etc/passwd", "file"),
@@ -34,7 +33,6 @@ fn validate_url_rejects_schemes() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.6"]
 fn validate_url_rejects_missing_hostname() {
     for url in [
         "http://",
@@ -50,7 +48,6 @@ fn validate_url_rejects_missing_hostname() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.6"]
 fn validate_url_rejects_invalid_port() {
     let url = "http://example.com:abc/path";
     assert_eq!(
@@ -60,7 +57,6 @@ fn validate_url_rejects_invalid_port() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.6"]
 fn validate_graph_path_cases() {
     let tmp = TempDir::new();
     let base = tmp.join("graphify-out");
@@ -95,7 +91,6 @@ fn validate_graph_path_cases() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.6"]
 fn sanitize_label_cases() {
     // no HTML escaping
     assert_eq!(sanitize_label("<script>"), "<script>");
@@ -107,13 +102,11 @@ fn sanitize_label_cases() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.6"]
 fn graph_size_cap_default_is_512_mib() {
     assert_eq!(MAX_GRAPH_FILE_BYTES, 512 * 1024 * 1024);
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.6"]
 fn max_graph_bytes_parse() {
     const G: i64 = 1024 * 1024 * 1024;
     let cases: &[(Option<&str>, i64)] = &[
@@ -138,7 +131,6 @@ fn max_graph_bytes_parse() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.6"]
 fn graph_size_cap_cases() {
     let tmp = TempDir::new();
     let p = tmp.write("graph.json", b"AAAAAAAAAAAAAAAA"); // 16 bytes
@@ -160,7 +152,6 @@ fn graph_size_cap_cases() {
 
 /// test_ip_is_blocked_rejects_multicast_and_unspecified, the rows that hold for Go.
 #[test]
-#[ignore = "graphify-rs-ihc.6"]
 fn ip_blocklist() {
     for bad in [
         "224.0.0.1",
