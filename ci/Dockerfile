@@ -83,7 +83,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
 FROM src AS parity
 ARG PARITY_MIN_OUTPUTS=4
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=/src/target \
+    --mount=type=cache,target=/src/target,sharing=locked \
     --mount=type=bind,from=go-run,source=/inputs,target=/inputs,rw \
     --mount=type=bind,from=go-run,source=/go-out,target=/go-out,rw \
     cargo run --locked --release -p gostd --example oracle -- /inputs /rust-out \
@@ -97,7 +97,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
 FROM qemu-arm64 AS parity-arm64
 ARG PARITY_MIN_OUTPUTS=4
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=/src/target \
+    --mount=type=cache,target=/src/target,sharing=locked \
     --mount=type=bind,from=go-run,source=/inputs,target=/inputs,rw \
     --mount=type=bind,from=go-run,source=/go-out,target=/go-out,rw \
     cargo run --locked --release -p gostd --target aarch64-unknown-linux-gnu --example oracle -- /inputs /arm-out \
