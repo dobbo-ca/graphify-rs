@@ -37,16 +37,21 @@ pub enum Error {
         source_func: &'static str,
         err: String,
     },
-    /// Go `UnmarshalTypeError` (`decode.go:128`). `value` is Go's `Value` (`"bool"`, `"number -5"`),
-    /// `go_type` is `Type.String()`, `offset` is bytes read, `struct_name` and `field` (the dotted
-    /// path from the root) are empty outside a struct. Go `InvalidUnmarshalError`
-    /// (`decode.go:159`) cannot occur in Rust and has no variant.
+    /// Go `UnmarshalTypeError` (`v2_decode.go:123`), as `transformUnmarshalError` builds it
+    /// (`v2_inject.go:69-159`). `value` is Go's `Value` (`"bool"`, `"number -5"`), `go_type` is
+    /// `Type.String()`, `offset` is bytes read. `struct_name` is Go's `Struct`: the `Name()` of the
+    /// root type (empty for an unnamed type), set only when `field` is non-empty
+    /// (`v2_inject.go:137-143`). `field` is Go's `Field`: the JSON Pointer of the value without its
+    /// leading `/`, every `/` turned into `.`, so object keys, map keys and array indices all
+    /// appear (`Ts.2.Y`; `v2_inject.go:144-146`). `err` is the text of Go's `Err`, `None` for nil.
+    /// Go `InvalidUnmarshalError` (`v2_decode.go:178`) cannot occur in Rust and has no variant.
     UnmarshalType {
         value: String,
         go_type: String,
         offset: i64,
         struct_name: String,
         field: String,
+        err: Option<String>,
     },
     /// A write error from the `io.Writer` of an [`Encoder`]; holds the error's text.
     Io(String),
@@ -55,8 +60,7 @@ pub enum Error {
 impl fmt::Display for Error {
     /// Go `SyntaxError.Error` (`v2_scanner.go:52`), `UnsupportedValueError.Error`
     /// (`v2_encode.go:225`), `UnsupportedTypeError.Error` (`v2_encode.go:214`),
-    /// `MarshalerError.Error` (`v2_encode.go:251`), `UnmarshalTypeError.Error` (`decode.go:136`; re-cited to
-    /// `v2_decode.go` by graphify-rs-aa6.20).
+    /// `MarshalerError.Error` (`v2_encode.go:251`), `UnmarshalTypeError.Error` (`v2_decode.go:132`).
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Error::Syntax { msg, .. } => f.write_str(msg),
@@ -79,18 +83,30 @@ impl fmt::Display for Error {
                 go_type,
                 struct_name,
                 field,
+                err,
                 ..
             } => {
                 if !struct_name.is_empty() || !field.is_empty() {
+                    // A path ending in an array index drops "Go struct field ".
+                    let last = &field[field.rfind('.').map_or(0, |i| i + 1)..];
+                    let into = if !last.is_empty() && last.bytes().all(|b| b.is_ascii_digit()) {
+                        ""
+                    } else {
+                        "Go struct field "
+                    };
                     write!(
                         f,
-                        "json: cannot unmarshal {value} into Go struct field {struct_name}.{field} of type {go_type}"
-                    )
+                        "json: cannot unmarshal {value} into {into}{struct_name}.{field} of type {go_type}"
+                    )?;
                 } else {
                     write!(
                         f,
                         "json: cannot unmarshal {value} into Go value of type {go_type}"
-                    )
+                    )?;
+                }
+                match err {
+                    Some(err) => write!(f, ": {err}"),
+                    None => Ok(()),
                 }
             }
             Error::Io(s) => f.write_str(s),

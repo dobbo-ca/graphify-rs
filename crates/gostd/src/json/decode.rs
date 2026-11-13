@@ -1,5 +1,8 @@
-//! Go 1.27.4 `encoding/json` v1, decode half (`decode.go`, `fold.go`, `stream.go`).
-//! API stubs; bodies arrive with graphify-rs-aa6.10.
+//! Go 1.27.4 `encoding/json`, decode half. Go 1.27.4 builds it with GOEXPERIMENT=jsonv2 on, so
+//! `Unmarshal` is `jsonv2.Unmarshal(data, v, DefaultOptionsV1())` (`v2_decode.go:110`) with its
+//! errors mapped by `transformUnmarshalError` (`v2_inject.go:69`). The `decode.go:NNN` citations
+//! below are to the excluded v1 file and describe the intended behaviour only where the v2 tests
+//! agree. API stubs; bodies arrive with graphify-rs-aa6.10.
 
 // graphify-rs-aa6.10: stubs until the code PR
 #![allow(unused_variables)]
@@ -13,13 +16,21 @@ use std::collections::{BTreeMap, HashMap};
 use super::{Error, RawMessage, Value};
 
 /// Go `decodeState` (`decode.go:200`): a cursor over validated input, the first saved type error
-/// (`saveError`, `decode.go:249`) and the field path (`errorContext`, `decode.go:215`). Opaque;
-/// only [`Unmarshal`] impls drive it.
+/// and the error context. Opaque; only [`Unmarshal`] impls drive it.
+///
+/// The error context follows v2 (`v2_inject.go:137-146`), not v1's `errorContext`:
+/// `struct_name` holds the root type's Go `Name()`, fixed for the whole decode (the root's
+/// `GO_TYPE` without its package qualifier, e.g. `json.PP` gives `PP`; empty for an unnamed
+/// root: `struct { ... }`, a map, a slice, an `Option` (Go pointer)), and `field_stack` is the
+/// JSON Pointer of the current value: every object key (struct field and map key alike) and
+/// every array index is pushed while its value decodes. A saved error gets `field_stack`
+/// joined with `.`, and `struct_name` only when that path is non-empty.
 ///
 /// Reading methods return `Err` only for a failure that aborts the decode. Input of the wrong
 /// kind is a *type* error: it is recorded with [`save_type_error`](Self::save_type_error), the
 /// value is skipped and `Ok(None)` is returned, as Go keeps decoding after an
-/// `UnmarshalTypeError` (`decode.go:249`).
+/// `UnmarshalTypeError` (`v2_decode_test.go:1197-1203`). An error an `Unmarshal` impl returns
+/// itself is returned verbatim, with no context added (`v2_inject.go:70-71`).
 pub struct DecodeState<'a> {
     data: &'a [u8],
     off: usize,
@@ -92,7 +103,8 @@ impl<'a> DecodeState<'a> {
     /// [`read_string`](Self::read_string). Callback style is chosen over an iterator because the
     /// callback borrows the state mutably for the value. A non-object records a type error
     /// (`"object"`, `decode.go:614`), skips the value and calls `f` zero times. Use for maps and
-    /// [`Value`]; a struct uses [`read_struct`](Self::read_struct).
+    /// [`Value`]; a struct uses [`read_struct`](Self::read_struct). The key is on the field path
+    /// while `f` runs (`data.test2`, `v2_decode_test.go:1058`).
     pub fn read_object(
         &mut self,
         f: impl FnMut(&mut DecodeState<'a>, &str) -> Result<(), Error>,
@@ -100,10 +112,11 @@ impl<'a> DecodeState<'a> {
         todo!("graphify-rs-aa6.10")
     }
 
-    /// As [`read_object`](Self::read_object) for a struct (Go `d.object` with a struct target):
-    /// sets the `errorContext` struct name to `struct_name` (`decode.go:215`) and pushes each key
-    /// on the field path while `f` runs, so a type error saved inside names
-    /// `Struct.key.path` (`decode.go:256`). The path is restored after each entry.
+    /// As [`read_object`](Self::read_object) for a struct (Go `d.object` with a struct target).
+    /// Each key is pushed on the field path while `f` runs and popped after, as in
+    /// [`read_object`](Self::read_object). `struct_name` does not reach the error: v2 names the
+    /// root type, not the innermost struct (`v2_decode_test.go:1088`, `Struct: "P"` for an error
+    /// inside `T`).
     pub fn read_struct(
         &mut self,
         struct_name: &str,
@@ -114,7 +127,8 @@ impl<'a> DecodeState<'a> {
 
     /// Iterates the elements of the next JSON array (Go `d.array`, `decode.go:500`), calling
     /// `f(self, index)` per element; `f` must consume the element. A non-array records a type
-    /// error (`"array"`, `decode.go:517`), skips the value and calls `f` zero times.
+    /// error (`"array"`, `decode.go:517`), skips the value and calls `f` zero times. The index is
+    /// on the field path while `f` runs (`Ts.2.Y`, `v2_decode_test.go:1102`).
     pub fn read_array(
         &mut self,
         f: impl FnMut(&mut DecodeState<'a>, usize) -> Result<(), Error>,
@@ -134,11 +148,12 @@ impl<'a> DecodeState<'a> {
         todo!("graphify-rs-aa6.10")
     }
 
-    /// Records a type error as Go `saveError` (`decode.go:249`) does: only the first is kept, and
-    /// the current struct name and field path are added (`addErrorContext`, `decode.go:256`). The
-    /// offset is the bytes read so far. `value` is Go's description (`"bool"`, `"array"`,
-    /// `"number -5"`); `go_type` is the target's Go type string. The decode continues and the
-    /// saved error is returned at the end by [`unmarshal_into`].
+    /// Records a type error: only the first is kept, with the root name and field path described
+    /// on [`DecodeState`] and `err: None`. The offset is the bytes read so far: past the value,
+    /// or past only its opening `[` or `{` (`v2/errors.go:164-174`). `value` is Go's description
+    /// (`"bool"`, `"array"`, `"number -5"`, `v2_inject.go:103-133`); `go_type` is the target's Go
+    /// type string. The decode continues and the saved error is returned at the end by
+    /// [`unmarshal_into`].
     pub fn save_type_error(&mut self, value: &str, go_type: &str) {
         todo!("graphify-rs-aa6.10")
     }
@@ -236,13 +251,14 @@ impl<T: Unmarshal + Default> Unmarshal for HashMap<String, T> {
     }
 }
 
-/// Go `Unmarshal` (`decode.go:97`) into a fresh `T::default()`.
+/// Go `Unmarshal` (`v2_decode.go:110`) into a fresh `T::default()`.
 pub fn unmarshal<T: Unmarshal + Default>(data: &[u8]) -> Result<T, Error> {
     todo!("graphify-rs-aa6.10")
 }
 
-/// Go `Unmarshal` (`decode.go:97`) into `v`: `check_valid` first (syntax error wins), then
-/// decode; the first saved type error is returned after decoding finishes.
+/// Go `Unmarshal` (`v2_decode.go:110`) into `v`: `check_valid` first (syntax error wins, as the
+/// legacy `CheckNextValue` in `v2/arshal.go:456-464`), then decode; the first saved type error is
+/// returned after decoding finishes. The root name for the error context comes from `T`.
 pub fn unmarshal_into<T: Unmarshal>(data: &[u8], v: &mut T) -> Result<(), Error> {
     todo!("graphify-rs-aa6.10")
 }

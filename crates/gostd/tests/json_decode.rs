@@ -1,6 +1,8 @@
-//! Ported from encoding/json/decode_test.go (Go 1.27.4, BSD-3-Clause, Copyright 2010 The Go
-//! Authors). decode_test.go has 35 Test funcs: 16 ported (several adapted or partial, noted per entry),
-//! 19 not ported. Go structs are Rust structs with `gostd::json_fields!(decode ...)`, or a hand-written
+//! Ported from encoding/json/v2_decode_test.go (Go 1.27.4, BSD-3-Clause, Copyright 2010 The Go
+//! Authors). Go 1.27.4 builds encoding/json with GOEXPERIMENT=jsonv2 on, so v2_decode_test.go
+//! (`//go:build goexperiment.jsonv2`) is the active file; decode_test.go is excluded and not cited.
+//! v2_decode_test.go has 35 Test funcs: 17 ported (several adapted or partial, noted per entry),
+//! 18 not ported. Go structs are Rust structs with `gostd::json_fields!(decode ...)`, or a hand-written
 //! `Marshal` and `Unmarshal` where Go has `UnmarshalJSON` or `UnmarshalText`. A Go nil slice, map or
 //! pointer is an `Option`; `any` is `Value`. Every test is `#[ignore]`d until graphify-rs-aa6.10.
 //!
@@ -10,60 +12,67 @@
 //! `Option<T>` and `Vec<T>` need `T: Default`, so every struct derives it. A Go `*T` to a recursive
 //! struct needs a `Box`, which has no `Unmarshal`; `PVOuter` below wraps it by hand.
 //!
-//! decode_test.go:
-//! - TestMarshal (:1336): not ported: already in json_encode.rs (`test_marshal`)
-//! - TestMarshalInvalidUTF8 (:1358): not ported: already in json_encode.rs
-//! - TestMarshalNumberZeroVal (:1381): not ported: `json.Number` has no counterpart
-//! - TestMarshalEmbeds (:1393): not ported: embedded struct promotion
-//! - TestUnmarshal (:1461): ported, 100 of 178 `unmarshalTests` rows (see below). The Go test decodes with
+//! v2_decode_test.go:
+//! - TestMarshal (:1338): not ported: already in json_encode.rs (`test_marshal`)
+//! - TestMarshalInvalidUTF8 (:1360): not ported: already in json_encode.rs
+//! - TestMarshalNumberZeroVal (:1383): not ported: `json.Number` has no counterpart
+//! - TestMarshalEmbeds (:1395): not ported: embedded struct promotion
+//! - TestUnmarshal (:1463): ported, 100 of 178 `unmarshalTests` rows (see below). The Go test decodes with
 //!   a `Decoder`, which has no counterpart, so `unmarshal_into` stands in (an "unexpected end of JSON
 //!   input" row is a `Syntax` error here, where Go expects `io.EOF` or `io.ErrUnexpectedEOF` from the
-//!   stream). Each row that decodes without error also marshals the result and decodes that again
-//!   (`golden` rows must marshal back to the input text)
-//! - TestUnmarshalMarshal (:1549): ported, adapted (`jsonBig` is 10,000 random leaves from `math/rand`; a
+//!   stream, :1502-1508). Each row that decodes without error also marshals the result and decodes that
+//!   again (`golden` rows must marshal back to the input text)
+//! - TestUnmarshalMarshal (:1550): ported, adapted (`jsonBig` is 10,000 random leaves from `math/rand`; a
 //!   seeded xorshift generator stands in, same shape as `genValue`)
-//! - TestNumberAccessors (:1567): not ported: `json.Number`
-//! - TestLargeByteSlice (:1600): not ported: `[]byte` is base64 in Go
-//! - TestUnmarshalInterface (:1623): ported, adapted (an `any` holding a `*Xint` cannot be expressed; the
+//! - TestNumberAccessors (:1568): not ported: `json.Number`
+//! - TestLargeByteSlice (:1601): not ported: `[]byte` is base64 in Go
+//! - TestUnmarshalInterface (:1624): ported, adapted (an `any` holding a `*Xint` cannot be expressed; the
 //!   decode goes straight into the struct)
-//! - TestUnmarshalPtrPtr (:1634): not ported: decoding through a `**Xint` target; `Option` cannot alias
+//! - TestUnmarshalPtrPtr (:1635): not ported: decoding through a `**Xint` target; `Option` cannot alias
 //!   the pointee
-//! - TestEscape (:1645): ported (`marshal`)
-//! - TestErrorMessageFromMisusedString (:1659): not ported: the `,string` option
-//! - TestRefUnmarshal (:2011): not ported: pointer- versus value-receiver `UnmarshalJSON`/`UnmarshalText`
+//! - TestEscape (:1646): ported (`marshal`)
+//! - TestErrorMessageFromMisusedString (:1660): not ported: the `,string` option (graphify-go has no
+//!   `,string` tag)
+//! - TestRefUnmarshal (:2012): not ported: pointer- versus value-receiver `UnmarshalJSON`/`UnmarshalText`
 //!   method sets, which Rust traits do not have
-//! - TestEmptyString (:2039): ported, adapted (no `,string`: `Number1` is `1` and `Number2` is `""`)
-//! - TestNullString (:2057): ported, adapted (no `,string`: `A` is `1` instead of `"1"`)
-//! - TestInterfaceSet (:2082): ported, 11 of 41 rows (see below)
-//! - TestUnmarshalNulls (:2189): ported, adapted (the `time.Time`, `big.Int`, `MustNotUnmarshalText`
+//! - TestEmptyString (:2040): ported, adapted (no `,string`: `Number1` is `1` and `Number2` is `""`)
+//! - TestNullString (:2058): ported, adapted (no `,string`: `A` is `1` instead of `"1"`)
+//! - TestInterfaceSet (:2083): ported, 11 of 41 rows (see below)
+//! - TestUnmarshalNulls (:2190): ported, adapted (the `time.Time`, `big.Int`, `MustNotUnmarshalText`
 //!   and `bytes.Buffer` fields are not expressible: std only, and no `TextUnmarshaler` target; the input
 //!   still carries their `null` keys, which a struct skips as unknown keys)
-//! - TestStringKind (:2324): not ported: a named string key type, a Rust map key is always `String`
-//! - TestByteKind (:2344): not ported: `[]byte` base64
-//! - TestSliceOfCustomByte (:2363): not ported: `[]Uint8` is base64 in Go
-//! - TestUnmarshalTypeError (:2380): ported, 1 of 6 rows (the 5 `new(error)` rows decode into an
+//! - TestStringKind (:2325): not ported: a named string key type, a Rust map key is always `String`
+//! - TestByteKind (:2345): not ported: `[]byte` base64
+//! - TestSliceOfCustomByte (:2364): not ported: `[]Uint8` is base64 in Go
+//! - TestUnmarshalTypeError (:2381): ported, 1 of 6 rows (the 5 `new(error)` rows decode into an
 //!   interface type other than `any`)
-//! - TestUnmarshalSyntax (:2404): ported, 8 of 8 rows
-//! - TestUnmarshalUnexported (:2440): not ported: unexported fields
-//! - TestUnmarshalJSONLiteralError (:2470): not ported: the expected "range" text comes from
+//! - TestUnmarshalTypeErrorMessage (:2405): ported, 7 of 7 rows (`Error::UnmarshalType` `Display` only;
+//!   not ignored, it needs no decoder)
+//! - TestUnmarshalSyntax (:2433): ported, 8 of 8 rows
+//! - TestUnmarshalUnexported (:2469): not ported: unexported fields
+//! - TestUnmarshalJSONLiteralError (:2499): not ported: the expected "range" text comes from
 //!   `time.Parse`; custom-unmarshaler errors are covered by the `MustNotUnmarshalJSON` row of TestUnmarshal
-//! - TestSkipArrayObjects (:2483): ported, adapted (`[0]any` is a hand-written `Unmarshal` that skips
+//! - TestSkipArrayObjects (:2512): ported, adapted (`[0]any` is a hand-written `Unmarshal` that skips
 //!   every element; a fixed-size array has no counterpart)
-//! - TestPrefilled (:2496): ported, 6 of 8 rows (the 2 `[...]int` rows are fixed-size arrays)
-//! - TestInvalidUnmarshal (:2561): not ported: `InvalidUnmarshalError` cannot occur in Rust (the target is
+//! - TestPrefilled (:2525): ported, 6 of 8 rows (the 2 `[...]int` rows are fixed-size arrays)
+//! - TestInvalidUnmarshal (:2590): not ported: `InvalidUnmarshalError` cannot occur in Rust (the target is
 //!   always a `&mut T`) and has no `Error` variant
-//! - TestInvalidStringOption (:2590): not ported: the `,string` option
-//! - TestUnmarshalEmbeddedUnexported (:2622): not ported: embedded structs
-//! - TestUnmarshalErrorAfterMultipleJSON (:2754): ported, adapted (the Go test reads several documents
+//! - TestInvalidStringOption (:2619): not ported: the `,string` option
+//! - TestUnmarshalEmbeddedUnexported (:2651): not ported: embedded structs
+//! - TestUnmarshalErrorAfterMultipleJSON (:2797): ported, adapted (the Go test reads several documents
 //!   from one `Decoder`; there is none, so each document is decoded alone and the failing one is a suffix
 //!   of the stream: its error offset plus the suffix start is the offset Go reports), 5 of 5 rows
-//! - TestUnmarshalPanic (:2799): ported (a panicking `Unmarshal` impl, `catch_unwind` and the payload)
-//! - TestUnmarshalRecursivePointer (:2811): not ported: pointer cycles
-//! - TestUnmarshalMapWithTextUnmarshalerStringKey (:2830): not ported: `TextUnmarshaler` map keys
-//! - TestUnmarshalRescanLiteralMangledUnquote (:2841): ported, adapted, 2 of 3 parts (the `,string` part is
+//! - TestUnmarshalPanic (:2842): ported (a panicking `Unmarshal` impl, `catch_unwind` and the payload)
+//! - TestUnmarshalMapWithTextUnmarshalerStringKey (:2861): not ported: `TextUnmarshaler` map keys
+//! - TestUnmarshalRescanLiteralMangledUnquote (:2872): ported, adapted, 2 of 3 parts (the `,string` part is
 //!   left out; the map keys are plain strings, so `textUnmarshalerString` lowercasing is not applied)
-//! - TestUnmarshalMaxDepth (:2886): ported, 24 of 24 cases (6 documents by 4 targets), on a thread with a
+//! - TestUnmarshalMaxDepth (:2917): ported, 24 of 24 cases (6 documents by 4 targets), on a thread with a
 //!   large stack (9,999 levels of nesting decode recursively)
+//!
+//! The `UnmarshalTypeError` rows follow v2 (`v2_inject.go:69-159`): `Struct` is the root type's name
+//! (empty for an unnamed root) and `Field` is the JSON Pointer of the value joined with `.`, array
+//! indices and map keys included. An error returned by a hand-written `Unmarshal` (the `W` and `TOuter`
+//! rows) comes back verbatim with no context added (`v2_inject.go:70-71`).
 //!
 //! Rows of TestUnmarshal left out (78 of 178), by class:
 //! - `Number` and `UseNumber` (17): the two `Number` target rows, the `any` and `V` rows with `UseNumber`,
@@ -76,8 +85,9 @@
 //! - `[]byte` base64 (4): the `"AQID"` rows of the `byteWith*` types
 //! - fixed-size arrays (3): `[3]int`, `[1]int`, `[5]int`
 //! - unexported fields (2): `tx`
-//! - `MustNotUnmarshalText` array and object errors (2): the expected offset and `*Type` name come from
-//!   the library's `TextUnmarshaler` path, which a hand-written `Unmarshal` cannot reproduce
+//! - `MustNotUnmarshalText` array and object errors (2, :1069-1080): the expected offset and the `Err`
+//!   text "JSON value must be string type" come from v2's `TextUnmarshaler` path, which a hand-written
+//!   `Unmarshal` cannot reproduce
 //! - the dash tag (2): `json:"-,"`, `json_fields!` treats the key `"-"` as skip the field
 //! - interface, channel, complex and function targets (3): `error`, `chan int`, the `UnsupportedTypes` row
 //!
@@ -86,10 +96,9 @@
 //! through it (`*int` becomes `*int(2)`) has no counterpart. 11 kept: the first 6 (string, map, slice),
 //! `any(nil)` with `null`, `2` and `{}`, and the `(int)(1)` rows for `2` and `{}` (as `Value::Number`).
 //!
-//! Added (no Go source): v1_rules (the plan's Task 10 case; every value derived from decode.go and
-//! scanner.go: the BOM text is `invalid character 'ï' looking for beginning of value` at offset 1, since
-//! `quoteChar` converts the byte 0xEF to the rune U+00EF; the 10,001st `[` fails at offset 10001 with
-//! `invalid character '[' exceeded max depth`).
+//! Added: v1_compat_rules (the plan's Task 10 case, renamed from v1_rules when its BOM and depth cases
+//! moved to the jsontext texts). Each case cites its Go row or is marked "traced, no Go row" with the
+//! Go source it is derived from.
 
 use gostd::json::{
     DecodeState, EncodeState, Error, Marshal, RawMessage, Unmarshal, Value, marshal, unmarshal,
@@ -117,7 +126,8 @@ fn syntax(msg: &str, offset: i64) -> Error {
     }
 }
 
-/// Go `&UnmarshalTypeError{Value, Type, Offset, Struct, Field}`, `go_type` being `Type.String()`.
+/// Go `&UnmarshalTypeError{Value, Type, Offset, Struct, Field, nil}`, `go_type` being
+/// `Type.String()`. No kept row has a non-nil `Err`.
 fn type_err(value: &str, go_type: &str, offset: i64, struct_name: &str, field: &str) -> Error {
     Error::UnmarshalType {
         value: value.into(),
@@ -125,6 +135,7 @@ fn type_err(value: &str, go_type: &str, offset: i64, struct_name: &str, field: &
         offset,
         struct_name: struct_name.into(),
         field: field.into(),
+        err: None,
     }
 }
 
@@ -926,7 +937,7 @@ const PALL_VALUE_INDENT: &str = r#"{
 	"InvalidEmbed": 0
 }"#;
 
-// ---- TestUnmarshal (:1461) ----
+// ---- TestUnmarshal (:1463), rows from unmarshalTests (:425) ----
 
 #[test]
 #[ignore = "graphify-rs-aa6.10"]
@@ -963,15 +974,18 @@ fn test_unmarshal() {
         None,
         type_err("number", "string", len64(r#"{"X": 23"#), "T", "X"),
     );
+    // :455, `SS.UnmarshalJSON`'s error comes back verbatim
     fail::<W>(
         r#"{"S": 23}"#,
         None,
-        type_err("number", "json.SS", 0, "W", "S"),
+        type_err("number", "json.SS", 0, "", ""),
     );
+    // :456, the error of the inner `Unmarshal` into `T` comes back verbatim (its offset, 8, is past
+    // the `23` of the inner text `{"X": 23}`)
     fail::<TOuter>(
         r#"{"T": {"X": 23}}"#,
         None,
-        type_err("number", "string", len64(r#"{"T": {""#), "TOuter", "T.X"),
+        type_err("number", "string", len64(r#"{"T": {""#), "T", "X"),
     );
     ok(
         r#"{"k1":1,"k2":"s","k3":[1,2.0,3e-3],"k4":{"kk1":"s","kk2":2}}"#,
@@ -1237,6 +1251,7 @@ fn test_unmarshal() {
     gold("9007199254740992", 9007199254740992.0_f64);
     ok("9007199254740993", 9007199254740992.0_f64);
 
+    // :899-910 and :911-923, `Struct` is the root `VOuter`
     fail::<VOuter>(
         r#"{"V": {"F2": "hello"}}"#,
         None,
@@ -1244,7 +1259,7 @@ fn test_unmarshal() {
             "string",
             "int32",
             len64(r#"{"V": {"F2": "hello""#),
-            "V",
+            "VOuter",
             "V.F2",
         ),
     );
@@ -1260,12 +1275,13 @@ fn test_unmarshal() {
             "string",
             "int32",
             len64(r#"{"V": {"F4": {}, "F2": "hello""#),
-            "V",
+            "VOuter",
             "V.F2",
         ),
     );
 
-    // issue 26444: UnmarshalTypeError without field & struct values
+    // issue 26444: UnmarshalTypeError without field & struct values (:1053-1066; the map key is
+    // on the path)
     fail(
         r#"{"data":{"test1": "bob", "test2": 123}}"#,
         Some(MapStringToStringData {
@@ -1279,7 +1295,7 @@ fn test_unmarshal() {
             "string",
             len64(r#"{"data":{"test1": "bob", "test2": 123"#),
             "mapStringToStringData",
-            "data",
+            "data.test2",
         ),
     );
     fail(
@@ -1295,11 +1311,11 @@ fn test_unmarshal() {
             "string",
             len64(r#"{"data":{"test1": 123"#),
             "mapStringToStringData",
-            "data",
+            "data.test1",
         ),
     );
 
-    // #22369
+    // #22369 (:1081-1105; `Struct` is the root, the array index is on the path)
     fail::<P>(
         r#"{"PP": {"T": {"Y": "bad-type"}}}"#,
         None,
@@ -1307,7 +1323,7 @@ fn test_unmarshal() {
             "string",
             "int",
             len64(r#"{"PP": {"T": {"Y": "bad-type""#),
-            "T",
+            "P",
             "PP.T.Y",
         ),
     );
@@ -1322,8 +1338,8 @@ fn test_unmarshal() {
             "string",
             "int",
             len64(r#"{"Ts": [{"Y": 1}, {"Y": 2}, {"Y": "bad-type""#),
-            "T",
-            "Ts.Y",
+            "PP",
+            "Ts.2.Y",
         ),
     );
 
@@ -1337,20 +1353,28 @@ fn test_unmarshal() {
             len64("[1,2,true,4,5}"),
         ),
     );
+    // :1197-1203, the index is the path; an unnamed root (`[]int`) leaves `Struct` empty
     fail(
         "[1,2,true,4,5]",
         Some(vec![1_i64, 2, 0, 4, 5]),
-        type_err("bool", "int", len64("[1,2,true"), "", ""),
+        type_err("bool", "int", len64("[1,2,true"), "", "2"),
     );
 
+    // :1226-1232, `Struct` is the root `NestedUnamed`
     fail::<NestedUnamed>(
         r#"{"F":{"V":"s"}}"#,
         None,
-        type_err("string", "int", len64(r#"{"F":{"V":"s""#), "", "F.V"),
+        type_err(
+            "string",
+            "int",
+            len64(r#"{"F":{"V":"s""#),
+            "NestedUnamed",
+            "F.V",
+        ),
     );
 }
 
-// ---- TestUnmarshalMarshal (:1549) ----
+// ---- TestUnmarshalMarshal (:1550) ----
 
 /// xorshift64*, a stand-in for `math/rand`.
 struct Rng(u64);
@@ -1436,7 +1460,7 @@ fn test_unmarshal_marshal() {
     assert!(b == json_big, "Marshal differs from the input");
 }
 
-// ---- TestUnmarshalInterface (:1623) ----
+// ---- TestUnmarshalInterface (:1624) ----
 
 #[derive(Debug, Default, PartialEq)]
 struct Xint {
@@ -1452,7 +1476,7 @@ fn test_unmarshal_interface() {
     assert_eq!(xint.x, 1);
 }
 
-// ---- TestEscape (:1645) ----
+// ---- TestEscape (:1646) ----
 
 #[test]
 #[ignore = "graphify-rs-aa6.10"]
@@ -1463,7 +1487,7 @@ fn test_escape() {
     assert_eq!(String::from_utf8(got).unwrap(), want);
 }
 
-// ---- TestEmptyString (:2039), TestNullString (:2057) ----
+// ---- TestEmptyString (:2040), TestNullString (:2058) ----
 
 #[derive(Debug, Default)]
 struct T2 {
@@ -1508,7 +1532,7 @@ fn test_null_string() {
     assert_eq!(s.c, None, "Unmarshal: s.C");
 }
 
-// ---- TestInterfaceSet (:2082) ----
+// ---- TestInterfaceSet (:2083) ----
 
 #[derive(Debug, Default, PartialEq)]
 struct Holder {
@@ -1542,7 +1566,7 @@ fn test_interface_set() {
     }
 }
 
-// ---- TestUnmarshalNulls (:2189) ----
+// ---- TestUnmarshalNulls (:2190) ----
 
 #[derive(Debug, Default)]
 struct NullTest {
@@ -1690,7 +1714,8 @@ fn test_unmarshal_nulls() {
     assert_eq!(nulls.struct_, Empty);
 }
 
-// ---- TestUnmarshalTypeError (:2380), TestUnmarshalSyntax (:2404) ----
+// ---- TestUnmarshalTypeError (:2381), TestUnmarshalTypeErrorMessage (:2405),
+// TestUnmarshalSyntax (:2433) ----
 
 #[test]
 #[ignore = "graphify-rs-aa6.10"]
@@ -1701,6 +1726,43 @@ fn test_unmarshal_type_error() {
         matches!(err, Err(Error::UnmarshalType { .. })),
         "Unmarshal(string): got {err:?}, want UnmarshalType"
     );
+}
+
+#[test]
+fn test_unmarshal_type_error_message() {
+    for (field, want) in [
+        (
+            "",
+            "json: cannot unmarshal number 5 into Go struct field Root. of type int",
+        ),
+        (
+            "1",
+            "json: cannot unmarshal number 5 into Root.1 of type int",
+        ),
+        (
+            "foo",
+            "json: cannot unmarshal number 5 into Go struct field Root.foo of type int",
+        ),
+        (
+            "foo.1",
+            "json: cannot unmarshal number 5 into Root.foo.1 of type int",
+        ),
+        (
+            "foo.bar",
+            "json: cannot unmarshal number 5 into Go struct field Root.foo.bar of type int",
+        ),
+        (
+            "foo.bar.1",
+            "json: cannot unmarshal number 5 into Root.foo.bar.1 of type int",
+        ),
+        (
+            "foo.bar.baz",
+            "json: cannot unmarshal number 5 into Go struct field Root.foo.bar.baz of type int",
+        ),
+    ] {
+        let got = type_err("number 5", "int", 1234, "Root", field).to_string();
+        assert_eq!(got, want, "Error");
+    }
 }
 
 #[test]
@@ -1724,7 +1786,7 @@ fn test_unmarshal_syntax() {
     }
 }
 
-// ---- TestSkipArrayObjects (:2483) ----
+// ---- TestSkipArrayObjects (:2512) ----
 
 /// Go `[0]any`: every element is dropped.
 #[derive(Default)]
@@ -1744,7 +1806,7 @@ fn test_skip_array_objects() {
     unmarshal_into(b"[{}]", &mut dest).expect("Unmarshal error");
 }
 
-// ---- TestPrefilled (:2496) ----
+// ---- TestPrefilled (:2525) ----
 
 #[derive(Debug, Default, PartialEq)]
 struct Xyz {
@@ -1810,7 +1872,7 @@ fn test_prefilled() {
         ))
     );
 
-    // Go reads one byte ahead when the target is an interface, hence the extra offset
+    // :2570-2575, the same offset as the float64 target
     let mut v = num(0.0);
     let err = unmarshal_into(b"1e1000", &mut v);
     assert_eq!(v, num(0.0));
@@ -1819,14 +1881,14 @@ fn test_prefilled() {
         Err(type_err(
             "number 1e1000",
             "float64",
-            len64("1e1000") + 1,
+            len64("1e1000"),
             "",
             ""
         ))
     );
 }
 
-// ---- TestUnmarshalErrorAfterMultipleJSON (:2754) ----
+// ---- TestUnmarshalErrorAfterMultipleJSON (:2797) ----
 
 /// (stream, the valid documents before the failing one, the failing document at the end of the stream,
 /// Go's message, Go's offset in the stream)
@@ -1892,7 +1954,7 @@ fn test_unmarshal_error_after_multiple_json() {
     }
 }
 
-// ---- TestUnmarshalPanic (:2799) ----
+// ---- TestUnmarshalPanic (:2842) ----
 
 struct UnmarshalPanic;
 
@@ -1914,7 +1976,7 @@ fn test_unmarshal_panic() {
     }
 }
 
-// ---- TestUnmarshalRescanLiteralMangledUnquote (:2841) ----
+// ---- TestUnmarshalRescanLiteralMangledUnquote (:2872) ----
 
 #[test]
 #[ignore = "graphify-rs-aa6.10"]
@@ -1937,7 +1999,7 @@ fn test_unmarshal_rescan_literal_mangled_unquote() {
     assert_eq!(got, input, "Marshal/Unmarshal roundtrip");
 }
 
-// ---- TestUnmarshalMaxDepth (:2886) ----
+// ---- TestUnmarshalMaxDepth (:2917) ----
 
 #[derive(Debug, Default)]
 struct NamedA {
@@ -2004,7 +2066,7 @@ fn test_unmarshal_max_depth() {
         .unwrap_or_else(|e| std::panic::resume_unwind(e));
 }
 
-// ---- Added: v1_rules ----
+// ---- Added: v1_compat_rules ----
 
 #[derive(Debug, Default, PartialEq)]
 struct IdOnly {
@@ -2012,10 +2074,22 @@ struct IdOnly {
 }
 gostd::json_fields!(decode IdOnly, "json.IdOnly", { id => "id" });
 
+/// An unnamed root struct, as graphify-go decodes graph.json in export.go:181.
+#[derive(Debug, Default, PartialEq)]
+struct AnonNodes {
+    nodes: Vec<IdOnly>,
+}
+gostd::json_fields!(decode AnonNodes, r#"struct { Nodes []json.IdOnly "json:\"nodes\"" }"#, {
+    nodes => "nodes",
+});
+
 #[test]
 #[ignore = "graphify-rs-aa6.10"]
-fn v1_rules() {
-    // duplicate key: the last one wins; "ID" matches "id" case-insensitively, as does "Id"
+fn v1_compat_rules() {
+    // Traced, no Go row: DefaultV1Flags sets AllowDuplicateNames, MatchCaseInsensitiveNames and
+    // MatchCaseSensitiveDelimiter (internal/jsonflags/flags.go:51-72). A duplicate key is decoded
+    // again, so the last one wins; a key with no exact match takes the first field whose name is
+    // strings.EqualFold to it (v2/arshal_default.go:1328-1337, v2/fields.go:380-386).
     let got: IdOnly = unmarshal(br#"{"ID":"a","id":"b"}"#).unwrap();
     assert_eq!(got.id, "b");
     let got: IdOnly = unmarshal(br#"{"id":"a","id":"b"}"#).unwrap();
@@ -2023,28 +2097,55 @@ fn v1_rules() {
     let got: IdOnly = unmarshal(br#"{"Id":"x"}"#).unwrap();
     assert_eq!(got.id, "x");
 
-    // a lone surrogate escape and an invalid UTF-8 byte decode to U+FFFD
+    // A lone surrogate escape and an invalid UTF-8 byte decode to U+FFFD (the unmarshalTests rows at
+    // v2_decode_test.go:730-735 and :748-753, here as a whole string).
     assert_eq!(unmarshal::<String>(br#""\ud800""#).unwrap(), "\u{fffd}");
     assert_eq!(unmarshal::<String>(b"\"\xff\"").unwrap(), "\u{fffd}");
 
-    // a BOM: scanner.go `quoteChar` turns the byte 0xEF into the rune U+00EF; one byte was read
+    // Traced, no Go row: a BOM is one rune U+FEFF, quoted by strconv.QuoteRune
+    // (internal/jsonwire/wire.go:62-68) and counted whole in the offset (jsontext/errors.go:102-107);
+    // Unmarshal validates first (v2/arshal.go:456-464).
     assert_eq!(
         unmarshal::<Value>(b"\xef\xbb\xbf{}"),
         Err(syntax(
-            "invalid character 'ï' looking for beginning of value",
-            1
+            "invalid character '\\ufeff' looking for beginning of value",
+            3
         ))
     );
 
-    // scanner.go `pushParseState`: the 10,001st `[` exceeds maxNestingDepth (10000)
+    // Traced, no Go row: the 10,001st `[` exceeds maxNestingDepth (jsontext/state.go:53), a
+    // structural error one byte past its start (jsontext/errors.go:102-115). TestUnmarshalMaxDepth
+    // (v2_decode_test.go:2917) checks only that the text contains "exceeded max depth".
     assert_eq!(
         unmarshal::<Value>("[".repeat(10001).as_bytes()),
-        Err(syntax("invalid character '[' exceeded max depth", 10001))
+        Err(syntax("exceeded max depth", 10001))
     );
 
-    // decode.go `literalStore`: 1e400 overflows float64, the value is left unchanged
+    // Traced, no Go row: 1e400 overflows float64 (strconv.ErrRange, v2/arshal_default.go:765-767),
+    // which v1 reports as "number <literal>" with no Err (v2_inject.go:114-136); the offset is past
+    // the value (v2/errors.go:164-174).
     assert_eq!(
         unmarshal::<f64>(b"1e400"),
         Err(type_err("number 1e400", "float64", 5, "", ""))
+    );
+
+    // Traced, no Go row: an unnamed root leaves `Struct` empty (v2_inject.go:137-143) while the path
+    // runs from the root through the array index (v2_inject.go:144-146), so the text has
+    // "Go struct field .nodes.1.id" (graphify-go wraps such text into a user error at export.go:187).
+    let mut v = AnonNodes::default();
+    let err = unmarshal_into(br#"{"nodes":[{"id":"a"},{"id":1}]}"#, &mut v).unwrap_err();
+    assert_eq!(
+        err,
+        type_err(
+            "number",
+            "string",
+            len64(r#"{"nodes":[{"id":"a"},{"id":1"#),
+            "",
+            "nodes.1.id"
+        )
+    );
+    assert_eq!(
+        err.to_string(),
+        "json: cannot unmarshal number into Go struct field .nodes.1.id of type string"
     );
 }
