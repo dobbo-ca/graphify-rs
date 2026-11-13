@@ -1,7 +1,6 @@
 //! Public-API tests of `Client` against the in-process mock server (plan Task 7, bead
 //! graphify-rs-u2o.8). Ports are from anthropic-sdk-go v1.51.0.
 
-#[allow(dead_code)]
 mod common;
 
 use std::collections::BTreeSet;
