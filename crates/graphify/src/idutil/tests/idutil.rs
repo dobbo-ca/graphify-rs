@@ -94,11 +94,14 @@ fn test_clean_ascii_matches_unicode() {
     );
 }
 
+/// The `f.Add` seeds of Go `FuzzCleanASCII`.
+const FUZZ_CLEAN_ASCII_SEEDS: &[&str] = &["pkg__Some-Type.method()"];
+
 /// FuzzCleanASCII, its seed corpus: where the fast path accepts, it equals the general path.
 #[test]
 #[ignore = "graphify-rs-ihc.4"]
 fn fuzz_clean_ascii_seeds() {
-    for s in ["pkg__Some-Type.method()"] {
+    for &s in FUZZ_CLEAN_ASCII_SEEDS {
         if let Some(got) = clean_ascii(s) {
             assert_eq!(got, clean_unicode(s), "clean_ascii({s:?})");
         }
