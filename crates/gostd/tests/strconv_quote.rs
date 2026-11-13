@@ -19,7 +19,6 @@ use gostd::unicode;
 
 // Verify that our IsPrint agrees with unicode.IsPrint.
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_is_print() {
     let mut n = 0;
     // Go loops over every rune including surrogates; a Rust char cannot be a
@@ -37,7 +36,6 @@ fn test_is_print() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_quote() {
     // (in, out)
     let quotetests: [(&[u8], &str); 8] = [
@@ -67,7 +65,6 @@ fn test_quote() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn quote_invalid_utf8_per_byte() {
     assert_eq!(quote(b"\xE2\x82"), r#""\xe2\x82""#);
     assert_eq!(quote("\u{7f}".as_bytes()), r#""\x7f""#);

@@ -56,7 +56,6 @@ const FTOA_TESTS: &[(f64, u8, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_ftoa() {
     for &(f, fmt, want) in FTOA_TESTS {
         let s = format_float(f, fmt);
@@ -73,7 +72,6 @@ fn test_ftoa() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_ftoa_powers_of_two() {
     // Go: math.Ldexp(1, exp) for exp in -2048..=2048, skipping +Inf. Built from bits here.
     for exp in -2048i32..=2048 {
@@ -94,7 +92,6 @@ fn test_ftoa_powers_of_two() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_ftoa_random() {
     // Go compares the fast and slow (SetOptimize) FormatFloat; that switch is not in the API, so
     // only the shortest round trip is kept. Go uses math/rand, here a local xorshift64.
