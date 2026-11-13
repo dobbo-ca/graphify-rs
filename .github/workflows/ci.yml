@@ -3,10 +3,10 @@ on: { pull_request: {}, push: { branches: [main] }, workflow_dispatch: {} }
 permissions:
   contents: read
 concurrency:
-  # A push to main gets its own group (by commit), so no main run is cancelled or replaced while
-  # pending: every merge must get its main-only stages (arm64, parity). PR runs share a group per
-  # ref and cancel the older run.
-  group: ${{ github.workflow }}-${{ github.event_name == 'push' && github.sha || github.ref }}
+  # Main pushes share one group and never cancel: a started main run always finishes, and only
+  # the newest pending main run waits (GitHub drops older pending ones). A bead closes on any
+  # green main run at or after its commit. PR runs share a group per ref and cancel the older run.
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   # The checks run inside ci/Dockerfile on the in-cluster BuildKit (pattern from dobbo-ca/deflate-rs).
