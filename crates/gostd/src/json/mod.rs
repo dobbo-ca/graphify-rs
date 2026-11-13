@@ -45,14 +45,8 @@ pub enum Error {
     /// leading `/`, every `/` turned into `.`, so object keys, map keys and array indices all
     /// appear (`Ts.2.Y`; `v2_inject.go:144-146`). `err` is the text of Go's `Err`, `None` for nil.
     /// Go `InvalidUnmarshalError` (`v2_decode.go:178`) cannot occur in Rust and has no variant.
-    UnmarshalType {
-        value: String,
-        go_type: String,
-        offset: i64,
-        struct_name: String,
-        field: String,
-        err: Option<String>,
-    },
+    /// Boxed: the payload would make every `Result<_, Error>` large (`clippy::result_large_err`).
+    UnmarshalType(Box<UnmarshalTypeError>),
     /// A write error from the `io.Writer` of an [`Encoder`]; holds the error's text.
     Io(String),
 }
@@ -78,14 +72,15 @@ impl fmt::Display for Error {
                 };
                 write!(f, "json: error calling {src} for type {go_type}: {err}")
             }
-            Error::UnmarshalType {
-                value,
-                go_type,
-                struct_name,
-                field,
-                err,
-                ..
-            } => {
+            Error::UnmarshalType(e) => {
+                let UnmarshalTypeError {
+                    value,
+                    go_type,
+                    struct_name,
+                    field,
+                    err,
+                    ..
+                } = &**e;
                 if !struct_name.is_empty() || !field.is_empty() {
                     // A path ending in an array index drops "Go struct field ".
                     let last = &field[field.rfind('.').map_or(0, |i| i + 1)..];
@@ -115,6 +110,17 @@ impl fmt::Display for Error {
 }
 
 impl std::error::Error for Error {}
+
+/// The fields of Go `UnmarshalTypeError`; see [`Error::UnmarshalType`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UnmarshalTypeError {
+    pub value: String,
+    pub go_type: String,
+    pub offset: i64,
+    pub struct_name: String,
+    pub field: String,
+    pub err: Option<String>,
+}
 
 /// Implements [`Marshal`] for a struct as Go's `structEncoder` (`encode.go:716`) does for a
 /// struct with `json` tags: fields in declaration order, key from the tag, `omitempty`

@@ -101,8 +101,8 @@
 //! Go source it is derived from.
 
 use gostd::json::{
-    DecodeState, EncodeState, Error, Marshal, RawMessage, Unmarshal, Value, marshal, unmarshal,
-    unmarshal_into,
+    DecodeState, EncodeState, Error, Marshal, RawMessage, Unmarshal, UnmarshalTypeError, Value,
+    marshal, unmarshal, unmarshal_into,
 };
 use std::collections::BTreeMap;
 use std::fmt::Debug;
@@ -129,14 +129,14 @@ fn syntax(msg: &str, offset: i64) -> Error {
 /// Go `&UnmarshalTypeError{Value, Type, Offset, Struct, Field, nil}`, `go_type` being
 /// `Type.String()`. No kept row has a non-nil `Err`.
 fn type_err(value: &str, go_type: &str, offset: i64, struct_name: &str, field: &str) -> Error {
-    Error::UnmarshalType {
+    Error::UnmarshalType(Box::new(UnmarshalTypeError {
         value: value.into(),
         go_type: go_type.into(),
         offset,
         struct_name: struct_name.into(),
         field: field.into(),
         err: None,
-    }
+    }))
 }
 
 /// Go `errors.New` returned by a custom unmarshaler. `Error` has no variant for an arbitrary error;
@@ -1723,7 +1723,7 @@ fn test_unmarshal_type_error() {
     // issue 4628; the 5 `new(error)` rows (issue 4222) are left out
     let err = unmarshal::<String>(br#"{"user": "name"}"#);
     assert!(
-        matches!(err, Err(Error::UnmarshalType { .. })),
+        matches!(err, Err(Error::UnmarshalType(_))),
         "Unmarshal(string): got {err:?}, want UnmarshalType"
     );
 }
