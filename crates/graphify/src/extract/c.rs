@@ -10,3 +10,7 @@ pub(crate) fn extract_c(rel: &str, src: &[u8]) -> Option<Result> {
 /// Names this language's kinds in Go's init order and stores its masks (see `kinds`). Empty
 /// until graphify-rs-ihc.29.
 pub(super) fn register_kinds() {}
+
+#[cfg(test)]
+#[path = "tests/c.rs"]
+mod c_tests;

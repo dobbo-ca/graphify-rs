@@ -386,7 +386,7 @@ The Rust tests read graph.json back with `gostd::json::unmarshal` into the priva
 | `extract-js` (`graphify-rs-ihc.26`) | - | - | - | not started |
 | `extract-java` (`graphify-rs-ihc.27`) | - | - | - | not started |
 | `extract-csharp` (`graphify-rs-ihc.28`) | - | - | - | not started |
-| `extract-c` (`graphify-rs-ihc.29`) | - | - | - | not started |
+| graphify-go `internal/extract/c_test.go` (`graphify-rs-ihc.29`) | 1 | 1 | 0 | upstream `test_c_include_resolution.py` (13, Go has it): PR A2 |
 | `extract-cpp` (`graphify-rs-ihc.30`) | - | - | - | not started |
 | `extract-hcl` (`graphify-rs-ihc.31`) | - | - | - | not started |
 | `extract-rust` (`graphify-rs-ihc.32`) | - | - | - | not started |
@@ -397,8 +397,8 @@ The Rust tests read graph.json back with `gostd::json::unmarshal` into the priva
 | `extract-kotlin` (`graphify-rs-ihc.37`) | - | - | - | not started |
 | `extract-julia` (`graphify-rs-ihc.38`) | - | - | - | not started |
 | `extract-lua` (`graphify-rs-ihc.39`) | - | - | - | not started |
-| `extract-zig` (`graphify-rs-ihc.40`) | - | - | - | not started |
-| `extract-verilog` (`graphify-rs-ihc.41`) | - | - | - | not started |
+| graphify-go `internal/extract/zig_test.go` (`graphify-rs-ihc.40`) | 1 | 1 | 0 | - (no upstream file) |
+| graphify-go `internal/extract/verilog_test.go` (`graphify-rs-ihc.41`) | 1 | 1 | 0 | - (no upstream file) |
 
 #### cache
 
