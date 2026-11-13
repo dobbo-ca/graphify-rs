@@ -374,7 +374,7 @@ pub fn run(name: &str, input: &[u8]) -> Vec<Op> {
 
 /// The typed ops (see json.go): unmarshal (the error text, or empty), value (`marshal` of the
 /// value after `unmarshal_into`, error or not), indent (`marshal_indent` of it, "" and two spaces).
-fn typed<T: Unmarshal + Marshal + Default>(input: &[u8]) -> (T, Vec<Op>) {
+fn typed<T: Unmarshal + Marshal + Default + Send>(input: &[u8]) -> (T, Vec<Op>) {
     let mut v = T::default();
     let u = json::unmarshal_into(input, &mut v);
     let ops = vec![

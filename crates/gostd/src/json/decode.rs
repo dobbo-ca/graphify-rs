@@ -834,18 +834,75 @@ impl<T: Unmarshal + Default> Unmarshal for HashMap<String, T> {
 }
 
 /// Go `Unmarshal` (`v2_decode.go:110`) into a fresh `T::default()`.
-pub fn unmarshal<T: Unmarshal + Default>(data: &[u8]) -> Result<T, Error> {
+pub fn unmarshal<T: Unmarshal + Default + Send>(data: &[u8]) -> Result<T, Error> {
     let mut v = T::default();
     unmarshal_into(data, &mut v)?;
     Ok(v)
+}
+
+/// Nesting depth above which decoding moves to its own thread (see [`unmarshal_into`]).
+const DEEP: usize = 256;
+
+/// Stack of that thread. Go's goroutine stacks grow to 1 GB; the decoder recurses once per
+/// nesting level and the syntax check caps nesting at 10000 (`jsontext/state.go:46`). The
+/// memory is reserved, not committed.
+const DEEP_STACK: usize = 1 << 30;
+
+/// The deepest nesting of `data`, which `check_valid` has accepted (strings are skipped).
+fn max_depth(data: &[u8]) -> usize {
+    let (mut depth, mut max, mut in_str, mut esc) = (0usize, 0, false, false);
+    for &b in data {
+        if in_str {
+            match b {
+                _ if esc => esc = false,
+                b'\\' => esc = true,
+                b'"' => in_str = false,
+                _ => {}
+            }
+            continue;
+        }
+        match b {
+            b'"' => in_str = true,
+            b'[' | b'{' => {
+                depth += 1;
+                max = max.max(depth);
+            }
+            b']' | b'}' => depth -= 1,
+            _ => {}
+        }
+    }
+    max
 }
 
 /// Go `Unmarshal` (`v2_decode.go:110`) into `v`: the whole input is validated first, so a syntax
 /// error wins and nothing is written (`v2/arshal.go:455-464`), then decoded; the first saved
 /// error is returned after decoding finishes. The root name for the error context is `T`'s
 /// (`v2_inject.go:137-143`).
-pub fn unmarshal_into<T: Unmarshal>(data: &[u8], v: &mut T) -> Result<(), Error> {
+///
+/// The syntax check rejects nesting over 10000 levels with Go's "exceeded max depth" error.
+/// Below that, a document nested more than [`DEEP`] levels decodes on a scoped thread with a
+/// [`DEEP_STACK`] stack, so the recursion never depends on the caller's stack size (a spawned
+/// Rust thread has 2 MiB). A panic in an `Unmarshal` impl still reaches the caller.
+pub fn unmarshal_into<T: Unmarshal + Send>(data: &[u8], v: &mut T) -> Result<(), Error> {
     check_valid(data)?;
+    if max_depth(data) > DEEP {
+        return std::thread::scope(|s| {
+            match std::thread::Builder::new()
+                .stack_size(DEEP_STACK)
+                .spawn_scoped(s, || decode_valid(data, v))
+                .expect("json: spawn the decode thread")
+                .join()
+            {
+                Ok(r) => r,
+                Err(p) => std::panic::resume_unwind(p),
+            }
+        });
+    }
+    decode_valid(data, v)
+}
+
+/// The decode half of [`unmarshal_into`], after the syntax check.
+fn decode_valid<T: Unmarshal>(data: &[u8], v: &mut T) -> Result<(), Error> {
     let root = T::go_type();
     let mut d = DecodeState::new(data, go_name(&root).to_string());
     d.value(v)?;

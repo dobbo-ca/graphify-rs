@@ -1998,7 +1998,7 @@ struct NamedB {
 }
 gostd::json_fields!(decode NamedB, "struct { B interface {} }", { b => "b" });
 
-fn decode_into<D: Unmarshal + Default>(data: &[u8]) -> Result<(), Error> {
+fn decode_into<D: Unmarshal + Default + Send>(data: &[u8]) -> Result<(), Error> {
     unmarshal::<D>(data).map(drop)
 }
 
@@ -2041,9 +2041,9 @@ fn max_depth() {
 
 #[test]
 fn test_unmarshal_max_depth() {
-    // 9,999 levels of nesting decode recursively: run on a thread with a large stack
+    // A default (2 MiB) thread: 9,999 levels must decode without relying on the caller's
+    // stack, as Go's growable stacks do (unmarshal_into moves deep documents to a big stack).
     std::thread::Builder::new()
-        .stack_size(256 << 20)
         .spawn(max_depth)
         .expect("spawn")
         .join()
