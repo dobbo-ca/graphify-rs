@@ -23,6 +23,13 @@ doc = false
 bench = false
 
 [[bin]]
+name = "json_roundtrip"
+path = "fuzz_targets/json_roundtrip.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
 name = "regexp_compile_match"
 path = "fuzz_targets/regexp_compile_match.rs"
 test = false

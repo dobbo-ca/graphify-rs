@@ -20,7 +20,7 @@ jobs:
       # The ARC runners are shared: two fuzz jobs at a time, at most.
       max-parallel: 2
       matrix:
-        target: [json_syntax, regexp_compile_match, toml_decode]
+        target: [json_syntax, json_roundtrip, regexp_compile_match, toml_decode]
     timeout-minutes: 60
     env:
       MAX_TOTAL_TIME: ${{ inputs.max_total_time || '600' }}

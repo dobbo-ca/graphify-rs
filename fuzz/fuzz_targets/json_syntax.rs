@@ -2,8 +2,7 @@
 use gostd::json;
 use libfuzzer_sys::fuzz_target;
 
-// The syntax path (valid, compact, indent). A json_roundtrip target (unmarshal, marshal, unmarshal)
-// comes with the decode half, graphify-rs-aa6.10.
+// The syntax path (valid, compact, indent); json_roundtrip covers unmarshal and marshal.
 // `valid` is true iff `compact` succeeds. For valid input, compacting the indented text gives the
 // compact text, and compacting the compact text changes nothing.
 fuzz_target!(|data: &[u8]| {

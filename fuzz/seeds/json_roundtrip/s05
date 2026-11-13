@@ -1,0 +1,4 @@
+  {
+	"nodes": [ {"id": "n1", "label": "caf é", "x": 1.25}, {"id": "n2", "label": "\u0000"} ],
+	"links": [ {"source": "n1", "target": "n2", "weight": -3e2} ]
+}

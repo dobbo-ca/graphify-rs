@@ -25,7 +25,7 @@ import (
 //	json_marshal_indent MarshalIndent("", "  ") of a generated graph.json-shaped value (~50 MB compact)
 //	json_compact        Compact of that indented text
 //	json_valid          Valid of that indented text
-//	json_decode         skipped: gostd json has no unmarshal until graphify-rs-aa6.10
+//	json_decode         Unmarshal of that indented text into an any
 //	norm_nfkc           NFKC of every <inputs>/xtext string, 20 times
 //	sha256_1gib         1 GiB (1,024 writes of a 1 MiB pseudo-random chunk)
 //	toml_decode_x100    Decode into map[string]any of the toml-test valid files
@@ -122,8 +122,11 @@ func runBench(inputs, corpusPath string) error {
 	benchTime("json_compact", func() { check(json.Compact(&compact, indented)) })
 	valid := false
 	benchTime("json_valid", func() { valid = json.Valid(indented) })
+	benchTime("json_decode", func() {
+		var v any
+		check(json.Unmarshal(indented, &v))
+	})
 	fmt.Fprintln(os.Stderr, "json indented", len(indented), "compact", compact.Len(), "valid", valid)
-	fmt.Println("json_decode skipped")
 
 	var strs []string
 	for _, b := range benchFiles(filepath.Join(inputs, "xtext"), "") {
