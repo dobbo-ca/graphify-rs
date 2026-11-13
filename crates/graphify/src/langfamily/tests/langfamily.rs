@@ -20,7 +20,6 @@ const CROSS_CASES: &[(&str, &str, bool)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-ihc.5"]
 fn test_cross() {
     for &(a, b, want) in CROSS_CASES {
         assert_eq!(cross(a, b), want, "cross({a:?}, {b:?})");
@@ -28,7 +27,6 @@ fn test_cross() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.5"]
 fn test_component() {
     for (f, want) in [
         ("App.vue", true),
