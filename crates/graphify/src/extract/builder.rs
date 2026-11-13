@@ -384,10 +384,8 @@ pub(crate) fn base_type_name(text: &str) -> String {
 /// Go `rationaleLabel`: the first 80 runes, line breaks made spaces, trimmed.
 pub(crate) fn rationale_label(text: &str) -> String {
     let text: String = text.chars().take(80).collect();
-    let text = text
-        .replace("\r\n", " ")
-        .replace('\r', " ")
-        .replace('\n', " ");
+    // Go: "\r\n", then "\r", then "\n", each made one space.
+    let text = text.replace("\r\n", " ").replace(['\r', '\n'], " ");
     trim_space(&text).to_string()
 }
 
