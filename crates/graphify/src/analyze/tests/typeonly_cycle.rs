@@ -8,14 +8,7 @@
 use super::names;
 use crate::analyze::{Cycle, import_cycles};
 use crate::extract::{self, Result as ExtractResult};
-use crate::model::{Extraction, Graph};
-
-/// Go `extract.Resolve(results, files)`. The shared `extract` API on main does not declare it
-/// yet (plan Task 17, graphify-rs-ihc.18, adds `resolve.rs`); replace this with
-/// `crate::extract::resolve` when that stub lands.
-fn resolve(results: &[ExtractResult], files: &[&str]) -> Extraction {
-    todo!("graphify-rs-ihc.18")
-}
+use crate::model::Graph;
 
 /// Go `tsCycleGraph` generalised to any corpus: extracts and resolves `files` (path, source),
 /// then builds the graph the report runs cycle detection over.
@@ -24,8 +17,9 @@ fn cycle_graph(files: &[(&str, &str)]) -> Graph {
         .iter()
         .map(|(f, src)| extract::file_from_bytes(f, src.as_bytes()))
         .collect();
-    let paths: Vec<&str> = files.iter().map(|(f, _)| *f).collect();
-    let ext = resolve(&results, &paths);
+    let paths: Vec<String> = files.iter().map(|(f, _)| f.to_string()).collect();
+    // Go `extract.Resolve(results, files)`; the output does not depend on the worker count.
+    let ext = extract::resolve(&results, &paths, 1);
 
     let mut g = Graph::new();
     for n in ext.nodes {
