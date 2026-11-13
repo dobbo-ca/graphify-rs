@@ -14,7 +14,6 @@ const ATOF1K: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/testdata/strconv/atof
 // Go compares ParseFloat with SetOptimize(false) against SetOptimize(true); gostd has one
 // path, so the check kept is that every line of the testbase sample parses without error.
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_parse_float_testdata() {
     let data = std::fs::read_to_string(ATOF1K).unwrap_or_else(|e| panic!("{ATOF1K}: {e}"));
     let mut fail = 0;

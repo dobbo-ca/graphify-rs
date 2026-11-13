@@ -56,7 +56,6 @@ const FTOA_TESTS: &[(f64, u8, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_ftoa() {
     for &(f, fmt, want) in FTOA_TESTS {
         let s = format_float(f, fmt);
@@ -73,7 +72,6 @@ fn test_ftoa() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_ftoa_powers_of_two() {
     // Go: math.Ldexp(1, exp) for exp in -2048..=2048, skipping +Inf. Built from bits here.
     for exp in -2048i32..=2048 {
@@ -94,7 +92,6 @@ fn test_ftoa_powers_of_two() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_ftoa_random() {
     // Go compares the fast and slow (SetOptimize) FormatFloat; that switch is not in the API, so
     // only the shortest round trip is kept. Go uses math/rand, here a local xorshift64.
@@ -116,4 +113,15 @@ fn test_ftoa_random() {
         }
     }
     // Go's fixed precision `%e` comparison (prec 5..=16) is not ported.
+}
+
+/// Added (not a Go test): the tie that made gostd port Go's `shortFloat` (uscale.go) instead of
+/// using Rust's `{:e}` digits. 108678236358137.625 has two equally close 17-digit shortest
+/// forms; Go prints ...762 (ftoa_test.go:111), Rust's `{:e}` printed ...763 (CI run 43400412845).
+#[test]
+fn shortest_tie_matches_go_not_rust() {
+    let x = 108678236358137.625_f64;
+    assert_eq!(format_float(x, b'g'), "1.0867823635813762e+14");
+    assert_eq!(format_float(x, b'e'), "1.0867823635813762e+14");
+    assert_eq!(format_float(x, b'f'), "108678236358137.62");
 }

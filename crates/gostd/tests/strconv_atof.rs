@@ -438,7 +438,6 @@ fn run_atof() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_parse_float_prefix() {
     for test in atoftests() {
         if test.err.is_some() {
@@ -454,13 +453,11 @@ fn test_parse_float_prefix() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_atof() {
     run_atof();
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_atof_slow() {
     run_atof();
 }
@@ -477,7 +474,6 @@ impl XorShift64 {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_atof_random() {
     let mut rng = XorShift64(0x9E37_79B9_7F4A_7C15);
     for _ in 0..10000 {
@@ -495,7 +491,6 @@ fn test_atof_random() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_round_trip() {
     // Issue 2917. Go's untyped constants 8865794286000691 << 39 and ...692 << 39 are exact in f64.
     let two39 = (1u64 << 39) as f64;

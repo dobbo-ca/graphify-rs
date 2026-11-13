@@ -253,7 +253,6 @@ const VARLEN_UINTS: &[(u64, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_atof() {
     for &(input, want, err) in ATOF_TESTS {
         let got = parse_float(input);
@@ -268,7 +267,6 @@ fn test_atof() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_parse_uint32() {
     for &(input, out, err) in PARSE_UINT32_TESTS {
         check_uint(parse_uint(input, 10, 32), "ParseUint", input, out, err);
@@ -276,7 +274,6 @@ fn test_parse_uint32() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_parse_uint64() {
     for &(input, out, err) in PARSE_UINT64_TESTS {
         check_uint(parse_uint(input, 10, 64), "ParseUint", input, out, err);
@@ -284,7 +281,6 @@ fn test_parse_uint64() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_parse_uint64_base() {
     for &(input, base, out, err) in PARSE_UINT64_BASE_TESTS {
         check_uint(parse_uint(input, base, 64), "ParseUint", input, out, err);
@@ -292,7 +288,6 @@ fn test_parse_uint64_base() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_parse_int32() {
     for &(input, out, err) in PARSE_INT32_TESTS {
         check_int(parse_int(input, 10, 32), "ParseInt", input, out, err);
@@ -300,7 +295,6 @@ fn test_parse_int32() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_parse_int64() {
     for &(input, out, err) in PARSE_INT64_TESTS {
         check_int(parse_int(input, 10, 64), "ParseInt", input, out, err);
@@ -308,7 +302,6 @@ fn test_parse_int64() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_parse_int64_base() {
     for &(input, base, out, err) in PARSE_INT64_BASE_TESTS {
         check_int(parse_int(input, base, 64), "ParseInt", input, out, err);
@@ -316,7 +309,6 @@ fn test_parse_int64_base() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_parse_uint() {
     for &(input, out, err) in PARSE_UINT64_TESTS {
         check_uint(parse_uint(input, 10, 0), "ParseUint", input, out, err);
@@ -324,7 +316,6 @@ fn test_parse_uint() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_parse_int() {
     for &(input, out, err) in PARSE_INT64_TESTS {
         check_int(parse_int(input, 10, 0), "ParseInt", input, out, err);
@@ -332,7 +323,6 @@ fn test_parse_int() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_atoi() {
     for &(input, out, err) in PARSE_INT64_TESTS {
         check_int(atoi(input), "Atoi", input, out, err);
@@ -340,7 +330,6 @@ fn test_atoi() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_parse_int_bit_size() {
     for &(arg, is_err) in PARSE_BIT_SIZE_TESTS {
         let want = if is_err {
@@ -353,7 +342,6 @@ fn test_parse_int_bit_size() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_parse_uint_bit_size() {
     for &(arg, is_err) in PARSE_BIT_SIZE_TESTS {
         let want = if is_err {
@@ -366,7 +354,6 @@ fn test_parse_uint_bit_size() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_parse_int_base() {
     for &(arg, is_err) in PARSE_BASE_TESTS {
         let want = if is_err {
@@ -379,7 +366,6 @@ fn test_parse_int_base() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_parse_uint_base() {
     for &(arg, is_err) in PARSE_BASE_TESTS {
         let want = if is_err {
@@ -392,7 +378,6 @@ fn test_parse_uint_base() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_num_error() {
     for &(num, want) in NUM_ERROR_TESTS {
         let err = num_err("ParseFloat", num, Syntax);
@@ -401,7 +386,6 @@ fn test_num_error() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_itoa() {
     for &(n, out) in ITOB64_TESTS {
         assert_eq!(format!("{n}"), out);
@@ -415,7 +399,6 @@ fn test_itoa() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_uitoa() {
     for &(n, out) in UITOB64_TESTS {
         assert_eq!(format!("{n}"), out);
@@ -426,7 +409,6 @@ fn test_uitoa() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_format_uint_varlen() {
     for &(n, out) in VARLEN_UINTS {
         assert_eq!(format!("{n}"), out);
@@ -434,7 +416,6 @@ fn test_format_uint_varlen() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.5"]
 fn test_error_prefixes() {
     let vectors = [
         (atoi("INVALID").unwrap_err(), "Atoi"),
