@@ -296,7 +296,8 @@ One block per module, in the plan's module order. A PR edits only its own module
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| `graph` (`graphify-rs-ihc.8`) | - | - | - | not started |
+| graphify-go `internal/graph/build_test.go`, `order_test.go` (`graphify-rs-ihc.8`) | 6 + 2 | 8 (`TestBuildPartsMatchesBuild` without the no-write check: `build_parts` takes the parts by value; `TestEdgeOrderMatchesStableSort` also with 4 workers) | 0 | - |
+| upstream graph/build rows (10 files: `test_build.py`, `test_relation_collapse_precedence.py`, `test_external_stub_endpoints.py`, `test_multigraph_diagnostics.py`, ...) | 223 | 0 | 0 | ported in a second tests PR of `graphify-rs-ihc.8`, before the code PR |
 
 #### cluster
 
