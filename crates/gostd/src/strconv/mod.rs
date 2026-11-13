@@ -7,7 +7,9 @@
 mod atof;
 mod atoi;
 mod ftoa;
+mod pow10tab;
 mod quote;
+mod uscale;
 
 use std::fmt;
 

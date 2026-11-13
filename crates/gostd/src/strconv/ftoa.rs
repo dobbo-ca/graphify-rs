@@ -1,5 +1,7 @@
-//! Shortest float formatting. Go `internal/strconv/ftoa.go` (1.27.4): the digits come from Rust's
-//! `{:e}` (shortest round-trip, the same digits as Go's `shortFloat`); only the layout is ported.
+//! Shortest float formatting. Go `internal/strconv/ftoa.go` (1.27.4): `ftoa64` with precision -1
+//! (digits from `uscale::short_float`, as Go) and the `fmtEFG` layout.
+
+use super::uscale::short_float;
 
 /// Go `ftoa64` (ftoa.go:217) with `prec` -1: special values, then `fmtEFG` with the shortest
 /// precision rules. `fmt` is already checked.
@@ -18,15 +20,24 @@ pub(super) fn append_float(dst: &mut Vec<u8>, f: f64, fmt: u8) {
         fmt_efg(dst, neg, &[], 0, 0, -1, fmt, true);
         return;
     }
-    // "d.ddde<exp>" or "de<exp>"
-    let text = format!("{:e}", f.abs());
-    let (mant, exp) = text
-        .split_once('e')
-        .expect("LowerExp output has an exponent");
-    let digits: Vec<u8> = mant.bytes().filter(|&c| c != b'.').collect();
-    let exp: i64 = exp.parse().expect("LowerExp exponent is an integer");
+    // Go ftoa64 (ftoa.go:217-283): unpack, left-justify the mantissa, shortFloat, setDigits.
+    let bits = f.to_bits();
+    let mut exp = ((bits >> 52) & 0x7FF) as i32;
+    let mut mant = bits & ((1 << 52) - 1);
+    if exp == 0 {
+        exp += 1;
+    } else {
+        mant |= 1 << 52;
+    }
+    exp -= 1023; // float64Bias
+    let s = mant.leading_zeros() as i32;
+    let (d, p) = short_float(mant << s, exp - s - 52);
+    let mut digits = d.to_string().into_bytes();
+    let dp = digits.len() as i64 + i64::from(p);
+    while digits.last() == Some(&b'0') {
+        digits.pop();
+    }
     let nd = digits.len() as i64;
-    let dp = exp + 1;
     let prec = match fmt {
         b'e' | b'E' => (nd - 1).max(0),
         b'f' => (nd - dp).max(0),
