@@ -2,6 +2,7 @@
 
 use std::collections::BTreeMap;
 
+use crate::extract::tests::util;
 use crate::extract::{file_from_bytes, resolve};
 use crate::model::{Confidence, Relation};
 
@@ -15,60 +16,13 @@ fn srcs_of(pairs: &[(&str, &str)]) -> Srcs {
         .collect()
 }
 
-/// Go `extractAll` (`inherits_test.go`): `FileFromBytes` on each source, `Resolve`, and the
-/// edges as (source label, relation, target label).
-fn extract_all(srcs: &Srcs) -> Vec<(String, String, String)> {
-    crate::extract::kinds::register_kinds();
-    let mut results = Vec::new();
-    let mut files = Vec::new();
-    for (rel, src) in srcs {
-        results.push(file_from_bytes(rel, src.as_bytes()));
-        files.push(rel.clone());
-    }
-    let workers = std::thread::available_parallelism().map_or(1, |n| n.get());
-    let ext = resolve(&results, &files, workers);
-    let label: BTreeMap<&str, &str> = ext
-        .nodes
-        .iter()
-        .map(|n| (n.id.as_str(), n.label.as_str()))
-        .collect();
-    ext.edges
-        .iter()
-        .map(|e| {
-            (
-                label
-                    .get(e.source.as_str())
-                    .copied()
-                    .unwrap_or("")
-                    .to_string(),
-                e.relation.as_str().to_string(),
-                label
-                    .get(e.target.as_str())
-                    .copied()
-                    .unwrap_or("")
-                    .to_string(),
-            )
-        })
-        .collect()
-}
-
-/// Go `wantEdges` (`inherits_test.go`).
+/// Go `wantEdges` through the shared helper (`crate::extract::tests::util`), with the kinds
+/// registered first and the sources and edges in this file's shapes.
 fn want_edges(srcs: &Srcs, want: &[Edge3], unwanted: &[Edge3]) {
-    let got = extract_all(srcs);
-    let has = |w: &Edge3| got.iter().any(|e| e.0 == w.0 && e.1 == w.1 && e.2 == w.2);
-    for w in want {
-        assert!(
-            has(w),
-            "missing edge {} --{}--> {}; got {:?}",
-            w.0,
-            w.1,
-            w.2,
-            got
-        );
-    }
-    for w in unwanted {
-        assert!(!has(w), "unexpected edge {} --{}--> {}", w.0, w.1, w.2);
-    }
+    crate::extract::kinds::register_kinds();
+    let srcs: Vec<(&str, &str)> = srcs.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+    let arr = |es: &[Edge3]| es.iter().map(|e| [e.0, e.1, e.2]).collect::<Vec<_>>();
+    util::want_edges(&srcs, &arr(want), &arr(unwanted));
 }
 
 // javaBuilder names its steps like methods of an unrelated class, so only
