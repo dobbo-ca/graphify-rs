@@ -10,6 +10,7 @@ pub mod strconv;
 pub mod strings;
 #[doc(hidden)]
 pub mod tables;
+pub mod toml;
 pub mod unicode;
 pub mod utf8;
 pub mod xml;

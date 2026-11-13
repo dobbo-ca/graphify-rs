@@ -165,7 +165,8 @@ Oracle package: none yet.
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| - | - | - | - | not started |
+| `BurntSushi/toml@v1.4.0/decode_test.go` | 27 | 8 (+1 added) | 0 | 19 not reached by graphify-go (it decodes into `map[string]any` only): DecodeReader, DecodeFS, struct destinations (Embedded, IgnoreFields, Pointers, ArrayWrongSize, SizedInts, Types, DoubleTags), Unmarshaler, CustomDecode, Primitive, TextUnmarshaler, Duration, JSONNumber, MetaDotConflict, MetaKeys (MetaData), CustomEncode (encoder), DecodeParallel; the 8 ported are adapted where Go asserts on a struct destination |
+| `BurntSushi/toml@v1.4.0/toml_test.go` | 3 (toml-test 180 valid + 371 invalid) | 2 (TestToml, TestTomlNextFails; errorTests as `error_tests`) | 0 | TestTomlNext (TOML 1.1, never enabled by graphify-go); the encode half and `metaTests` (encoder and MetaData not reached); 16 invalid cases that Go's `SkipTests` skips (355 of 371 invalid asserted) |
 
 #### unicode
 
