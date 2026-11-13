@@ -5,7 +5,7 @@ use std::collections::BTreeMap;
 use crate::model::{Edge, Graph, Node, Relation};
 
 mod cluster;
-mod gorand;
+pub(crate) mod gorand;
 mod louvain;
 
 fn strs(v: &[&str]) -> Vec<String> {
