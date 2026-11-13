@@ -7,3 +7,6 @@
 mod ts;
 
 pub use ts::{budget, limit, parse};
+
+#[cfg(test)]
+mod tests;
