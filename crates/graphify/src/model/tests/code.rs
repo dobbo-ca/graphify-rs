@@ -51,7 +51,6 @@ fn json<T: gostd::json::Marshal + ?Sized>(v: &T) -> String {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.7"]
 fn test_edge_codes() {
     assert!(
         Relation::IMPLEMENTS.as_str() == "implements"
@@ -102,7 +101,6 @@ fn test_edge_codes() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.7"]
 fn test_loc_and_file() {
     // Every text comes back as it went in, and equal texts have equal codes.
     let texts = [
@@ -220,7 +218,6 @@ fn test_loc_and_file() {
 
 /// v0.10.1 held confidence as a string, so any number of distinct values loads.
 #[test]
-#[ignore = "graphify-rs-ihc.7"]
 fn test_many_confidences() {
     const N: usize = 70_000;
     let mut sb = String::from("[");
@@ -248,7 +245,6 @@ fn test_many_confidences() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.7"]
 fn test_type_only_json() {
     const IN: &str = r#"{"source":"a","target":"b","relation":"imports_from","confidence":"EXTRACTED","type_only":true,"source_file":"a.ts","source_location":"L3"}"#;
     let mut e: Edge = unmarshal(IN.as_bytes()).unwrap();
@@ -365,7 +361,6 @@ fn test_type_only_json() {
 /// The round-trip half of Go `TestEdgeLayout`: three edges, one type-only and one deferred, come
 /// back equal, and each flag is written once.
 #[test]
-#[ignore = "graphify-rs-ihc.7"]
 fn test_edge_layout_round_trip() {
     let mut want = vec![
         Edge {
