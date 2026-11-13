@@ -4,12 +4,41 @@
 //! graphify-rs-ihc.16 (plan Task 15).
 #![allow(dead_code, unused_variables, clippy::ptr_arg)]
 
+mod bash;
+pub(crate) mod builder;
+mod c;
+mod component;
+mod cpp;
+mod csharp;
+mod csharp_resolve;
+mod dispatch;
 #[allow(clippy::module_inception)]
 mod extract;
+mod golang;
+mod java;
+mod javascript;
+mod jsmodules;
+mod julia;
+pub mod kinds;
+mod kotlin;
+mod lua;
+mod nulllabel;
+mod nulllabel_resolve;
+mod php;
+mod python;
 mod resolve;
+mod ruby;
+mod rust;
+mod scala;
+mod terraform;
+mod verilog;
+mod zig;
 
 pub use extract::{
     Call, Def, Imp, ImportAlias, LabelInputs, MdRef, ModInvoke, ModRef, NullLabelRef, Result,
     SegVal, TypeRef, file, file_from_bytes,
 };
 pub use resolve::{join, resolve, resolve_parts};
+
+#[cfg(test)]
+mod tests;
