@@ -23,7 +23,6 @@ fn edge(source: &str, target: &str, relation: &str) -> Edge {
 
 /// Edges whose ids hold NUL collided under the joined dedup key of v0.10.1.
 #[test]
-#[ignore = "graphify-rs-ihc.7"]
 fn test_add_edge_nul_ids_collide() {
     let mut g = Graph::new();
     for id in ["a", "\x00a", "a\x00"] {
@@ -36,7 +35,6 @@ fn test_add_edge_nul_ids_collide() {
 
 /// Both directions, a second relation and a self-loop each count once.
 #[test]
-#[ignore = "graphify-rs-ihc.7"]
 fn test_neighbors_are_distinct() {
     let mut g = Graph::new();
     for id in ["c", "a", "b"] {
@@ -64,7 +62,6 @@ fn test_neighbors_are_distinct() {
 /// `add_edges_at` must leave the graph `add_edge` leaves, edge and neighbour order included,
 /// also when ids with NUL make different edges collide.
 #[test]
-#[ignore = "graphify-rs-ihc.7"]
 fn test_add_edges_at_matches_add_edge() {
     let mut rng = Rng::new(1);
     for ids in [

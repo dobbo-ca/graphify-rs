@@ -9,7 +9,6 @@ fn float(f: f64) -> Result<String, gostd::json::Error> {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.7"]
 fn append_json_float_thresholds() {
     // 'f' form for 0 and 1e-6 <= |f| < 1e21, else encoding/json's 'e' form with "e-07" made "e-7".
     for (f, want) in [
@@ -31,7 +30,6 @@ fn append_json_float_thresholds() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.7"]
 fn append_json_string_matches_marshal() {
     for s in [
         "plain",
