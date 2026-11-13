@@ -56,7 +56,6 @@ fn passenger(names: &[&str], weight: &str) -> Node {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_marshal() {
     // GOSRC marshal_test.go:542 marshalTests; Go line of each row in the comment.
     let ship = {
@@ -346,7 +345,6 @@ fn test_marshal() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn escape_rules() {
     let mut dst = Vec::new();
     escape_text(&mut dst, b"a\nb\t\"'<&\x00\xE2\x82");

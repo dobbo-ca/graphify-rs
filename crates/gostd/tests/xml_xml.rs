@@ -199,7 +199,6 @@ const XML_INPUT: [&str; 39] = [
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_raw_token_alt_encoding_no_converter() {
     // Go: first RawToken returns a token, second returns nil and an error
     // naming the encoding.
@@ -224,7 +223,6 @@ const NESTED_DIRECTIVES_INPUT: &str = r##"
 "##;
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_nested_directives() {
     let want = vec![
         cd("\n"),
@@ -248,7 +246,6 @@ fn test_nested_directives() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_token() {
     let have = tokens_with_entity(TEST_INPUT.as_bytes(), &TEST_ENTITY).expect("unexpected error");
     let want = cooked_tokens();
@@ -313,7 +310,6 @@ fn raw_tokens_table() -> Vec<Token> {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_raw_token() {
     let raw = TEST_INPUT;
     let have = raw_token_spans(raw.as_bytes(), &TEST_ENTITY).expect("unexpected error");
@@ -363,7 +359,6 @@ const PROC_INST_TESTS: [(&str, [&str; 2]); 11] = [
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_proc_inst_encoding() {
     for (input, expect) in PROC_INST_TESTS {
         assert_eq!(
@@ -380,7 +375,6 @@ fn test_proc_inst_encoding() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_syntax() {
     for input in XML_INPUT {
         assert!(
@@ -391,7 +385,6 @@ fn test_syntax() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_input_line_pos() {
     let test_input = "<root>
 <?pi
@@ -422,7 +415,6 @@ att
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_issue_68387() {
     let got = raw_tokens(b"<item b=']]>'/>").expect("RawToken() failed");
     assert_eq!(
@@ -432,7 +424,6 @@ fn test_issue_68387() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_syntax_error_line_num() {
     let (_, err) = tokens_partial(b"<P>Foo<P>\n\n<P>Bar</>\n", false);
     let synerr = err.expect("Expected SyntaxError.");
@@ -443,21 +434,18 @@ fn test_syntax_error_line_num() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_trailing_raw_token() {
     let (_, err) = tokens_partial(b"<FOO></FOO>  ", true);
     assert_eq!(err, None, "d.RawToken() want io.EOF");
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_trailing_token() {
     let (_, err) = tokens_partial(b"<FOO></FOO>  ", false);
     assert_eq!(err, None, "d.Token() want io.EOF");
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_entity_inside_cdata() {
     let (_, err) = tokens_partial(b"<test><![CDATA[ &val=foo ]]></test>", false);
     assert_eq!(err, None, "d.Token() want io.EOF");
@@ -494,7 +482,6 @@ const CHARACTER_TESTS: [(&[u8], &str); 9] = [
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_disallowed_characters() {
     for (i, (input, want)) in CHARACTER_TESTS.iter().enumerate() {
         let (_, err) = tokens_partial(input, false);
@@ -504,7 +491,6 @@ fn test_disallowed_characters() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_is_in_character_range() {
     // utf8.MaxRune+1, surrogate min, surrogate max, and u32::MAX for Go's -1.
     for r in [0x110000u32, 0xD800, 0xDFFF, u32::MAX] {
@@ -519,7 +505,6 @@ const DIRECTIVES_WITH_COMMENTS_INPUT: &str = r##"
 "##;
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_directives_with_comments() {
     let want = vec![
         cd("\n"),
@@ -535,7 +520,6 @@ fn test_directives_with_comments() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_escape_text_invalid_char() {
     let input = b"A \x00 terminated string.";
     let expected = "A \u{FFFD} terminated string.";
@@ -545,7 +529,6 @@ fn test_escape_text_invalid_char() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_issue_11405() {
     for tc in ["<root>", "<root><foo>", "<root><foo></foo>"] {
         assert!(tokens(tc.as_bytes()).is_err(), "{tc}: want SyntaxError");
@@ -553,7 +536,6 @@ fn test_issue_11405() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_issue_12417() {
     let test_cases = [
         (r#"<?xml encoding="UtF-8" version="1.0"?><root/>"#, true),
@@ -567,7 +549,6 @@ fn test_issue_12417() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_issue_20396() {
     const ATTR_ERROR: &str = "XML syntax error on line 1: expected attribute name in element";
     const NAME_ERROR: &str = "XML syntax error on line 1: expected element name after <";
@@ -588,7 +569,6 @@ fn test_issue_20396() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_issue_20685() {
     let test_cases = [
         (
@@ -621,7 +601,6 @@ fn test_issue_20685() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_parse_errors() {
     let with_default_header = |s: &str| format!(r#"<?xml version="1.0" encoding="UTF-8"?>{s}"#);
     let tests: Vec<(Vec<u8>, &str)> = vec![
