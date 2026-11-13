@@ -31,7 +31,7 @@ gositter-rs.
 
 - Edition 2024, toolchain 1.99.1 pinned in `rust-toolchain.toml`, `Cargo.lock`
   committed, `publish = false`.
-- std first. Never `cc`, `bindgen`, `-sys` crates or FFI to C. A `deny` CI stage
+- std first. Never `cc`, `bindgen`, `-sys` crates or FFI to C. The `test` CI stage
   runs cargo-deny with a ban list: `cc`, `cmake`, `bindgen`, `ring`, `aws-lc-*`,
   `openssl-sys`, `security-framework-sys`, `core-foundation-sys`.
 - Every third-party crate is in the README with its reason.
@@ -226,22 +226,25 @@ P0 setup -> P1 gositter-rs ----------------+
 
 ## 7. Oracles and CI
 
-| Stage | Compares | Required | Phase |
+| Stage | Compares | Gate | Phase |
 |---|---|---|---|
-| `test` | fmt, clippy `-D warnings` (x86_64 and aarch64), tests, tests with `<CRATE>_SIMD=scalar` | yes | all |
-| `arm64` | tests under qemu (gositter-rs: the unsigned `char` path) | yes | all |
-| `deny` | cargo-deny C ban list and licences | yes | all |
-| `parity` (gositter-rs) | treedump vs 1,423 C goldens, and vs the pure-Go gositter dump tool | yes | P1 |
-| `parity` (graphify-rs) | P1': `gostd` vs Go std. P2: the gate in section 5 vs graphify-go 35fcd9e | yes | P1' on |
-| `graphdiff` | node and edge sets vs Go; every difference must match an allowlist rule with a D-id | yes | P3 |
+| `test` | fmt, clippy `-D warnings` (x86_64 and aarch64), tests, tests with `<CRATE>_SIMD=scalar`, cargo-deny | PR | all |
+| `arm64` | tests under qemu (gositter-rs: the unsigned `char` path) | main | all |
+| `parity` (gositter-rs) | treedump vs 1,423 C goldens, and vs the pure-Go gositter dump tool | main | P1 |
+| `parity` (graphify-rs) | P1': `gostd` vs Go std. P2: the gate in section 5 vs graphify-go 35fcd9e | main | P1' on |
+| `graphdiff` | node and edge sets vs Go; every difference must match an allowlist rule with a D-id | main | P3 |
 | `upstream` | graphify 0.9.107 (Python) on the `work/` fixtures, compared by label and file | no | P3 |
-| `macos` | tests on GitHub-hosted macOS | yes | P2 on |
+| `macos` | tests on GitHub-hosted macOS | main | P2 on |
 | `fuzz.yml` | nightly cargo-fuzz: gositter-rs parse, the 3 graphify-go fuzz targets, `gostd` json/regexp/toml | no | all |
 | `bench.yml` | per crate vs the Go original; gate 1.10x of Go or better | no | all |
 
 The graphify-rs `go-oracle` stage builds graphify-go 35fcd9e from source with
 `go mod download` checked against `go.sum` and `-mod=readonly`. graphify-go and
 its about 30 module dependencies, gositter v0.2.0 included, are public.
+
+As in deflate-rs, the repository ruleset requires only `test` on a PR. The
+"main" stages run on push to main and on `workflow_dispatch`; a bead is done
+only when they are green on main.
 
 After P3 starts, the byte diff cannot stay the gate, so `parity/graphdiff`
 (Rust) takes over. The `go-parity-v0.12.0` tag keeps the byte proof

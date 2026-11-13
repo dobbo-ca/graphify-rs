@@ -1,0 +1,24 @@
+{
+  "head": "refs/heads/main",
+  "remotes": {
+    "origin": {
+      "name": "origin",
+      "url": "git+ssh://git@github.com/dobbo-ca/graphify-rs.git",
+      "fetch_specs": [
+        "refs/heads/*:refs/remotes/origin/*"
+      ],
+      "params": {}
+    }
+  },
+  "backups": {
+    "backup_export": {
+      "name": "backup_export",
+      "url": "file:///Users/christopherdobbyn/work/dobbo-ca/graphify-rs/.beads/backup",
+      "fetch_specs": [
+        "refs/heads/*:refs/remotes/backup_export/*"
+      ],
+      "params": {}
+    }
+  },
+  "branches": {}
+}
