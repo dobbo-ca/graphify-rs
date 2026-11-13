@@ -10,6 +10,30 @@ WORKDIR /src
 FROM toolchain AS src
 COPY . .
 
+# The UCD files the table generator (crates/gostd-gen) reads, listed in ucd.files and checked
+# against ucd.lock (sha256sum format). An empty ucd.lock skips the check (bootstrap only: the `ci`
+# stage fails until the computed lock is committed). /ucd/ucd.lock is always the computed one.
+FROM debian:bookworm-slim AS ucd
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /ucd
+COPY crates/gostd-gen/ucd.files crates/gostd-gen/ucd.lock /ucdcfg/
+RUN set -e; while read -r f; do mkdir -p "$(dirname "$f")"; \
+      curl -fsSL --retry 3 -o "$f" "https://www.unicode.org/Public/${f%%/*}/ucd/${f#*/}"; \
+    done < /ucdcfg/ucd.files \
+    && if [ -s /ucdcfg/ucd.lock ]; then sha256sum -c /ucdcfg/ucd.lock; fi \
+    && sha256sum $(cat /ucdcfg/ucd.files) > /ucd/ucd.lock && cat /ucd/ucd.lock
+
+# The generated tables (exported by the `gen` job with outputs: type=local).
+FROM src AS gen-build
+RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
+    --mount=type=cache,target=/src/target,sharing=locked \
+    --mount=type=bind,from=ucd,source=/ucd,target=/ucd \
+    cargo run --locked --release -p gostd-gen -- /ucd /out && cp /ucd/ucd.lock /out/
+
+FROM scratch AS gen
+COPY --from=gen-build /out /
+
 # The Go oracle (parity/go/oracle) and the Go test inputs. Go runs only here, never on a Mac.
 # The modules are downloaded by name and checked against go.sum (a copy of graphify-go's), so a
 # changed module fails the build.
@@ -43,6 +67,11 @@ FROM src AS ci
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
     --mount=type=cache,target=/src/target,sharing=locked \
     cargo fmt --all --check
+# The committed UCD lock and tables must equal what the generator makes from the pinned files.
+RUN --mount=type=bind,from=gen-build,source=/out,target=/gen \
+    { cmp /gen/ucd.lock crates/gostd-gen/ucd.lock \
+      && diff -r --exclude=mod.rs --exclude=ucd.lock /gen crates/gostd/src/tables; } \
+    || { echo 'crates/gostd/src/tables or ucd.lock differ from the gostd-gen output: commit the gen job artifact'; exit 1; }
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
     --mount=type=cache,target=/src/target,sharing=locked \
     sh ci/fresh.sh && cargo clippy --locked --workspace --all-targets -- -D warnings
