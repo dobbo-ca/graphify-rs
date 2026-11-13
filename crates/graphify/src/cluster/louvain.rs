@@ -64,6 +64,8 @@ pub(super) fn modularize_with(adj: &[Vec<i64>], look_at_all: bool) -> Vec<Vec<i6
 
 /// The visit order of the first sweep of `localMove` (louvain.go:130-133) on `n` nodes: `order`
 /// after the Fisher-Yates driven by a fresh seed-42 PCG (`rand.New(rand.NewSource(seed)).Intn`).
+/// Test-only: it exposes the order that `local_move` uses.
+#[cfg(test)]
 pub(super) fn local_move_order(n: usize) -> Vec<usize> {
     let mut r = Rand::new(PcgSource::new(SEED));
     let mut rnd = |n: usize| r.intn(n as i64) as usize;
