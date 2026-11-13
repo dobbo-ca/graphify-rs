@@ -24,7 +24,6 @@ fn edge(source: &str, target: &str, relation: Relation, confidence: Confidence) 
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn test_build_drops_dangling_and_cross_lang_calls() {
     let ext = Extraction {
         nodes: vec![
@@ -52,7 +51,6 @@ fn test_build_drops_dangling_and_cross_lang_calls() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn test_build_drops_cross_lang_imports_keeps_concept() {
     let ext = Extraction {
         nodes: vec![
@@ -101,7 +99,6 @@ fn test_build_drops_cross_lang_imports_keeps_concept() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn test_build_keeps_both_directions() {
     let ext = Extraction {
         nodes: vec![node("a", "a()", "", "x.go"), node("b", "b()", "", "x.go")],
@@ -114,7 +111,6 @@ fn test_build_keeps_both_directions() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn test_build_keeps_provenance_on_id_collision() {
     let mut doc = node("model", "Model Doc", "concept", "model.md");
     doc.source_location = "L1".into();
@@ -132,7 +128,6 @@ fn test_build_keeps_provenance_on_id_collision() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn test_build_fills_missing_attributes_from_same_file() {
     let mut first = node("a", "a()", "code", "x.go");
     first.source_location = "L7".into();
@@ -149,7 +144,6 @@ fn test_build_fills_missing_attributes_from_same_file() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn test_build_keeps_component_edges() {
     let ext = Extraction {
         nodes: vec![
