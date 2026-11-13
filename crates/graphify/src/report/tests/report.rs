@@ -9,7 +9,6 @@ use crate::model::{Confidence, Graph, Relation, file_of, rel};
 use crate::report::generate;
 
 #[test]
-#[ignore = "graphify-rs-ihc.11"]
 fn test_generate_sections() {
     let g = report_graph();
     let communities = cluster(&g);
@@ -30,7 +29,6 @@ fn test_generate_sections() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.11"]
 fn test_generate_omits_freshness_without_commit() {
     let g = report_graph();
     let communities = cluster(&g);
@@ -46,7 +44,6 @@ fn test_generate_omits_freshness_without_commit() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.11"]
 fn test_generate_omits_gap_sections_when_clean() {
     // A single fully-connected community of real nodes: no ambiguous edges, no
     // isolated nodes, no thin communities.
@@ -70,7 +67,6 @@ fn test_generate_omits_gap_sections_when_clean() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.11"]
 fn test_generate_ambiguous_and_gap_sections() {
     let mut g = report_graph();
     // An AMBIGUOUS edge between two real nodes.
@@ -101,7 +97,6 @@ fn test_generate_ambiguous_and_gap_sections() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.11"]
 fn test_generate_high_ambiguity_warning() {
     let mut g = Graph::new();
     g.add_node(node("x", "x()", "pkg/a.go"));
@@ -118,7 +113,6 @@ fn test_generate_high_ambiguity_warning() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.11"]
 fn test_generate_over_budget_line() {
     let mut g = report_graph();
     let communities = cluster(&g);
@@ -145,7 +139,6 @@ fn test_generate_over_budget_line() {
 // the Go `report_graph` (plus an AMBIGUOUS edge where the section needs one).
 
 #[test]
-#[ignore = "graphify-rs-ihc.11"]
 fn test_report_contains_header() {
     let g = report_graph();
     let report = generate(&g, &cluster(&g), "./project", "");
@@ -153,7 +146,6 @@ fn test_report_contains_header() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.11"]
 fn test_report_contains_god_nodes() {
     let g = report_graph();
     let report = generate(&g, &cluster(&g), "./project", "");
@@ -161,7 +153,6 @@ fn test_report_contains_god_nodes() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.11"]
 fn test_report_contains_surprising_connections() {
     let g = report_graph();
     let report = generate(&g, &cluster(&g), "./project", "");
@@ -169,7 +160,6 @@ fn test_report_contains_surprising_connections() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.11"]
 fn test_report_contains_communities() {
     let g = report_graph();
     let report = generate(&g, &cluster(&g), "./project", "");
@@ -177,7 +167,6 @@ fn test_report_contains_communities() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.11"]
 fn test_report_contains_ambiguous_section() {
     let mut g = report_graph();
     g.add_edge(edge("a3", "b3", rel("uses"), Confidence::AMBIGUOUS));
@@ -186,7 +175,6 @@ fn test_report_contains_ambiguous_section() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.11"]
 fn test_report_shows_raw_cohesion_scores() {
     // Python passes `min_community_size=1`; Go's minimum is 3, so each community here holds three
     // real nodes (the file hub is not one).
@@ -202,7 +190,6 @@ fn test_report_shows_raw_cohesion_scores() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.11"]
 fn test_import_cycles_section_present_for_code_corpus() {
     // #1657: the fixture is a code corpus, so the Import Cycles section shows.
     let g = report_graph();
@@ -211,7 +198,6 @@ fn test_import_cycles_section_present_for_code_corpus() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.11"]
 fn test_report_omits_unclassified_line_when_none() {
     // Backward compatible: no unclassified files, no new line.
     let g = report_graph();
@@ -220,7 +206,6 @@ fn test_report_omits_unclassified_line_when_none() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.11"]
 fn test_report_work_memory_section_absent_without_overlay() {
     // No learning input => no section (without the python test's `before == empty` half: Go's
     // `Generate` has no `learning` argument).
