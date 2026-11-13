@@ -15,6 +15,7 @@ mod sort;
 mod strconv;
 mod strings;
 mod unicode17;
+mod url;
 mod xml_dec;
 mod xml_enc;
 mod xtext;
@@ -43,6 +44,7 @@ const PKGS: &[(&str, usize, Run)] = &[
     ("strconv", 36, strconv::run),
     ("strings", 8000, strings::run),
     ("unicode17", 3, unicode17::run),
+    ("url", 5113, url::run),
     ("xml-dec", 3300, xml_dec::run),
     ("xml-enc", 500, xml_enc::run),
     ("xtext", 20053, xtext::run),

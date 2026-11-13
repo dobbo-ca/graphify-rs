@@ -579,7 +579,6 @@ impl T {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.14"]
 fn test_parse() {
     assert_eq!(URL_TESTS.len(), 61);
     for tt in URL_TESTS {
@@ -623,7 +622,6 @@ fn check_path_unescape(input: &str, out: &str, err: Option<&str>) {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.14"]
 fn test_unescape() {
     for &(input, out, err) in UNESCAPE_TESTS {
         // Go also runs QueryUnescape here (not ported). With a "+", Go first checks the "+" as
@@ -641,7 +639,6 @@ fn test_unescape() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.14"]
 fn test_parse_failure() {
     // Test that the first parse error is returned.
     const URL: &str = "%gh&%ij";
@@ -705,7 +702,6 @@ const PARSE_ERRORS: &[(&str, bool)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.14"]
 fn test_parse_errors() {
     for &(input, want_err) in PARSE_ERRORS {
         let res = parse(input);
@@ -719,7 +715,6 @@ fn test_parse_errors() {
 
 // Issue 11202
 #[test]
-#[ignore = "graphify-rs-aa6.14"]
 fn test_star_request() {
     // Go checks `RequestURI() == "*"`, which is `EscapedPath` special-casing Path "*" (not escaped to %2A).
     let u = parse("*").unwrap();
@@ -775,7 +770,6 @@ const HOSTNAME_AND_PORT: &[(&str, &str, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.14"]
 fn test_url_hostname_and_port() {
     assert_eq!(HOSTNAME_AND_PORT.len(), 21);
     for &(input, host, port) in HOSTNAME_AND_PORT {
@@ -789,7 +783,6 @@ fn test_url_hostname_and_port() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.14"]
 fn test_nil_user() {
     // Go's nil *Userinfo answers Username() "", Password() ("", false), String() ""; here `user` is None.
     let u = parse("http://foo.com/").unwrap();
@@ -797,7 +790,6 @@ fn test_nil_user() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.14"]
 fn test_invalid_user_password() {
     let err = parse("http://user^:passwo^rd@foo.com/").expect_err("Parse should fail");
     let got = err.to_string();
@@ -808,7 +800,6 @@ fn test_invalid_user_password() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.14"]
 fn test_reject_control_characters() {
     let tests = [
         "http://foo.com/?foo\nbar",
@@ -836,7 +827,6 @@ fn test_reject_control_characters() {
 // so its GODEBUG default is urlstrictcolons=0 (url.go:621): the port after the last colon, as for
 // every non-http scheme. gostd ports that lenient parse, so these hosts parse without error.
 #[test]
-#[ignore = "graphify-rs-aa6.14"]
 fn test_parse_strict_ipv6() {
     for input in [
         // Malformed URLs that used to parse.
