@@ -54,7 +54,6 @@ fn case_folding() -> HashMap<char, String> {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.4"]
 fn test_fold() {
     // Go's runeFoldData: the C/F folding of r, else ToLower(r).
     let fold_map = case_folding();
@@ -76,7 +75,6 @@ fn test_fold() {
 // public API: for each C or F line of CaseFolding.txt (15.0.0), fold(code point) == mapping. The
 // ToLower fallback for code points without a C/F line, and the assigned-range loop, are not covered.
 #[test]
-#[ignore = "graphify-rs-aa6.4"]
 fn test_fold_data() {
     let fold_map = case_folding();
     assert!(!fold_map.is_empty(), "CaseFolding.txt had no C/F lines");
@@ -87,7 +85,6 @@ fn test_fold_data() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.4"]
 fn fold_specials() {
     assert_eq!(fold("ß"), "ss");
     assert_eq!(fold("İ"), "i\u{307}");

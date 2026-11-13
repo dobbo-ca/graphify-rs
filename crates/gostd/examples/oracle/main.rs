@@ -8,6 +8,7 @@
 mod echo;
 mod strings;
 mod unicode17;
+mod xtext;
 
 use std::fs;
 use std::path::Path;
@@ -24,6 +25,7 @@ const PKGS: &[(&str, Run)] = &[
     ("echo", echo::run),
     ("strings", strings::run),
     ("unicode17", unicode17::run),
+    ("xtext", xtext::run),
 ];
 
 fn main() {

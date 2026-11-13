@@ -28,7 +28,6 @@ fn run(name: &str, f: fn(&str) -> String, tests: &[(&str, &str)]) {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.4"]
 fn test_insert() {
     let tests = [
         ("a", "a"),
@@ -44,7 +43,6 @@ fn test_insert() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.4"]
 fn test_decomposition() {
     // decompositionNFDTest rows without compatibility mappings, run as NFKD.
     let nfd_rows = [
@@ -68,7 +66,6 @@ fn test_decomposition() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.4"]
 fn test_composition() {
     let tests = [
         ("\u{41}\u{300}", "\u{C0}"),
