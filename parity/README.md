@@ -297,7 +297,7 @@ One block per module, in the plan's module order. A PR edits only its own module
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
 | graphify-go `internal/graph/build_test.go`, `order_test.go` (`graphify-rs-ihc.8`) | 6 + 2 | 8 (`TestBuildPartsMatchesBuild` without the no-write check: `build_parts` takes the parts by value; `TestEdgeOrderMatchesStableSort` also with 4 workers) | 0 | - |
-| upstream graph/build rows (10 files: `test_build.py`, `test_relation_collapse_precedence.py`, `test_external_stub_endpoints.py`, `test_multigraph_diagnostics.py`, ...) | 223 | 0 | 0 | ported in a second tests PR of `graphify-rs-ihc.8`, before the code PR |
+| upstream graph/build rows (10 files: `test_build.py`, `test_relation_collapse_precedence.py`, `test_external_stub_endpoints.py`, `test_multigraph_diagnostics.py`, ...) | 223 | 19 (`graphify-rs-ihc.8`; the fixture `extraction.json` inlined) | 0 | 204: 3 vacuous in Go (old-stem alias stays dangling only because Go drops dangling edges); no Go function (`build_merge`, `merge_raw_extraction`, `dedupe_*`, `edge_data*`, hyperedges, entity dedup, `diagnostics`, legacy-id and `root` handling, `_backfill_origin`, external stubs in data; 126); Go differs (one edge per source/target/relation and both directions kept; no ghost or twin merge; ids not re-keyed; no old-stem alias; no external stubs; no coercion or alias folding; 54); whole pipeline (`_rebuild_code`, `test_4978_reconcile_cost.py`; 21). Every name is in the header of `crates/graphify/src/graph/tests/upstream_build.rs` |
 
 #### cluster
 
