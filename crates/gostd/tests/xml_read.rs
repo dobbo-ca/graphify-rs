@@ -44,7 +44,6 @@ const MAX_UNMARSHAL_DEPTH: usize = 10000;
 
 // Issue 11112. Unmarshal must reject invalid comments.
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_malformed_comment() {
     let test_data = [
         "<X><!-- a---></X>",
@@ -61,7 +60,6 @@ fn test_malformed_comment() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_cve202228131() {
     big_stack(|| {
         let data = "<a>".repeat(MAX_UNMARSHAL_DEPTH + 1);
@@ -72,7 +70,6 @@ fn test_cve202228131() {
 
 // Unmarshal must not panic on 17M unclosed elements.
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_cve202230633() {
     big_stack(|| {
         let data = "<a>".repeat(17_000_000);
@@ -81,7 +78,6 @@ fn test_cve202230633() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_decode_element_recursion() {
     big_stack(|| {
         // (name, depth, want_err)
@@ -101,7 +97,6 @@ fn test_decode_element_recursion() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_decode_element_depth_bypass() {
     big_stack(|| {
         // 3 blocks of 5,000 nested <section> tags, separated by <extension>
@@ -123,7 +118,6 @@ fn test_decode_element_depth_bypass() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn test_recursive_unmarshal_interface_depth() {
     big_stack(|| {
         let depth = MAX_UNMARSHAL_DEPTH + 1;
@@ -135,7 +129,6 @@ fn test_recursive_unmarshal_interface_depth() {
 
 // Extra (Review Focus: pom.xml shapes): the three pom.xml inputs the plan names.
 #[test]
-#[ignore = "graphify-rs-aa6.12"]
 fn pom_shapes() {
     // A declared encoding with no CharsetReader is an error.
     let err = unmarshal_element(
