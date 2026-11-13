@@ -1,9 +1,14 @@
-#![allow(unused_variables)] // graphify-rs-aa6.6: stubs until the code PR
-#![allow(dead_code)] // graphify-rs-aa6.6: append_range is unused until the code PR
 //! Go 1.27.4 regexp/syntax: parser, simplifier and compiler for RE2 syntax.
 
 use std::fmt;
 use std::ops::{BitAnd, BitOr, Not};
+
+mod compile;
+mod parse;
+mod perl_groups;
+mod prog;
+mod regexp;
+mod simplify;
 
 /// Go `Flags` (parse.go:56). Parser behaviour flags.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -43,7 +48,7 @@ impl BitOr for Flags {
     type Output = Flags;
     /// Go `a | b`.
     fn bitor(self, rhs: Flags) -> Flags {
-        todo!("graphify-rs-aa6.6")
+        Flags(self.0 | rhs.0)
     }
 }
 
@@ -51,7 +56,7 @@ impl BitAnd for Flags {
     type Output = Flags;
     /// Go `a & b`.
     fn bitand(self, rhs: Flags) -> Flags {
-        todo!("graphify-rs-aa6.6")
+        Flags(self.0 & rhs.0)
     }
 }
 
@@ -59,7 +64,7 @@ impl Not for Flags {
     type Output = Flags;
     /// Go `^a` (used as `x &^ y` == `x & !y`).
     fn not(self) -> Flags {
-        todo!("graphify-rs-aa6.6")
+        Flags(!self.0)
     }
 }
 
@@ -112,7 +117,28 @@ pub enum Op {
 impl fmt::Display for Op {
     /// Go `Op.String` (op_string.go:41): name without the `Op` prefix, `opPseudo` for 128.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        todo!("graphify-rs-aa6.6")
+        match *self {
+            Op::NoMatch => f.write_str("NoMatch"),
+            Op::EmptyMatch => f.write_str("EmptyMatch"),
+            Op::Literal => f.write_str("Literal"),
+            Op::CharClass => f.write_str("CharClass"),
+            Op::AnyCharNotNL => f.write_str("AnyCharNotNL"),
+            Op::AnyChar => f.write_str("AnyChar"),
+            Op::BeginLine => f.write_str("BeginLine"),
+            Op::EndLine => f.write_str("EndLine"),
+            Op::BeginText => f.write_str("BeginText"),
+            Op::EndText => f.write_str("EndText"),
+            Op::WordBoundary => f.write_str("WordBoundary"),
+            Op::NoWordBoundary => f.write_str("NoWordBoundary"),
+            Op::Capture => f.write_str("Capture"),
+            Op::Star => f.write_str("Star"),
+            Op::Plus => f.write_str("Plus"),
+            Op::Quest => f.write_str("Quest"),
+            Op::Repeat => f.write_str("Repeat"),
+            Op::Concat => f.write_str("Concat"),
+            Op::Alternate => f.write_str("Alternate"),
+            Op::Pseudo => f.write_str("opPseudo"),
+        }
     }
 }
 
@@ -141,29 +167,29 @@ pub struct Regexp {
 impl Regexp {
     /// Go `Regexp.Simplify` (simplify.go:14).
     pub fn simplify(&self) -> Regexp {
-        todo!("graphify-rs-aa6.6")
+        simplify::simplify(self)
     }
 
     /// Go `Regexp.MaxCap` (regexp.go:437).
     pub fn max_cap(&self) -> i32 {
-        todo!("graphify-rs-aa6.6")
+        regexp::max_cap(self)
     }
 
     /// Go `Regexp.CapNames` (regexp.go:451).
     pub fn cap_names(&self) -> Vec<String> {
-        todo!("graphify-rs-aa6.6")
+        regexp::cap_names(self)
     }
 
     /// Go `Regexp.Equal` (regexp.go:64).
     pub fn equal(&self, other: &Regexp) -> bool {
-        todo!("graphify-rs-aa6.6")
+        regexp::equal(self, other)
     }
 }
 
 impl fmt::Display for Regexp {
     /// Go `Regexp.String` (regexp.go:384).
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        todo!("graphify-rs-aa6.6")
+        regexp::write_string(self, f)
     }
 }
 
@@ -207,14 +233,31 @@ pub enum ErrorCode {
 impl ErrorCode {
     /// Go `ErrorCode.String` (parse.go:51): the code's exact Go string.
     pub fn text(&self) -> &'static str {
-        todo!("graphify-rs-aa6.6")
+        match self {
+            ErrorCode::InternalError => "regexp/syntax: internal error",
+            ErrorCode::InvalidCharClass => "invalid character class",
+            ErrorCode::InvalidCharRange => "invalid character class range",
+            ErrorCode::InvalidEscape => "invalid escape sequence",
+            ErrorCode::InvalidNamedCapture => "invalid named capture",
+            ErrorCode::InvalidPerlOp => "invalid or unsupported Perl syntax",
+            ErrorCode::InvalidRepeatOp => "invalid nested repetition operator",
+            ErrorCode::InvalidRepeatSize => "invalid repeat count",
+            ErrorCode::InvalidUTF8 => "invalid UTF-8",
+            ErrorCode::MissingBracket => "missing closing ]",
+            ErrorCode::MissingParen => "missing closing )",
+            ErrorCode::MissingRepeatArgument => "missing argument to repetition operator",
+            ErrorCode::TrailingBackslash => "trailing backslash at end of expression",
+            ErrorCode::UnexpectedParen => "unexpected )",
+            ErrorCode::NestingDepth => "expression nests too deeply",
+            ErrorCode::Large => "expression too large",
+        }
     }
 }
 
 impl fmt::Display for ErrorCode {
     /// Go `ErrorCode.String` (parse.go:51) == `text()`.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        todo!("graphify-rs-aa6.6")
+        f.write_str(self.text())
     }
 }
 
@@ -228,7 +271,7 @@ pub struct Error {
 impl fmt::Display for Error {
     /// Go `Error.Error` (parse.go:22): "error parsing regexp: " + code + ": `" + expr + "`".
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        todo!("graphify-rs-aa6.6")
+        write!(f, "error parsing regexp: {}: `{}`", self.code, self.expr)
     }
 }
 
@@ -236,7 +279,7 @@ impl std::error::Error for Error {}
 
 /// Go `Parse` (parse.go:887).
 pub fn parse(s: &str, flags: Flags) -> Result<Regexp, Error> {
-    todo!("graphify-rs-aa6.6")
+    parse::parse(s, flags)
 }
 
 /// Go `minFold` (parse.go:2014): smallest rune with a nontrivial `SimpleFold`.
@@ -244,12 +287,6 @@ pub fn parse(s: &str, flags: Flags) -> Result<Regexp, Error> {
 pub const MIN_FOLD: char = '\u{0041}';
 /// Go `maxFold` (parse.go:2015): largest rune with a nontrivial `SimpleFold`.
 pub const MAX_FOLD: char = '\u{1e943}';
-
-/// Go `appendRange` (parse.go:1987). Crate-visible because `TestAppendRangeCollapse`
-/// (parse_test.go:449) calls it directly.
-pub(crate) fn append_range(r: Vec<u32>, lo: u32, hi: u32) -> Vec<u32> {
-    todo!("graphify-rs-aa6.6")
-}
 
 /// Go `InstOp` (prog.go:25). Discriminants match Go's `iota`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -282,7 +319,19 @@ pub enum InstOp {
 impl fmt::Display for InstOp {
     /// Go `InstOp.String` (prog.go:55): `instOpNames` entry ("InstAlt", ...).
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        todo!("graphify-rs-aa6.6")
+        f.write_str(match self {
+            InstOp::Alt => "InstAlt",
+            InstOp::AltMatch => "InstAltMatch",
+            InstOp::Capture => "InstCapture",
+            InstOp::EmptyWidth => "InstEmptyWidth",
+            InstOp::Match => "InstMatch",
+            InstOp::Fail => "InstFail",
+            InstOp::Nop => "InstNop",
+            InstOp::Rune => "InstRune",
+            InstOp::Rune1 => "InstRune1",
+            InstOp::RuneAny => "InstRuneAny",
+            InstOp::RuneAnyNotNL => "InstRuneAnyNotNL",
+        })
     }
 }
 
@@ -330,21 +379,21 @@ pub struct Prog {
 impl fmt::Display for Prog {
     /// Go `Prog.String` (prog.go:122), via `dumpProg` (prog.go:296).
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        todo!("graphify-rs-aa6.6")
+        prog::dump(self, f)
     }
 }
 
 /// Go `Compile` (compile.go:71). Expects a simplified regexp.
 pub fn compile(re: &Regexp) -> Result<Prog, Error> {
-    todo!("graphify-rs-aa6.6")
+    compile::compile(re)
 }
 
 /// Go `EmptyOpContext` (prog.go:80). `None` is Go's -1 (beginning/end of text).
 pub fn empty_op_context(r1: Option<char>, r2: Option<char>) -> EmptyOp {
-    todo!("graphify-rs-aa6.6")
+    prog::empty_op_context(r1, r2)
 }
 
 /// Go `IsWordChar` (prog.go:108): ASCII `[A-Za-z0-9_]` only.
 pub fn is_word_char(r: char) -> bool {
-    todo!("graphify-rs-aa6.6")
+    prog::is_word_char(r)
 }

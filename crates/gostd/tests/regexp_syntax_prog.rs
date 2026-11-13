@@ -151,7 +151,6 @@ const COMPILE_TESTS: &[(&str, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.6"]
 fn test_compile() {
     for (regexp, want) in COMPILE_TESTS {
         let re = parse(regexp, Flags::PERL).unwrap();

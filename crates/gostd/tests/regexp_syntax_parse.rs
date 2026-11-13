@@ -479,13 +479,11 @@ fn test_flags() -> Flags {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.6"]
 fn test_parse_simple() {
     test_parse_dump(&parse_tests(), test_flags());
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.6"]
 fn test_parse_fold_case() {
     test_parse_dump(
         &to_tests(&[
@@ -503,7 +501,6 @@ fn test_parse_fold_case() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.6"]
 fn test_parse_literal() {
     test_parse_dump(
         &to_tests(&[("(|)^$.[*+?]{5,10},\\", "str{(|)^$.[*+?]{5,10},\\}")]),
@@ -512,7 +509,6 @@ fn test_parse_literal() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.6"]
 fn test_parse_match_nl() {
     test_parse_dump(
         &to_tests(&[
@@ -526,7 +522,6 @@ fn test_parse_match_nl() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.6"]
 fn test_parse_no_match_nl() {
     test_parse_dump(
         &to_tests(&[
@@ -540,7 +535,6 @@ fn test_parse_no_match_nl() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.6"]
 fn test_fold_constants() {
     // Surrogates are skipped; Go's SimpleFold returns them unchanged.
     let mut folds = ('\0'..=char::MAX).filter(|&c| simple_fold(c) != c);
@@ -617,7 +611,6 @@ const ONLY_PERL: &[&str] = &[
 const ONLY_POSIX: &[&str] = &["a++", "a**", "a?*", "a+*", "a{1}*", ".{1}{2}.{3}"];
 
 #[test]
-#[ignore = "graphify-rs-aa6.6"]
 fn test_parse_invalid_regexps() {
     let mut errs = Vec::new();
     let mut want_err = |regexp: &str, flags: Flags, name: &str| {
@@ -652,7 +645,6 @@ fn test_parse_invalid_regexps() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.6"]
 fn test_to_string_equivalent_parse() {
     let mut errs = Vec::new();
     for (regexp, want) in parse_tests() {
@@ -722,7 +714,6 @@ const STRING_TESTS: &[(&str, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.6"]
 fn test_string() {
     let mut errs = Vec::new();
     for &(re, want) in STRING_TESTS {
@@ -749,7 +740,6 @@ fn test_string() {
 /// - "[a": parseClass runs out of input in parseClassChar (parse.go:1561-1563),
 ///   ErrMissingBracket with wholeClass, which is the class from "[" to the end: "[a".
 #[test]
-#[ignore = "graphify-rs-aa6.6"]
 fn error_text_matches_go() {
     let cases = [
         ("a(b", "error parsing regexp: missing closing ): `a(b`"),
