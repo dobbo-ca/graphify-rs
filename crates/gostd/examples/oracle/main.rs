@@ -41,7 +41,7 @@ const PKGS: &[(&str, usize, Run)] = &[
     ("csv", 2000, csv::run),
     ("echo", 4, echo::run),
     ("filepath", 40060, filepath::run),
-    ("json", 87, json::run),
+    ("json", 1227, json::run),
     ("pcg", 11, pcg::run),
     ("regexp", 22833, regexp::run),
     ("sha256", 631, sha256::run),

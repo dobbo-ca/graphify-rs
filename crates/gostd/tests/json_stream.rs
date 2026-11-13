@@ -9,10 +9,10 @@
 //! - TestEncoderSetEscapeHTML (stream_test.go:171): ported (5 of 6 rows; each phase uses a fresh `Encoder`
 //!   because the writer is borrowed, `set_escape_html(false)` is set before the second encode)
 //! - TestRawMessage (stream_test.go:308): ported (marshal half, then the Unmarshal half as
-//!   `test_raw_message_decode`, ignored until graphify-rs-aa6.10, from the active v2_stream_test.go:290,
+//!   `test_raw_message_decode`, from the active v2_stream_test.go:290,
 //!   identical; `float32` Y is an `f64`, no `Marshal for f32`)
 //! - TestNullRawMessage (stream_test.go:332): ported (marshal half, then `test_null_raw_message_decode`,
-//!   ignored until graphify-rs-aa6.10, from the active v2_stream_test.go:314, identical; same reasons)
+//!   from the active v2_stream_test.go:314, identical; same reasons)
 //! - TestDecoder (stream_test.go:240): not ported: `Decoder` is not used by graphify-go
 //! - TestDecoderBuffered (stream_test.go:272): not ported: `Decoder`/`Buffered` not used by graphify-go
 //! - TestBlocking (stream_test.go:359): not ported: `Decoder` over `net.Pipe`, not used by graphify-go
@@ -298,7 +298,6 @@ gostd::json_fields!(decode RawDecodeData, "struct", { x => "X", id => "Id", y =>
 
 /// TestRawMessage (v2_stream_test.go:290), Unmarshal half.
 #[test]
-#[ignore = "graphify-rs-aa6.10"]
 fn test_raw_message_decode() {
     const RAW: &str = r#"["\u0056",null]"#;
     const WANT: &str = r#"{"X":0.1,"Id":["\u0056",null],"Y":0.2}"#;
@@ -323,7 +322,6 @@ gostd::json_fields!(decode NullRawDecodeData, "struct", { x => "X", id => "Id", 
 
 /// TestNullRawMessage (v2_stream_test.go:314), Unmarshal half.
 #[test]
-#[ignore = "graphify-rs-aa6.10"]
 fn test_null_raw_message_decode() {
     const WANT: &str = r#"{"X":0.1,"Id":null,"IdPtr":null,"Y":0.2}"#;
     let data: NullRawDecodeData = unmarshal(WANT.as_bytes()).expect("Unmarshal error");

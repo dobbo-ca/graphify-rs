@@ -44,7 +44,6 @@ macro_rules! row {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.10"]
 fn test_equal_fold() {
     row!("", "", true);
     row!("abc", "abc", true);
