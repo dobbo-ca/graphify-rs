@@ -2,17 +2,21 @@
 //! (`build.go`), from `test_build.py`, `test_build_located_semantic_identity.py`,
 //! `test_relation_collapse_precedence.py` and `test_external_stub_endpoints.py`.
 //!
-//! 22 of the 223 upstream functions are ported. Each is a case whose assertion was traced
+//! 19 of the 223 upstream functions are ported. Each is a case whose assertion was traced
 //! through `build.go`, `model.go` (`AddEdgesAt`: one edge per source, target, relation; both
 //! directions kept), `langfamily.go` and `idutil.go` (`NormalizeID`). Python calls adapt as
 //! `build_from_json(ext)` -> `build(ext)`, `build([e1, e2])` -> `build_parts`; the `dedup`,
 //! `directed` and `root` arguments, `_origin`, and `is_directed()` have no Go counterpart and
 //! are dropped. The `fixtures/extraction.json` of `test_build.py` is inlined.
 //!
-//! Three ported cases (`build_from_json_*_alias_*`) assert that an edge to a bare stem
-//! stays dangling; Go has no old-stem alias, so it holds there because the edge is dropped.
+//! # Not ported (204)
 //!
-//! # Not ported (201)
+//! Vacuous in Go (removed in review): `test_build.py`
+//! `build_from_json_ambiguous_old_stem_alias_stays_dangling`,
+//! `build_from_json_ambiguous_alias_detected_despite_header_impl_salting`,
+//! `build_from_json_unambiguous_old_stem_alias_still_needs_language_match`. They assert that an
+//! edge to a bare stem stays dangling; Go has no old-stem alias, so they would pass only because
+//! Go drops every dangling edge, and test nothing of Go's.
 //!
 //! No Go function (Python-only API):
 //! - `test_build.py` (46): `dedupe_edges_collapses_exact_parallels`,
@@ -376,114 +380,6 @@ fn ghost_merge_wrong_source_file_ambiguous_basename_left_alone() {
     let g = build(ext);
     assert!(g.node("phantom_index").is_some());
     assert!(g.node("apps_admin_web_index").is_some() && g.node("apps_api_index").is_some());
-}
-
-/// `test_build.py::test_build_from_json_ambiguous_old_stem_alias_stays_dangling`
-#[test]
-#[ignore = "graphify-rs-ihc.8"]
-fn build_from_json_ambiguous_old_stem_alias_stays_dangling() {
-    let ext = Extraction {
-        nodes: vec![
-            node(
-                "dev_monitoring_ping",
-                "ping.h",
-                "code",
-                "Dev/monitoring/ping.h",
-            ),
-            node(
-                "www_pages_api_ping",
-                "ping.php",
-                "code",
-                "www/pages/api/ping.php",
-            ),
-            node(
-                "dev_poker_server",
-                "server.cpp",
-                "code",
-                "Dev/poker/server.cpp",
-            ),
-        ],
-        edges: vec![edge(
-            "dev_poker_server",
-            "ping",
-            Relation::IMPORTS,
-            Confidence::EXTRACTED,
-        )],
-    };
-    let g = build(ext);
-    assert!(!g.has_edge("dev_poker_server", "dev_monitoring_ping"));
-    assert!(!g.has_edge("dev_poker_server", "www_pages_api_ping"));
-}
-
-/// `test_build.py::test_build_from_json_ambiguous_alias_detected_despite_header_impl_salting`
-#[test]
-#[ignore = "graphify-rs-ihc.8"]
-fn build_from_json_ambiguous_alias_detected_despite_header_impl_salting() {
-    let ext = Extraction {
-        nodes: vec![
-            node(
-                "tools_aolserver_utility_h_tools_aolserver_utility",
-                "utility.h",
-                "code",
-                "Tools/aolserver/utility.h",
-            ),
-            node(
-                "tools_aolserver_utility_cpp_tools_aolserver_utility",
-                "utility.cpp",
-                "code",
-                "Tools/aolserver/utility.cpp",
-            ),
-            node(
-                "wwwapi_masque_com_pages_utility",
-                "utility.php",
-                "code",
-                "wwwapi.masque.com/pages/utility.php",
-            ),
-            node(
-                "dev_poker_server",
-                "server.cpp",
-                "code",
-                "Dev/poker/server.cpp",
-            ),
-        ],
-        edges: vec![edge(
-            "dev_poker_server",
-            "utility",
-            Relation::IMPORTS,
-            Confidence::EXTRACTED,
-        )],
-    };
-    let g = build(ext);
-    assert!(!g.has_edge("dev_poker_server", "wwwapi_masque_com_pages_utility"));
-    assert!(!g.has_edge(
-        "dev_poker_server",
-        "tools_aolserver_utility_h_tools_aolserver_utility"
-    ));
-}
-
-/// `test_build.py::test_build_from_json_unambiguous_old_stem_alias_still_needs_language_match`
-#[test]
-#[ignore = "graphify-rs-ihc.8"]
-fn build_from_json_unambiguous_old_stem_alias_still_needs_language_match() {
-    let java = "backend_src_main_java_ec_smartlocalizador_attendance_punchtype";
-    let ext = Extraction {
-        nodes: vec![
-            node("mobile_punch", "punch.dart", "code", "mobile/punch.dart"),
-            node(
-                java,
-                "PunchType.java",
-                "code",
-                "backend/src/main/java/ec/smartlocalizador/attendance/PunchType.java",
-            ),
-        ],
-        edges: vec![edge(
-            "mobile_punch",
-            "punchtype",
-            Relation::REFERENCES,
-            Confidence::EXTRACTED,
-        )],
-    };
-    assert!(!build(ext).has_edge("mobile_punch", java));
 }
 
 /// `test_build.py::test_cross_language_imports_references_are_dropped`
