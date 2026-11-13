@@ -6,7 +6,8 @@ fn graphify(args: &[&str]) -> std::process::Output {
     let bin = env!("CARGO_BIN_EXE_graphify");
     let mut cmd = match std::env::var("GRAPHIFY_TEST_RUNNER") {
         Ok(runner) if !runner.is_empty() => {
-            let mut parts = runner.split_whitespace();
+            // Space-separated (`qemu-aarch64 -L /usr/aarch64-linux-gnu`); clippy.toml bans split_whitespace.
+            let mut parts = runner.split(' ').filter(|p| !p.is_empty());
             let mut c = Command::new(parts.next().unwrap());
             c.args(parts).arg(bin);
             c
