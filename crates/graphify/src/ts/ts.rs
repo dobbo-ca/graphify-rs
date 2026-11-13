@@ -43,9 +43,7 @@ thread_local! {
 /// arenas, so no node outlives `f`; the parser is reset before it goes back to the pool (an idle
 /// parser holds no chunks another could use).
 pub fn parse<R>(src: &[u8], lang: &'static Language, f: impl FnOnce(Node<'_>) -> R) -> Option<R> {
-    let mut p = PARSERS
-        .with(|ps| ps.borrow_mut().pop())
-        .unwrap_or_else(Parser::new);
+    let mut p = PARSERS.with(|ps| ps.borrow_mut().pop()).unwrap_or_default();
     // Go ignores the error too: every grammar here has a supported ABI version.
     let _ = p.set_language(lang);
     let out = p
