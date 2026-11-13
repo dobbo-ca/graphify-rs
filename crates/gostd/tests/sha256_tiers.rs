@@ -1,6 +1,6 @@
 //! Cross-tier parity: every available block kernel gives the scalar result.
 
-use gostd::sha256::{Tier, block_with, sum256};
+use gostd::sha256::{Tier, active_tier, block_with, sum256};
 
 const H0: [u32; 8] = [
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
@@ -78,4 +78,49 @@ fn tiers_agree() {
         .map(|(n, _)| *n)
         .collect();
     eprintln!("sha256 tiers that ran: {ran:?}");
+}
+
+/// The dispatch picks the hardware kernel when the CPU has it, not a quiet fallback to scalar.
+/// `tiers_agree` prints the tiers it ran, but cargo test hides that output on success, so this test
+/// asserts the choice. Every aarch64 CPU we test on has SHA2 (qemu-aarch64 "max" in the `arm64`
+/// stage, Apple M, Graviton), so its absence fails the test instead of skipping the ARMv8 kernel.
+#[test]
+fn dispatch_picks_hardware_tier() {
+    let scalar_forced = std::env::var("GOSTD_SIMD").is_ok_and(|v| v == "scalar");
+    let block = pad(b"abc");
+    #[cfg(target_arch = "aarch64")]
+    {
+        assert!(
+            std::arch::is_aarch64_feature_detected!("sha2"),
+            "aarch64 CPU without the SHA2 extension: the ARMv8 tier cannot be tested"
+        );
+        let mut h = H0;
+        assert!(
+            block_with(Tier::Armv8, &mut h, &block),
+            "block_with refused the ARMv8 tier on a CPU with SHA2"
+        );
+        let want = if scalar_forced {
+            Tier::Scalar
+        } else {
+            Tier::Armv8
+        };
+        assert_eq!(active_tier(), want, "GOSTD_SIMD=scalar: {scalar_forced}");
+    }
+    #[cfg(target_arch = "x86_64")]
+    if is_x86_feature_detected!("sha")
+        && is_x86_feature_detected!("sse4.1")
+        && is_x86_feature_detected!("ssse3")
+    {
+        let mut h = H0;
+        assert!(
+            block_with(Tier::ShaNi, &mut h, &block),
+            "block_with refused the SHA-NI tier on a CPU with sha, sse4.1 and ssse3"
+        );
+        let want = if scalar_forced {
+            Tier::Scalar
+        } else {
+            Tier::ShaNi
+        };
+        assert_eq!(active_tier(), want, "GOSTD_SIMD=scalar: {scalar_forced}");
+    }
 }
