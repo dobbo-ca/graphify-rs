@@ -63,7 +63,7 @@ fn parse_uint_raw(s: &[u8], base: u32, bit_size: u32) -> (u64, Option<NumErrorKi
                 continue;
             }
             b'0'..=b'9' => c - b'0',
-            _ if (b'a'..=b'z').contains(&lower(c)) => lower(c) - b'a' + 10,
+            _ if lower(c).is_ascii_lowercase() => lower(c) - b'a' + 10,
             _ => return (0, Some(Syntax)),
         };
         if u32::from(d) >= base {
