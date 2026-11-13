@@ -6,6 +6,7 @@
 #![allow(dead_code, unused_variables)]
 
 pub mod install;
+pub mod main;
 pub mod maintenance;
 pub mod save_result;
 
@@ -49,6 +50,8 @@ pub fn run(args: &[OsString], stdout: Out<'_>, stderr: Out<'_>) -> i32 {
     let cmd = args.get(1).and_then(|a| a.to_str()).unwrap_or("");
     let rest = args.get(2..).unwrap_or(&[]);
     let result = match cmd {
+        "build" => main::cmd_build(rest, stdout, stderr),
+        "update" => main::cmd_update(rest, stdout, stderr),
         "hook" => maintenance::cmd_hook(rest, stdout, stderr),
         "watch" => maintenance::cmd_watch(rest, stdout, stderr),
         "install" => install::cmd_install(rest, stdout, stderr),
