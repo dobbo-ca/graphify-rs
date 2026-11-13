@@ -56,7 +56,6 @@ fn expired(c: &Credentials) -> bool {
 
 // Port of credentials@v1.17.27/processcreds/provider_test.go:19 TestProviderBadCommand
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn provider_bad_command() {
     let err = run_default("/bad/process").unwrap_err();
     assert_provider_error(&err, "error in credential_process", "bad command");
@@ -64,7 +63,6 @@ fn provider_bad_command() {
 
 // Port of credentials@v1.17.27/processcreds/provider_test.go:31 TestProviderMoreEmptyCommands
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn provider_more_empty_commands() {
     let err = run_default("").unwrap_err();
     assert_provider_error(&err, "failed to prepare command", "empty command");
@@ -72,7 +70,6 @@ fn provider_more_empty_commands() {
 
 // Port of credentials@v1.17.27/processcreds/provider_test.go:43 TestProviderExpectErrors
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn provider_expect_errors() {
     // (Go step, fixture, expected text)
     const CASES: [(&str, &str, &str); 4] = [
@@ -101,7 +98,6 @@ fn provider_expect_errors() {
 
 // Port of credentials@v1.17.27/processcreds/provider_test.go:101 TestProviderTimeout
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn provider_timeout() {
     let err = run("/bin/sleep 2", &env(), Duration::from_secs(1)).unwrap_err();
     assert_provider_error(&err, "credential process timed out", "timeout");
@@ -109,7 +105,6 @@ fn provider_timeout() {
 
 // Port of credentials@v1.17.27/processcreds/provider_test.go:121 TestProviderWithLongSessionToken
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn provider_with_long_session_token() {
     let v = run_default(&cat("longsessiontoken.json")).unwrap();
     // Text string same length as session token returned by AWS for AssumeRoleWithWebIdentity.
@@ -119,7 +114,6 @@ fn provider_with_long_session_token() {
 
 // Port of credentials@v1.17.27/processcreds/provider_test.go:148 TestProviderStatic
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn provider_static() {
     let v = run_default(&cat("static.json")).unwrap();
     assert_eq!(v.access_key_id, "accesskey");
@@ -129,7 +123,6 @@ fn provider_static() {
 
 // Port of credentials@v1.17.27/processcreds/provider_test.go:166 TestProviderNotExpired
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn provider_not_expired() {
     let soon = SystemTime::now() + Duration::from_secs(3600);
     let v = run_default(&expiring_command("not_expired", soon)).unwrap();
@@ -139,7 +132,6 @@ fn provider_not_expired() {
 
 // Port of credentials@v1.17.27/processcreds/provider_test.go:204 TestProviderExpired
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn provider_expired() {
     let past = SystemTime::now() - Duration::from_secs(3600);
     let v = run_default(&expiring_command("expired", past)).unwrap();
@@ -148,7 +140,6 @@ fn provider_expired() {
 
 // Port of credentials@v1.17.27/processcreds/provider_test.go:242 TestProviderForceExpire
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn provider_force_expire() {
     let soon = SystemTime::now() + Duration::from_secs(3600);
     let command = expiring_command("force_expire", soon);
@@ -165,7 +156,6 @@ fn provider_force_expire() {
 // Port of credentials@v1.17.27/processcreds/provider_test.go:292 TestProviderAltConstruct
 // ADAPT: no NewProviderCommand or command builder here; `run` takes the command string and a 1 s timeout.
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn provider_alt_construct() {
     let v = run(&cat("static.json"), &env(), Duration::from_secs(1)).unwrap();
     assert!(v.expires.is_none(), "static credentials can not expire");
@@ -174,7 +164,6 @@ fn provider_alt_construct() {
 // Port of credentials@v1.17.27/processcreds/provider_test.go:334 TestProviderWithAccountID
 // ADAPT: Credentials has no account id field; the fixture's AccountId must be accepted and ignored.
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn provider_with_account_id() {
     let v = run_default(&cat("accountid.json")).unwrap();
     assert_eq!(v.access_key_id, "accesskey");

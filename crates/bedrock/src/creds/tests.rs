@@ -179,7 +179,6 @@ const ENV_CREDS_CASES: [EnvCredsCase; 8] = [
 // A case Go leaves empty (a single key) falls through the chain here; with no profile and no
 // `aws` on PATH it is an error.
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn new_env_config_creds() {
     let (config, creds) = write_files("", "");
     for (i, c) in ENV_CREDS_CASES.iter().enumerate() {
@@ -284,7 +283,6 @@ const ENV_PROFILE_CASES: [EnvProfileCase; 8] = [
 // retry and S3 cases are not read by this crate. Case 10 ADAPT: real temp files instead of
 // "/path/to/aws/file", because a profile must exist for `load` to return its paths.
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn new_env_config() {
     let (config, creds) = write_files(
         "[profile profile]\nregion = profile_region\n\n[profile default_profile]\nregion = default_profile_region\n",
@@ -336,7 +334,6 @@ fn home_env() -> (Env, String) {
 // Port of config@v1.27.27/shared_config_other_test.go:14 TestSharedCredsFilename
 // ADAPT: a temp HOME instead of "home_dir", and the path is read from the loaded profile.
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn shared_creds_filename() {
     let (env, home) = home_env();
     let p = load(&env).unwrap().expect("default profile");
@@ -350,7 +347,6 @@ fn shared_creds_filename() {
 // Port of config@v1.27.27/shared_config_other_test.go:29 TestSharedConfigFilename
 // ADAPT: as above.
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn shared_config_filename() {
     let (env, home) = home_env();
     let p = load(&env).unwrap().expect("default profile");
@@ -374,7 +370,6 @@ fn shared_config_filename() {
 // here): the SSO-session parse (`sso-session success`) and the assume-role source chains,
 // which need Go's source-profile resolution.
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn new_shared_config() {
     let empty = "empty_creds_config";
 
@@ -774,7 +769,6 @@ const SECTION_CASES: [SectionCase; 13] = [
 // loaded by `load_all`, which renames sections, so cases use the name without the prefix.
 // "does not exist" checks the profile is absent.
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn load_shared_config_from_section() {
     let got = all(&["shared_config"], &[]);
     for c in &SECTION_CASES {
@@ -797,7 +791,6 @@ fn load_shared_config_from_section() {
 // a profile whose `source_profile` does not exist loads fine, because role profiles go to the
 // AWS CLI (D-006) instead of Go's source-profile resolution.
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn load_shared_config() {
     let empty = cfg("empty_creds_config");
 
@@ -1072,7 +1065,6 @@ const LOAD_CASES: [LoadCase; 24] = [
 // The two cases that spread a profile over two files of the same kind are at the end, because
 // `AWS_CONFIG_FILE` and `AWS_SHARED_CREDENTIALS_FILE` hold one path each; they run on `load_all`.
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn shared_config_loading() {
     for c in &LOAD_CASES {
         let extra: Vec<(&str, &str)> = c.profile.map(|p| ("AWS_PROFILE", p)).into_iter().collect();
@@ -1166,7 +1158,6 @@ fn assert_process_creds(env: &Env, case: &str, id: &str, secret: &str, token: Op
 
 // Port of config@v1.27.27/resolve_processcreds_test.go:32 TestProcessCredentialsProvider_FromConfig
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn process_credentials_provider_from_config() {
     let env = process_env(None, &rewritten("proc_creds_config.ini"), &cfg(EMPTY));
     assert_process_creds(
@@ -1180,7 +1171,6 @@ fn process_credentials_provider_from_config() {
 
 // Port of config@v1.27.27/resolve_processcreds_test.go:62 TestProcessCredentialsProvider_FromConfigWithProfile
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn process_credentials_provider_from_config_with_profile() {
     let env = process_env(
         Some("not_expire"),
@@ -1199,7 +1189,6 @@ fn process_credentials_provider_from_config_with_profile() {
 // Port of config@v1.27.27/resolve_processcreds_test.go:85 TestProcessCredentialsProvider_FromConfigWithStaticCreds
 // Static keys in the profile beat its credential_process.
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn process_credentials_provider_from_config_with_static_creds() {
     let env = process_env(
         Some("not_alone"),
@@ -1218,7 +1207,6 @@ fn process_credentials_provider_from_config_with_static_creds() {
 // Port of config@v1.27.27/resolve_processcreds_test.go:112 TestProcessCredentialsProvider_FromCredentials
 // Go leaves AWS_CONFIG_FILE unset (a missing file); here it is the empty fixture.
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn process_credentials_provider_from_credentials() {
     let env = process_env(None, &cfg(EMPTY), &rewritten("proc_creds_credentials.ini"));
     assert_process_creds(
@@ -1232,7 +1220,6 @@ fn process_credentials_provider_from_credentials() {
 
 // Port of config@v1.27.27/resolve_processcreds_test.go:142 TestProcessCredentialsProvider_FromCredentialsWithProfile
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn process_credentials_provider_from_credentials_with_profile() {
     let env = process_env(
         Some("not_expire"),
@@ -1250,7 +1237,6 @@ fn process_credentials_provider_from_credentials_with_profile() {
 
 // Port of config@v1.27.27/resolve_processcreds_test.go:165 TestProcessCredentialsProvider_FromCredentialsWithStaticCreds
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn process_credentials_provider_from_credentials_with_static_creds() {
     let env = process_env(
         Some("not_alone"),
@@ -1274,7 +1260,6 @@ fn process_credentials_provider_from_credentials_with_static_creds() {
 // Cases :197 :252 :258 :338 :348, ADAPT to D-006. Every other case in that Go test assumes a
 // role, calls IMDS, ECS or SSO, or reads a web identity token, and is skipped here.
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn shared_config_credential_source() {
     let config = rewritten("config_source_shared");
     let creds = cfg("credentials_source_shared");
@@ -1386,7 +1371,6 @@ const PROFILE_FILE: &str = "[profile other]\naws_access_key_id = AKIDPROFILE\naw
 // New: env keys beat a static profile, and a broken AWS_PROFILE does not matter when env has keys
 // (D-006 b).
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn env_keys_win_over_profile() {
     let (config, creds) = write_files(PROFILE_FILE, "");
     let env = env_for(
@@ -1423,7 +1407,6 @@ fn env_keys_win_over_profile() {
 
 // New: one env key is not enough; the chain goes on to the profile.
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn env_needs_both_keys() {
     let (config, creds) = write_files(PROFILE_FILE, "");
     for (case, key, value) in [
@@ -1451,7 +1434,6 @@ fn env_needs_both_keys() {
 
 // New: AWS_ACCESS_KEY and AWS_SECRET_KEY are aliases; the long names win; "" counts as unset.
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn env_alias_names() {
     let (config, creds) = write_files("", "");
 
@@ -1548,7 +1530,6 @@ web_identity_token_file = /nonexistent/token
 // New (Review Focus): a profile with role or SSO keys goes to the CLI, even with static keys or
 // a credential_process, and `--profile` is passed only when AWS_PROFILE or AWS_DEFAULT_PROFILE is set.
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn role_or_sso_profile_uses_cli() {
     let (config, creds) = write_files(ROLE_SSO_CONFIG, "");
     let dir = tmp_dir("aws_cli");
@@ -1651,7 +1632,6 @@ fn not_found_message(profile: &str, config: &str, creds: &str) -> String {
 
 // New: no keys, nothing usable in the profile and no `aws` on PATH.
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn cli_not_found_error() {
     // A profile that exists but has no keys.
     let (config, creds) = write_files("[profile plain]\nregion = us-east-1\n", "");
@@ -1693,7 +1673,6 @@ fn cli_not_found_error() {
 
 // New: `aws` exits non-zero; its stderr reaches the message.
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn cli_failure_carries_stderr() {
     let (config, creds) = write_files("[profile sso]\nsso_session = x\n", "");
     let dir = tmp_dir("aws_cli_fail");
@@ -1722,7 +1701,6 @@ fn cli_failure_carries_stderr() {
 
 // New: a credential process that outlives its timeout.
 #[test]
-#[ignore = "graphify-rs-u2o.6"]
 fn process_timeout() {
     let env = Env::from_pairs([("PATH", SYSTEM_PATH)]);
     let err = process::run("sleep 2", &env, Duration::from_secs(1)).expect_err("timeout");
