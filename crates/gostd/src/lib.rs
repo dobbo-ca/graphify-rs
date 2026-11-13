@@ -1,6 +1,7 @@
 //! Go-exact pieces of the Go standard library, x/text and x/exp used by graphify.
 
 pub mod csv;
+pub mod json;
 pub mod pcg;
 pub mod regexp;
 pub mod strconv;
