@@ -1,0 +1,13 @@
+[package]
+name = "bedrock"
+description = "Bedrock (mantle) Anthropic Messages client: HTTP/1.1, SigV4, credential chain."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+
+[lints]
+workspace = true
