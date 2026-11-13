@@ -43,7 +43,6 @@ const URL_CASES: &[(&str, bool, &str, u16, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn url_parse_cases() {
     for (input, https, host, port, path) in URL_CASES {
         let u = Url::parse(input).unwrap_or_else(|e| panic!("{input}: {e}"));
@@ -108,21 +107,18 @@ fn hello_reply() -> MockReply {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn plain_round_trip() {
     let srv = MockServer::start(false, vec![hello_reply()]);
     check_round_trip(&srv, &Transport::new(None).unwrap());
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn tls_round_trip() {
     let srv = MockServer::start(true, vec![hello_reply()]);
     check_round_trip(&srv, &transport());
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn tls_rejects_unknown_ca() {
     let srv = MockServer::start(true, vec![hello_reply()]);
     let t = Transport::new(None).unwrap();
@@ -133,7 +129,6 @@ fn tls_rejects_unknown_ca() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn chunked_body() {
     let res = send_raw(
         b"HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n\
@@ -145,14 +140,12 @@ fn chunked_body() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn content_length_body() {
     let res = send_raw(b"HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\nhello-extra").unwrap();
     assert_eq!(res.body, b"hello");
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn eof_body() {
     let res = send_raw(b"HTTP/1.1 200 OK\r\nConnection: close\r\n\r\nuntil eof").unwrap();
     assert_eq!(res.status, 200);
@@ -160,7 +153,6 @@ fn eof_body() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn skips_100_continue() {
     let res = send_raw(
         b"HTTP/1.1 100 Continue\r\n\r\nHTTP/1.1 201 Created\r\nContent-Length: 2\r\n\r\nok",
@@ -171,7 +163,6 @@ fn skips_100_continue() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn deadline_while_reading() {
     let slow = MockReply {
         delay: Duration::from_secs(2),
@@ -195,7 +186,6 @@ fn deadline_while_reading() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn connection_refused_is_io() {
     let port = std::net::TcpListener::bind("127.0.0.1:0")
         .unwrap()
@@ -208,7 +198,6 @@ fn connection_refused_is_io() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn tls_through_connect_proxy() {
     let srv = MockServer::start(true, vec![hello_reply()]);
     let proxy = MockProxy::start();
@@ -229,7 +218,6 @@ fn tls_through_connect_proxy() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn proxy_basic_auth() {
     let srv = MockServer::start(true, vec![hello_reply()]);
     let proxy = MockProxy::start();
@@ -254,7 +242,6 @@ fn proxy_basic_auth() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn proxy_connect_refused_status() {
     // A plain mock stands in for a proxy that refuses the tunnel.
     let proxy = MockServer::start(false, vec![MockReply::new(407, "")]);
@@ -267,7 +254,6 @@ fn proxy_connect_refused_status() {
 }
 
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn http_through_proxy_absolute_form() {
     let srv = MockServer::start(false, vec![hello_reply()]);
     let proxy = MockProxy::start();
