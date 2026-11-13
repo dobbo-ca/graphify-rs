@@ -14,8 +14,11 @@ use std::process::exit;
 /// One op's outcome: the output bytes, or the Go error text.
 type Op = (&'static str, Result<Vec<u8>, String>);
 
+/// A package's runner: case name and input bytes to its ops.
+type Run = fn(&str, &[u8]) -> Vec<Op>;
+
 /// The packages, by the directory name the Go oracle uses.
-const PKGS: &[(&str, fn(&str, &[u8]) -> Vec<Op>)] = &[("echo", echo::run)];
+const PKGS: &[(&str, Run)] = &[("echo", echo::run)];
 
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
