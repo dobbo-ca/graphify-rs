@@ -292,6 +292,9 @@ pub(super) fn write_json(
     Ok(())
 }
 
+/// The per-record encoder of [`write_chunks`]: appends record `i` to the buffer.
+type ChunkEncoder = dyn Fn(&mut Vec<u8>, usize) -> Result<(), JsonError> + Sync;
+
 /// Go `writeChunks` (`export.go:172`): writes the indented top-level array of `n` records. `enc`
 /// appends record `i`, led by a comma, and runs on several threads. One chunk of `chunk` records
 /// per worker is encoded at a time, each into a buffer its worker keeps, and the batch is written
@@ -301,7 +304,7 @@ fn write_chunks(
     n: usize,
     workers: usize,
     chunk: usize,
-    enc: &(dyn Fn(&mut Vec<u8>, usize) -> Result<(), JsonError> + Sync),
+    enc: &ChunkEncoder,
 ) -> Result<(), Error> {
     if n == 0 {
         // The whole-document encoder saw a nil slice here.

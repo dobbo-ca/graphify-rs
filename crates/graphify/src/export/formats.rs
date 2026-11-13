@@ -1,6 +1,6 @@
 //! Port of `formats.go`: GraphML, DOT and CSV from a graph.json.
 
-use std::fs::{self, File};
+use std::fs::File;
 use std::path::Path;
 
 use gostd::csv::Writer;
