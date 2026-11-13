@@ -114,10 +114,12 @@ impl Queue {
     }
 }
 
-/// Go `machine` (exec.go:41) for one search. `pool` holds spare capture arrays (Go `m.pool`).
+/// Go `machine` (exec.go:41) for one search. `pool` holds spare capture arrays (Go `m.pool`);
+/// `jobs` is the work stack of [`add`], kept to reuse its allocation.
 struct Machine<'a> {
     re: &'a Regexp,
     pool: Vec<Vec<isize>>,
+    jobs: Vec<Job>,
     matched: bool,
     matchcap: Vec<isize>,
 }
@@ -129,6 +131,7 @@ pub(super) fn find(re: &Regexp, b: &[u8], pos: usize, ncap: usize) -> Option<Vec
     let mut m = Machine {
         re,
         pool: Vec::new(),
+        jobs: Vec::new(),
         matched: false,
         matchcap: vec![-1; ncap],
     };
@@ -190,6 +193,7 @@ impl Machine<'_> {
                     pos,
                     &mut self.matchcap,
                     flag,
+                    &mut self.jobs,
                 );
             }
             flag = LazyFlag(r, r1);
@@ -261,6 +265,7 @@ impl Machine<'_> {
                     next_pos,
                     &mut cap,
                     next_cond,
+                    &mut self.jobs,
                 );
             }
             self.pool.push(cap);
@@ -270,67 +275,90 @@ impl Machine<'_> {
     }
 }
 
+/// A pending step of [`add`]: follow `pc`, or put back a capture slot that a `Capture` changed.
+enum Job {
+    Pc(u32),
+    Restore(usize, isize),
+}
+
 /// Go `machine.add` (exec.go:317): adds an entry to `q` for `pc`, unless `q` already has one, and
-/// recursively for every instruction reachable from `pc` by following empty-width conditions
-/// satisfied by `cond`. `pos` is the current position in the input; a thread gets a copy of
-/// `cap` (Go reuses the stepping thread for the first leaf, which is only an allocation saving).
+/// for every instruction reachable from `pc` by following empty-width conditions satisfied by
+/// `cond`. `pos` is the current position in the input; a thread gets a copy of `cap` (Go reuses
+/// the stepping thread for the first leaf, which is only an allocation saving).
+///
+/// Go recurses on `Alt` (into `out`, then `arg`) and on `Capture`, on a goroutine stack that grows
+/// to 1 GB; a chain of empty-matching copies can be tens of thousands deep (graphify-rs-aa6.23).
+/// Here the recursion is the explicit stack `jobs`: `Alt` pushes `arg` and goes on with `out`,
+/// and `Capture` pushes the restore of its slot and goes on with `out`. Everything the `out` walk
+/// pushes is popped before those jobs, so entries are added in Go's order and each slot is put
+/// back exactly when Go's recursive call returns.
+#[allow(clippy::too_many_arguments)]
 fn add(
     prog: &Prog,
     pool: &mut Vec<Vec<isize>>,
     q: &mut Queue,
-    mut pc: u32,
+    pc: u32,
     pos: usize,
     cap: &mut [isize],
     cond: LazyFlag,
+    jobs: &mut Vec<Job>,
 ) {
-    loop {
-        if pc == 0 {
-            return;
-        }
-        let j = q.sparse[pc as usize] as usize;
-        if j < q.dense.len() && q.dense[j].pc == pc {
-            return;
-        }
+    jobs.clear();
+    jobs.push(Job::Pc(pc));
+    while let Some(job) = jobs.pop() {
+        let mut pc = match job {
+            Job::Pc(pc) => pc,
+            Job::Restore(arg, opos) => {
+                cap[arg] = opos;
+                continue;
+            }
+        };
+        loop {
+            if pc == 0 {
+                break;
+            }
+            let j = q.sparse[pc as usize] as usize;
+            if j < q.dense.len() && q.dense[j].pc == pc {
+                break;
+            }
 
-        let j = q.dense.len();
-        q.dense.push(Entry { pc, cap: None });
-        q.sparse[pc as usize] = j as u32;
+            let j = q.dense.len();
+            q.dense.push(Entry { pc, cap: None });
+            q.sparse[pc as usize] = j as u32;
 
-        let i = &prog.inst[pc as usize];
-        match i.op {
-            InstOp::Fail => return,
-            InstOp::Alt | InstOp::AltMatch => {
-                add(prog, pool, q, i.out, pos, cap, cond);
-                pc = i.arg;
-            }
-            InstOp::EmptyWidth => {
-                if !cond.matches(EmptyOp(i.arg as u8)) {
-                    return;
+            let i = &prog.inst[pc as usize];
+            match i.op {
+                InstOp::Fail => break,
+                InstOp::Alt | InstOp::AltMatch => {
+                    jobs.push(Job::Pc(i.arg));
+                    pc = i.out;
                 }
-                pc = i.out;
-            }
-            InstOp::Nop => pc = i.out,
-            InstOp::Capture => {
-                let arg = i.arg as usize;
-                if arg < cap.len() {
-                    let opos = cap[arg];
-                    cap[arg] = pos as isize;
-                    add(prog, pool, q, i.out, pos, cap, cond);
-                    cap[arg] = opos;
-                    return;
+                InstOp::EmptyWidth => {
+                    if !cond.matches(EmptyOp(i.arg as u8)) {
+                        break;
+                    }
+                    pc = i.out;
                 }
-                pc = i.out;
-            }
-            InstOp::Match
-            | InstOp::Rune
-            | InstOp::Rune1
-            | InstOp::RuneAny
-            | InstOp::RuneAnyNotNL => {
-                let mut t = pool.pop().unwrap_or_default();
-                t.clear();
-                t.extend_from_slice(cap);
-                q.dense[j].cap = Some(t);
-                return;
+                InstOp::Nop => pc = i.out,
+                InstOp::Capture => {
+                    let arg = i.arg as usize;
+                    if arg < cap.len() {
+                        jobs.push(Job::Restore(arg, cap[arg]));
+                        cap[arg] = pos as isize;
+                    }
+                    pc = i.out;
+                }
+                InstOp::Match
+                | InstOp::Rune
+                | InstOp::Rune1
+                | InstOp::RuneAny
+                | InstOp::RuneAnyNotNL => {
+                    let mut t = pool.pop().unwrap_or_default();
+                    t.clear();
+                    t.extend_from_slice(cap);
+                    q.dense[j].cap = Some(t);
+                    break;
+                }
             }
         }
     }
