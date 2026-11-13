@@ -8,6 +8,7 @@
 mod echo;
 mod pcg;
 mod regexp;
+mod sort;
 mod strconv;
 mod strings;
 mod unicode17;
@@ -30,6 +31,7 @@ const PKGS: &[(&str, usize, Run)] = &[
     ("echo", 4, echo::run),
     ("pcg", 11, pcg::run),
     ("regexp", 22833, regexp::run),
+    ("sort", 1200, sort::run),
     ("strconv", 36, strconv::run),
     ("strings", 8000, strings::run),
     ("unicode17", 3, unicode17::run),

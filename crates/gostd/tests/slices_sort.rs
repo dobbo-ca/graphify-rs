@@ -44,7 +44,6 @@ impl Rng {
 
 // slices/sort_test.go:22
 #[test]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_sort_int_slice() {
     let mut data = INTS;
     sort::sort_func(&mut data, |a, b| a.cmp(b));
@@ -53,7 +52,6 @@ fn test_sort_int_slice() {
 
 // slices/sort_test.go:31
 #[test]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_sort_func_int_slice() {
     let mut data = INTS;
     sort::sort_func(&mut data, |a, b| (a - b).cmp(&0));
@@ -62,7 +60,6 @@ fn test_sort_func_int_slice() {
 
 // slices/sort_test.go:49
 #[test]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_sort_string_slice() {
     let mut data = STRS;
     sort::sort_func(&mut data, |a, b| a.cmp(b));
@@ -71,7 +68,6 @@ fn test_sort_string_slice() {
 
 // slices/sort_test.go:58 (testing.Short() size)
 #[test]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_sort_large_random() {
     let n = 1_000_000 / 100;
     let mut rng = Rng(1);
@@ -120,7 +116,6 @@ fn pairs_sorted(d: &[IntPair]) -> bool {
 // usize::MAX is the same "no element yet" value.
 #[test]
 #[allow(clippy::unnecessary_sort_by)]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_stability() {
     let (n, m) = (100000, 1000);
     let mut data = vec![IntPair::default(); n];
@@ -183,7 +178,6 @@ fn case<'a>(
 
 // slices/sort_test.go:284
 #[test]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_binary_search() {
     let str1: &[&str] = &["foo"];
     let str2: &[&str] = &["ab", "ca"];
@@ -257,7 +251,6 @@ fn test_binary_search() {
 
 // slices/sort_test.go:422
 #[test]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_binary_search_func() {
     let data: [i64; 4] = [1, 10, 11, 2]; // sorted lexicographically
     let target: &str = "2";
