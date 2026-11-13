@@ -7,3 +7,6 @@
 mod security;
 
 pub use security::*;
+
+#[cfg(test)]
+mod tests;
