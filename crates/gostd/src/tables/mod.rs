@@ -49,5 +49,32 @@ pub(crate) const fn cr(lo: u32, hi: u32, delta: [i32; 3]) -> CaseRange {
     CaseRange { lo, hi, delta }
 }
 
+/// x/text unicode/norm `Properties` of one rune in the NFKC/NFKD trie (forminfo.go:40, compInfo).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct NormProps {
+    /// `Properties.ccc` as a real CCC: for a rune with a decomposition, the CCC of its first rune.
+    pub ccc: u8,
+    /// `Properties.nLead` (0..=3).
+    pub n_lead: u8,
+    /// x/text bits: 0x10 !isYesC, 0x08 combinesBackward, 0x04 hasDecomposition (!isYesD),
+    /// 0x03 nTrailingNonStarters.
+    pub flags: u8,
+    /// `Properties.Decomposition()`: full compatibility decomposition, "" if none.
+    pub decomp: &'static str,
+}
+
+pub(crate) const fn np(ccc: u8, n_lead: u8, flags: u8, decomp: &'static str) -> NormProps {
+    NormProps {
+        ccc,
+        n_lead,
+        flags,
+        decomp,
+    }
+}
+
 #[rustfmt::skip]
 pub mod unicode17;
+#[rustfmt::skip]
+pub mod norm15;
+#[rustfmt::skip]
+pub mod cases15;

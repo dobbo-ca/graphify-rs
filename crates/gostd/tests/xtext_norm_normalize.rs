@@ -367,25 +367,21 @@ fn run_norm_tests(name: &str) {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.4"]
 fn test_append() {
     run_norm_tests("Append");
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.4"]
 fn test_append_string() {
     run_norm_tests("AppendString");
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.4"]
 fn test_bytes() {
     run_norm_tests("Bytes");
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.4"]
 fn test_string() {
     run_norm_tests("String");
 }
@@ -397,7 +393,6 @@ fn test_string() {
 // then composes `a` + U+0301 to U+00E1, leaving 29 U+0301 before the CGJ. To be
 // confirmed by the oracle case xtext/cgj-31.
 #[test]
-#[ignore = "graphify-rs-aa6.4"]
 fn stream_safe_cgj() {
     let s = "a".to_owned() + &"\u{301}".repeat(31);
     assert_eq!(

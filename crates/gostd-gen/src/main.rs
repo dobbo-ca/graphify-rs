@@ -5,6 +5,7 @@
 mod rangetable;
 mod ucd;
 mod unicode17;
+mod xtext15;
 
 use std::path::Path;
 use std::{fs, process};
@@ -32,4 +33,12 @@ fn main() {
     fs::create_dir_all(out_dir).expect("create out dir");
     fs::write(out_dir.join("unicode17.rs"), unicode17::generate(&files))
         .expect("write unicode17.rs");
+    let v15 = |f| read(ucd_dir, "15.0.0", f);
+    let files = xtext15::Files {
+        unicode_data: v15("UnicodeData.txt"),
+        case_folding: v15("CaseFolding.txt"),
+        composition_exclusions: v15("CompositionExclusions.txt"),
+    };
+    fs::write(out_dir.join("norm15.rs"), xtext15::norm(&files)).expect("write norm15.rs");
+    fs::write(out_dir.join("cases15.rs"), xtext15::cases(&files)).expect("write cases15.rs");
 }

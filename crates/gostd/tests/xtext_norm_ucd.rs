@@ -90,7 +90,6 @@ fn finish(errs: Vec<String>) {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.4"]
 fn test_standard_tests() {
     let parts = load();
     let mut errs = Vec::new();
@@ -103,7 +102,6 @@ fn test_standard_tests() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.4"]
 fn test_character_by_character() {
     let parts = load();
     let mut errs = Vec::new();
