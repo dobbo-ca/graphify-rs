@@ -53,7 +53,6 @@ fn write_all(records: &[&[&str]]) -> String {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.13"]
 fn test_write() {
     for (n, input, want) in WRITE_TESTS {
         let out = write_all(input);
@@ -75,7 +74,6 @@ impl io::Write for ErrorWriter {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.13"]
 fn test_error() {
     let mut b = Vec::new();
     let mut f = Writer::new(&mut b);
@@ -90,7 +88,6 @@ fn test_error() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.13"]
 fn quote_rules() {
     // (record, output)
     let tests: &[(&[&str], &str)] = &[

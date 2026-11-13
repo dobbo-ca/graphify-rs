@@ -5,6 +5,7 @@
 //! text and a newline), the same tree as the Go oracle in parity/go/oracle. The inputs are
 //! written only by the Go oracle (`oracle -gen`).
 
+mod csv;
 mod echo;
 mod json;
 mod pcg;
@@ -30,6 +31,7 @@ type Run = fn(&str, &[u8]) -> Vec<Op>;
 /// write (the same number as its `register` call in parity/go/oracle/<pkg>.go). `run_all` fails if
 /// a package writes fewer, so a package whose ops stop running cannot pass.
 const PKGS: &[(&str, usize, Run)] = &[
+    ("csv", 2000, csv::run),
     ("echo", 4, echo::run),
     ("json", 83, json::run),
     ("pcg", 11, pcg::run),

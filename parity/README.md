@@ -53,11 +53,11 @@ registration (`register(name, min, gen, run)` in `parity/go/oracle/<pkg>.go`, th
 
 #### csv
 
-Oracle package: none yet.
+Oracle package `csv`: inputs 2,000 generated records of 0 to 8 fields (the valid UTF-8 pieces of the strings alphabet plus `,` `"` `\r` `\n` `\.`); op `write` (Writer.Write then Flush).
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| `encoding/csv/writer_test.go`, `fuzz_test.go` | 3 | 2 (+1 added) | 0 | FuzzRoundtrip (no seeds, needs the reader); 8 of 29 writeTests rows (3 UseCRLF, 3 custom Comma, 2 invalid UTF-8 in `&str`); Reader and WriteAll not reached by graphify-go (Error is folded into flush's io::Result) |
+| `encoding/csv/writer_test.go`, `fuzz_test.go` | 3 | 2 (+1 added) | 3 | FuzzRoundtrip (no seeds, needs the reader); 8 of 29 writeTests rows (3 UseCRLF, 3 custom Comma, 2 invalid UTF-8 in `&str`); Reader and WriteAll not reached by graphify-go (Error is folded into flush's io::Result) |
 
 #### filepath
 
