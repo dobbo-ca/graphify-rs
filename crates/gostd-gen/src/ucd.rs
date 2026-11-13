@@ -60,7 +60,10 @@ pub fn parse<'a>(text: &'a str, mut f: impl FnMut(&Record<'a>)) {
             );
             (parse_rune(fields[0]), parse_rune(nf[0]))
         } else {
-            let r = parse_rune(fields[0]);
+            // Go getRange: a field 0 that is not a code point (PropertyValueAliases.txt) is one
+            // record with rune 0, not an error.
+            let r = u32::from_str_radix(fields[0].strip_prefix("U+").unwrap_or(fields[0]), 16)
+                .unwrap_or(0);
             (r, r)
         };
         for rune in first..=last {
@@ -109,6 +112,22 @@ mod tests {
         let runes: Vec<u32> = got.iter().map(|g| g.0).collect();
         assert_eq!(runes, [0x41, 0x42, 0x43, 0xAA]);
         assert!(got.iter().all(|g| g.1[1] == "Latin"));
+    }
+
+    #[test]
+    fn non_code_point_field_zero() {
+        let text = "# PropertyValueAliases\nAHex; N ; No ; F ; False\ngc ; Lu ; Uppercase_Letter\n";
+        let mut got = Vec::new();
+        parse(text, |r| {
+            got.push((r.rune, r.string(0).to_owned(), r.string(2).to_owned()))
+        });
+        assert_eq!(
+            got,
+            [
+                (0, "AHex".into(), "No".into()),
+                (0, "gc".into(), "Uppercase_Letter".into())
+            ]
+        );
     }
 
     #[test]
