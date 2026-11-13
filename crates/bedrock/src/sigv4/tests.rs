@@ -149,7 +149,12 @@ fn check(fails: &mut Vec<String>, dir: &Path, what: &str, expected: &str, actual
 fn run_vector(dir: &Path) -> Vec<String> {
     let mut fails = Vec::new();
     let ctx = load_context(dir);
-    let p = parse_request(&read(&dir.join("request.txt")));
+    let mut p = parse_request(&read(&dir.join("request.txt")));
+    // aws-sigv4 1.6.5 rewrote aws-c-auth's `/example space/` to `%20` and ignores this vector
+    // (sign.rs:1156); header-signed-request.txt keeps the original request line.
+    if dir.ends_with("get-space-normalized") {
+        p.path = p.path.replace("%20", " ");
+    }
     let body_hash = hex(&sha256(p.body.as_bytes()));
     let mut headers = p.headers;
     if ctx.sign_body {
@@ -281,7 +286,6 @@ fn creq(path: &str, query: &str, headers: Vec<(String, String)>, hash: &str) -> 
 
 // New: harness over the 38 aws-c-auth v0.9.0 vectors in testdata/sigv4/v4 (aws-sigv4 1.6.5).
 #[test]
-#[ignore = "graphify-rs-u2o.5"]
 fn aws_c_auth_vectors() {
     let root = testdata("sigv4/v4");
     let mut names: Vec<String> = std::fs::read_dir(&root)
@@ -317,7 +321,6 @@ fn aws_c_auth_vectors() {
 // :955 test_double_url_encode). Their canonical requests carry 20210511T154045Z, so the date header
 // of request.txt is replaced; the credentials do not matter for these checks.
 #[test]
-#[ignore = "graphify-rs-u2o.5"]
 fn migrated_double_encode() {
     let t = utc("2021-05-11T15:40:45Z");
     for name in MIGRATED {
@@ -360,7 +363,6 @@ fn migrated_double_encode() {
 // New: aws-sigv4 sign.rs:761 test_sign_url_escape, over the double-encode-path vector:
 // credentials ANOTREAL, 2015-08-30T12:36:00Z, us-east-1, service "service".
 #[test]
-#[ignore = "graphify-rs-u2o.5"]
 fn migrated_double_encode_path_signature() {
     let dir = testdata("sigv4/v4/double-encode-path");
     let p = parse_request(&read(&dir.join("request.txt")));
@@ -404,7 +406,6 @@ fn migrated_double_encode_path_signature() {
 // Go signs Host and Content-Length itself; here the caller list carries them. Go's URL.Opaque
 // path is passed as the on-wire path (the signer escapes it once, as Go's EscapePath does).
 #[test]
-#[ignore = "graphify-rs-u2o.5"]
 fn sign_request() {
     let body_hash = hex(&sha256(b"{}"));
     let mut headers = vec![
@@ -440,7 +441,6 @@ fn sign_request() {
 // Port of aws/signer/v4/v4_test.go:224 TestRequestHost (aws-sdk-go-v2 v1.30.3).
 // Go: req.Host overrides URL.Host; here the caller puts that value in the Host header.
 #[test]
-#[ignore = "graphify-rs-u2o.5"]
 fn request_host() {
     let mut headers = vec![h("Host", "myhost")];
     headers.extend(go_build_request_headers());
@@ -461,7 +461,6 @@ fn request_host() {
 // (aws-sdk-go-v2 v1.30.3). Go dedups its own Content-Length against a caller-set one; here the
 // caller supplies it once.
 #[test]
-#[ignore = "graphify-rs-u2o.5"]
 fn sign_build_canonical_headers_content_length_present() {
     let body = r#"{"description": "this is a test"}"#;
     let content_length = body.len().to_string();
@@ -490,7 +489,6 @@ fn sign_build_canonical_headers_content_length_present() {
 // golden at :315-331. The payload hash is empty in Go's test, so the string ends after the
 // signed-headers line and its newline. X-Amz-Date is added here (Go adds it in Build).
 #[test]
-#[ignore = "graphify-rs-u2o.5"]
 fn sign_build_canonical_headers() {
     let headers = vec![
         h("Host", "mockAPI.mock-region.amazonaws.com"),
@@ -564,7 +562,6 @@ const STRIP_EXPECTED: [&str; 14] = [
 // StripExcessSpaces is Go-internal; it is tested through the value of a signed header in
 // canonical_request.
 #[test]
-#[ignore = "graphify-rs-u2o.5"]
 fn strip_excess_headers() {
     for (i, (val, want)) in STRIP_VALS.iter().zip(STRIP_EXPECTED.iter()).enumerate() {
         let canonical = creq("/", "", vec![h("X-Test", val)], "H");
@@ -579,7 +576,6 @@ fn strip_excess_headers() {
 // and the canonical path line must be "/" (the empty-path rule of GetURIPath). The four Opaque cases ("without scheme", "without scheme,
 // with path", "opaque with query string", "failing test") are skipped.
 #[test]
-#[ignore = "graphify-rs-u2o.5"]
 fn get_uri_path() {
     // (Go case name, URL, on-wire path, expected canonical path)
     let cases = [
@@ -620,7 +616,6 @@ fn get_uri_path() {
 // Port of aws/signer/internal/v4/headers_test.go:37 TestIgnoredHeaders (aws-sdk-go-v2 v1.30.3).
 // IgnoredHeaders is Go-internal; checked through the signed-headers line of canonical_request.
 #[test]
-#[ignore = "graphify-rs-u2o.5"]
 fn ignored_headers() {
     // (Go case name, header, expect ignored)
     let cases = [
@@ -645,7 +640,6 @@ fn ignored_headers() {
 // New: the other two headers of internal/v4/headers.go:4-13 IgnoredHeaders, which the Go test
 // does not cover (plan Task 4 lists them).
 #[test]
-#[ignore = "graphify-rs-u2o.5"]
 fn ignored_headers_user_agent_and_trace_id() {
     let headers = vec![
         h("Host", "example.com"),
@@ -715,7 +709,6 @@ fn run_standalone(test: &str, check_canonical_path: bool) {
 // Go sets URL.Path to OrigURI and the signer reads EscapedPath(); here the path passed is that
 // escaped form (EscapedURI). The checks on req.URL.Path / EscapedPath() are Go-internal, skipped.
 #[test]
-#[ignore = "graphify-rs-u2o.5"]
 fn standalone_sign() {
     run_standalone("standalone_sign", false);
 }
@@ -724,7 +717,6 @@ fn standalone_sign() {
 // v1.30.3). Go sets RawPath = EscapedURI; the on-wire path is the same as in `standalone_sign`,
 // so this also checks the double-escaped canonical path.
 #[test]
-#[ignore = "graphify-rs-u2o.5"]
 fn standalone_sign_raw_path() {
     run_standalone("standalone_sign_raw_path", true);
 }
