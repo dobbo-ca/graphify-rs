@@ -150,7 +150,7 @@ fn custom_err(text: &str) -> Error {
 /// marshal the result (it must equal `input` for a `golden` row) and decode that again.
 fn check<D>(input: impl AsRef<[u8]>, out: Option<D>, err: Option<Error>, golden: bool)
 where
-    D: Unmarshal + Marshal + Default + PartialEq + Debug,
+    D: Unmarshal + Marshal + Default + PartialEq + Debug + Send,
 {
     let input = input.as_ref();
     let shown = String::from_utf8_lossy(input);
@@ -172,21 +172,21 @@ where
 
 fn ok<D>(input: impl AsRef<[u8]>, out: D)
 where
-    D: Unmarshal + Marshal + Default + PartialEq + Debug,
+    D: Unmarshal + Marshal + Default + PartialEq + Debug + Send,
 {
     check(input, Some(out), None, false);
 }
 
 fn gold<D>(input: impl AsRef<[u8]>, out: D)
 where
-    D: Unmarshal + Marshal + Default + PartialEq + Debug,
+    D: Unmarshal + Marshal + Default + PartialEq + Debug + Send,
 {
     check(input, Some(out), None, true);
 }
 
 fn fail<D>(input: impl AsRef<[u8]>, out: Option<D>, err: Error)
 where
-    D: Unmarshal + Marshal + Default + PartialEq + Debug,
+    D: Unmarshal + Marshal + Default + PartialEq + Debug + Send,
 {
     check(input, out, Some(err), false);
 }
