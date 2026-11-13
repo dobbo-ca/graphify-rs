@@ -27,7 +27,7 @@ RUN set -e; while read -r f; do mkdir -p "$(dirname "$f")"; \
 # The generated tables (exported by the `gen` job with outputs: type=local).
 FROM src AS gen-build
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=/src/target,sharing=locked \
+    --mount=type=cache,target=/src/target,sharing=private \
     --mount=type=bind,from=ucd,source=/ucd,target=/ucd \
     sh ci/fresh.sh && cargo run --locked --release -p gostd-gen -- /ucd /out && cp /ucd/ucd.lock /out/
 
@@ -64,20 +64,18 @@ RUN /out/oracle -gen /inputs && /out/oracle /inputs /go-out \
 # The checks run in the build, so a red check fails the build; a rerun of the same source is a
 # BuildKit cache hit.
 FROM src AS ci
-RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=/src/target,sharing=locked \
-    cargo fmt --all --check
+RUN cargo fmt --all --check
 # The committed UCD lock and tables must equal what the generator makes from the pinned files.
 RUN --mount=type=bind,from=gen-build,source=/out,target=/gen \
     { cmp /gen/ucd.lock crates/gostd-gen/ucd.lock \
       && diff -r --exclude=mod.rs --exclude=ucd.lock /gen crates/gostd/src/tables; } \
     || { echo 'crates/gostd/src/tables or ucd.lock differ from the gostd-gen output: commit the gen job artifact'; exit 1; }
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=/src/target,sharing=locked \
+    --mount=type=cache,target=/src/target,sharing=private \
     sh ci/fresh.sh && cargo clippy --locked --workspace --all-targets -- -D warnings
 # aarch64-only code (NEON kernels, unsigned C char) is not compiled for x86_64, so lint it too.
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=/src/target,sharing=locked \
+    --mount=type=cache,target=/src/target,sharing=private \
     sh ci/fresh.sh && cargo clippy --locked --workspace --all-targets --target aarch64-unknown-linux-gnu -- -D warnings
 # No C in the build graph: the ban list in deny.toml.
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
@@ -85,7 +83,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
 # /gotest holds the large Go test inputs (see the testinputs stage); a test that needs it panics
 # if GOSTD_GOTEST is not set.
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=/src/target,sharing=locked \
+    --mount=type=cache,target=/src/target,sharing=private \
     --mount=type=bind,from=testinputs,source=/gotest,target=/gotest \
     sh ci/fresh.sh && GOSTD_GOTEST=/gotest cargo test --locked --workspace
 
@@ -103,7 +101,7 @@ COPY . .
 # The full test suite for aarch64 under qemu-user.
 FROM qemu-arm64 AS arm64
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=/src/target,sharing=locked \
+    --mount=type=cache,target=/src/target,sharing=private \
     --mount=type=bind,from=testinputs,source=/gotest,target=/gotest \
     sh ci/fresh.sh && GOSTD_GOTEST=/gotest cargo test --locked --workspace --target aarch64-unknown-linux-gnu
 
@@ -113,7 +111,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
 FROM src AS parity
 ARG PARITY_MIN_OUTPUTS=4
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=/src/target,sharing=locked \
+    --mount=type=cache,target=/src/target,sharing=private \
     --mount=type=bind,from=go-run,source=/inputs,target=/inputs,rw \
     --mount=type=bind,from=go-run,source=/go-out,target=/go-out,rw \
     sh ci/fresh.sh && cargo run --locked --release -p gostd --example oracle -- /inputs /rust-out \
@@ -127,7 +125,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
 FROM qemu-arm64 AS parity-arm64
 ARG PARITY_MIN_OUTPUTS=4
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=/src/target,sharing=locked \
+    --mount=type=cache,target=/src/target,sharing=private \
     --mount=type=bind,from=go-run,source=/inputs,target=/inputs,rw \
     --mount=type=bind,from=go-run,source=/go-out,target=/go-out,rw \
     sh ci/fresh.sh && cargo run --locked --release -p gostd --target aarch64-unknown-linux-gnu --example oracle -- /inputs /arm-out \
