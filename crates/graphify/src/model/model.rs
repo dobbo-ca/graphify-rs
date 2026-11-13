@@ -78,14 +78,14 @@ pub const NO_NODE: u32 = u32::MAX;
 /// [`Graph::node_ids`].
 #[derive(Debug, Default)]
 pub struct Graph {
-    nodes: HashMap<String, Node>,
-    edges: Vec<Edge>,
-    adj: Vec<Vec<u32>>,
-    pairs: HashSet<u64>,
-    seen: HashSet<(u32, u32, u32)>,
-    seen_s: HashSet<String>,
-    index: HashMap<String, u32>,
-    order: Vec<String>,
+    pub(super) nodes: HashMap<String, Node>,
+    pub(super) edges: Vec<Edge>,
+    pub(super) adj: Vec<Vec<u32>>,
+    pub(super) pairs: HashSet<u64>,
+    pub(super) seen: HashSet<(u32, u32, u32)>,
+    pub(super) seen_s: HashSet<String>,
+    pub(super) index: HashMap<String, u32>,
+    pub(super) order: Vec<String>,
     /// Go `Graph.Unclassified`: per lowercased extension, files the walk saw but no extractor handles.
     pub unclassified: BTreeMap<String, i64>,
     /// Go `Graph.OverBudget`: files whose parse the budget stopped.
