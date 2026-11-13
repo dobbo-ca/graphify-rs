@@ -6,11 +6,12 @@ use gostd::tables::unicode17 as t;
 
 fn contains(tab: &RangeTable, r: u32) -> bool {
     tab.r16.iter().any(|g| {
-        (g.lo as u32..=g.hi as u32).contains(&r) && (r - g.lo as u32) % g.stride as u32 == 0
+        (g.lo as u32..=g.hi as u32).contains(&r)
+            && (r - g.lo as u32).is_multiple_of(g.stride as u32)
     }) || tab
         .r32
         .iter()
-        .any(|g| (g.lo..=g.hi).contains(&r) && (r - g.lo) % g.stride == 0)
+        .any(|g| (g.lo..=g.hi).contains(&r) && (r - g.lo).is_multiple_of(g.stride))
 }
 
 fn lookup(map: &[(&str, &'static RangeTable)], name: &str) -> &'static RangeTable {
