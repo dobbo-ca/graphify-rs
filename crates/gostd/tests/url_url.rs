@@ -22,8 +22,6 @@
 //! - TestShouldEscape (:1915): `shouldEscape`, an escaping helper
 //! - TestURLErrorImplementsNetError (:1987): `net.Error` (`Timeout`, `Temporary`), no Rust equivalent
 //! - TestJSON (:2052), TestGob (:2079): JSON and gob marshalling of `URL`
-//! - TestParseStrictIpv6 (:2410): sets `GODEBUG=urlstrictcolons=0`; a process env switch, and
-//!   the strict default is already tested by the three matching rows of TestParseErrors
 //! - TestURLClone (:2432), TestValuesClone (:2507): `URL.Clone`, `Values.Clone`
 //!
 //! Other differences: `urltests` has 62 rows; the row with `in` "" (OmitHost, `http:%2F/host/path`) is
@@ -831,5 +829,23 @@ fn test_reject_control_characters() {
     // hold it, so this is U+0080 (C2 80): still a byte above 0x7f, which Go's CTL check ignores.
     if let Err(err) = parse("http://foo.com/ctl\u{80}") {
         panic!("error parsing URL with non-ASCII control byte: {err}");
+    }
+}
+
+// Port of url_test.go:2410 TestParseStrictIpv6 (go1.27.4). graphify-go's go.mod says `go 1.25.0`,
+// so its GODEBUG default is urlstrictcolons=0 (url.go:621): the port after the last colon, as for
+// every non-http scheme. gostd ports that lenient parse, so these hosts parse without error.
+#[test]
+#[ignore = "graphify-rs-aa6.14"]
+fn test_parse_strict_ipv6() {
+    for input in [
+        // Malformed URLs that used to parse.
+        "https://1:2:3:4:5:6:7:8",
+        "https://1:2:3:4:5:6:7:8:80",
+        "https://example.com:80:",
+    ] {
+        if let Err(err) = parse(input) {
+            panic!("Parse({input:?}) = {err}; want no error (urlstrictcolons=0)");
+        }
     }
 }
