@@ -719,9 +719,10 @@ impl Unmarshal for Value {
 }
 
 /// Go `RawMessage` (`jsontext.Value`) `UnmarshalJSON` (jsontext/value.go:244-251): a copy of the
-/// raw value text, `null` included.
+/// raw value text, `null` included. `RawMessage` is an alias of `jsontext.Value`
+/// (`v2_stream.go:190`), so error texts name that type.
 impl Unmarshal for RawMessage {
-    const GO_TYPE: &'static str = "json.RawMessage";
+    const GO_TYPE: &'static str = "jsontext.Value";
     fn unmarshal_json(&mut self, d: &mut DecodeState<'_>) -> Result<(), Error> {
         let raw = d.raw_value()?;
         self.0.clear();
