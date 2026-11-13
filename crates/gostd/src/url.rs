@@ -528,8 +528,8 @@ fn parse_host(scheme: &str, host: &str) -> Result<Vec<u8>, ErrorKind> {
         // url.go:582: %25 introduces the zone, which may use any (restricted) %-encoding.
         let mut unescaped = match hostname.find("%25") {
             Some(zone_idx) => {
-                let mut v = unescape(hostname[..zone_idx].as_bytes(), Mode::Host)?;
-                v.extend(unescape(hostname[zone_idx..].as_bytes(), Mode::Zone)?);
+                let mut v = unescape(&hostname.as_bytes()[..zone_idx], Mode::Host)?;
+                v.extend(unescape(&hostname.as_bytes()[zone_idx..], Mode::Zone)?);
                 v
             }
             None => unescape(hostname.as_bytes(), Mode::Host)?,
