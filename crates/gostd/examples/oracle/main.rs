@@ -6,6 +6,7 @@
 //! written only by the Go oracle (`oracle -gen`).
 
 mod echo;
+mod json;
 mod pcg;
 mod regexp;
 mod sha256;
@@ -30,6 +31,7 @@ type Run = fn(&str, &[u8]) -> Vec<Op>;
 /// a package writes fewer, so a package whose ops stop running cannot pass.
 const PKGS: &[(&str, usize, Run)] = &[
     ("echo", 4, echo::run),
+    ("json", 83, json::run),
     ("pcg", 11, pcg::run),
     ("regexp", 22833, regexp::run),
     ("sha256", 631, sha256::run),

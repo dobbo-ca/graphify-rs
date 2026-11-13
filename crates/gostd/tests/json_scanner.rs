@@ -41,7 +41,6 @@ const VALID_TESTS: &[(&str, bool)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_valid() {
     for (data, ok) in VALID_TESTS {
         assert_eq!(valid(data.as_bytes()), *ok, "Valid(`{data}`)");
@@ -69,7 +68,6 @@ const COMPACT_AND_INDENT: &[(&str, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_compact_and_indent() {
     for (i, (c, ind)) in COMPACT_AND_INDENT.iter().enumerate() {
         assert_eq!(
@@ -103,7 +101,6 @@ const COMPACT_SEPARATORS: &[(&str, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_compact_separators() {
     for (i, (input, want)) in COMPACT_SEPARATORS.iter().enumerate() {
         assert_eq!(compact_str(input).as_deref(), Ok(*want), "row {i}");
@@ -201,7 +198,6 @@ fn diff(a: &[u8], b: &[u8]) -> String {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_compact_big() {
     let big = json_big();
     let mut b = Vec::new();
@@ -210,7 +206,6 @@ fn test_compact_big() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_indent_big() {
     let big = json_big();
     let mut b = Vec::new();
@@ -252,7 +247,6 @@ const INDENT_ERRORS: &[(&str, &str, i64)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_indent_errors() {
     for (input, msg, offset) in INDENT_ERRORS {
         let want = Error::Syntax {
@@ -262,5 +256,23 @@ fn test_indent_errors() {
         let err = indent_str(input, "", "").unwrap_err();
         assert_eq!(err, want, "Indent({input})");
         assert_eq!(err.to_string(), *msg, "Indent({input}) text");
+    }
+}
+
+/// Added (not a Go test): a `}` or `]` after a complete top-level value is Go's error, not a
+/// usize underflow in the depth counter (Go's int depth goes to -1 and the output is discarded).
+#[test]
+fn indent_close_after_top_level_value() {
+    for (src, c) in [("{}}", '}'), ("1]", ']'), ("[]]", ']')] {
+        let mut dst = b"x".to_vec();
+        let err = gostd::json::indent(&mut dst, src.as_bytes(), "", "\t").unwrap_err();
+        assert_eq!(
+            err,
+            gostd::json::Error::Syntax {
+                msg: format!("invalid character '{c}' after top-level value"),
+                offset: src.len() as i64,
+            }
+        );
+        assert_eq!(dst, b"x");
     }
 }

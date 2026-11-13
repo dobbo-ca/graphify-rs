@@ -65,7 +65,6 @@ fn nlines(s: &str, n: usize) -> String {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_encoder() {
     let values = stream_test();
     for i in 0..=values.len() {
@@ -92,7 +91,6 @@ struct Data {
 gostd::json_fields!(Data, "json.Data", { a => "A", i => "I" });
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_encoder_error_and_reuse_encode_state() {
     let mut buf = Vec::new();
     {
@@ -113,7 +111,6 @@ fn test_encoder_error_and_reuse_encode_state() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_encoder_indent() {
     let mut buf = Vec::new();
     {
@@ -173,7 +170,6 @@ gostd::json_fields!(MarshalerStruct, "struct", { non_ptr => "NonPtr", ptr => "Pt
 type EscapeRow = (&'static str, Box<dyn Marshal>, &'static str, &'static str);
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_encoder_set_escape_html() {
     let tests: Vec<EscapeRow> = vec![
         ("c", Box::new(C), r#""\u003c\u0026\u003e""#, r#""<&>""#),
@@ -235,7 +231,6 @@ struct RawData {
 gostd::json_fields!(RawData, "struct", { x => "X", id => "Id", y => "Y" });
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_raw_message() {
     let data = RawData {
         x: 0.1,
@@ -258,7 +253,6 @@ struct NullRawData {
 gostd::json_fields!(NullRawData, "struct", { x => "X", id => "Id", id_ptr => "IdPtr", y => "Y" });
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn test_null_raw_message() {
     let data = NullRawData {
         x: 0.1,
@@ -274,7 +268,6 @@ fn test_null_raw_message() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.9"]
 fn marshal_indent_prefix() {
     let m = BTreeMap::from([
         ("a".to_string(), "1".to_string()),
