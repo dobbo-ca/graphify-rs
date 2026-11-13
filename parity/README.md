@@ -82,6 +82,11 @@ reached by graphify-go.
 | strconv | `internal/strconv/{atoi,itoa}_test.go` | 16 | 0 | 0 | the same tables as number_test.go, ported there |
 | strconv | `internal/strconv/{decimal,math}_test.go` | 5 | 0 | 0 | internals (decimal fallback, log helpers) |
 | pcg | x/exp v0.0.0-20260603202125-055de637280b `rand/{regress,arith128,modulo}_test.go` | 6 | 6 (TestRegress: Intn, Uint64n, Uint64 rows only) | 6 | rand_test.go funcs (Normal/Exp values and tables, Float32, Read*, ShuffleSmall, PCGSourceRoundTrip: not reached by graphify-go); race_test.go TestConcurrent (LockedSource not used by graphify-go) |
+| regexp | `regexp/all_test.go` | 18 | 10 (+1 added: 43 graphify-go patterns compile) | 0 | TestCopyMatch, TestReplaceAllLiteral, TestLiteralPrefix, TestUnmarshalText (not reached); TestDeepEqual (reflect); TestMinInputLen (internal); TestOnePassCutoff, TestSwitchBacktrack (engines deferred to P4, aa6.8) |
+| regexp | `regexp/find_test.go` | 18 | 9 | 0 | Find, FindIndex, FindAll, FindAllIndex, FindStringSubmatchIndex, FindAllSubmatch, FindAllStringSubmatchIndex and the Reader variants (not reached) |
+| regexp | `regexp/exec_test.go` (re2-search.txt, Fowler .dat files) | 4 | 2 | 0 | TestLongest (POSIX leftmost-longest not reached); TestProgramTooLongForBacktrack (aa6.8) |
+| regexp | `regexp/exec2_test.go` (re2-exhaustive.txt from `GOSTD_GOTEST`) | 1 | 1 | 0 | the two Longest runs of each case |
+| regexp | `regexp/onepass_test.go` | 3 | 0 | 0 | onepass engine deferred to P4 (aa6.8) |
 
 ## bedrock (P1')
 
