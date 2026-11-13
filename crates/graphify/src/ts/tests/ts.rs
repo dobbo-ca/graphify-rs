@@ -4,7 +4,6 @@ use crate::ts::ts::limit_with;
 use crate::ts::{budget, limit, parse};
 
 #[test]
-#[ignore = "graphify-rs-ihc.15"]
 fn test_limit() {
     const CASES: [(usize, u32); 7] = [
         (0, 65536),
@@ -29,7 +28,6 @@ fn test_limit() {
 /// `limit` and `budget` as the extractors call them: 1x at 4 KiB, 4x at 16 KiB, back to 1x
 /// at 64 KiB; the default budget is 65,536 when `GRAPHIFY_PARSE_BUDGET` is not set.
 #[test]
-#[ignore = "graphify-rs-ihc.15"]
 fn limit_scaling() {
     let b = budget();
     if std::env::var_os("GRAPHIFY_PARSE_BUDGET").is_none() {
@@ -45,7 +43,6 @@ fn limit_scaling() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.15"]
 fn parse_json_root_kind() {
     let kind = parse(b"{}", gositter_grammars::json::language(), |root| {
         root.kind()
@@ -56,7 +53,6 @@ fn parse_json_root_kind() {
 /// One thread's pooled parser across languages: `set_language` runs before every parse
 /// (`ts.go:113`), so the second language's tree is its own.
 #[test]
-#[ignore = "graphify-rs-ihc.15"]
 fn parse_reuses_the_parser_across_languages() {
     let json = gositter_grammars::json::language();
     let golang = gositter_grammars::golang::language();
