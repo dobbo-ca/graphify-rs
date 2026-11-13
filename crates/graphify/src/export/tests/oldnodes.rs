@@ -9,6 +9,7 @@ use std::io::{self, Read};
 use gostd::json::{Error as JsonError, unmarshal};
 
 use super::to_json_at;
+use crate::cluster::tests::gorand::GoRand;
 use crate::export::oldnodes::{OldNode, scan_old_nodes};
 use crate::model::{Graph, Node};
 use crate::testutil::TempDir;
@@ -133,30 +134,12 @@ fn scan_old_nodes_seeds() {
     assert!(accepted >= 6, "the scan accepted only {accepted} seeds");
 }
 
-/// A deterministic generator for the mutations (SplitMix64). Go uses `math/rand` seed 1; the
-/// mutants differ, the check is the same.
-struct Rng(u64);
-
-impl Rng {
-    fn next_u64(&mut self) -> u64 {
-        self.0 = self.0.wrapping_add(0x9E37_79B9_7F4A_7C15);
-        let mut z = self.0;
-        z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
-        z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
-        z ^ (z >> 31)
-    }
-
-    /// Go `rng.Intn(n)`.
-    fn intn(&mut self, n: usize) -> usize {
-        (self.next_u64() >> 33) as usize % n
-    }
-}
-
 // Byte edits of valid documents: the scan must refuse or agree, never differ.
 #[test]
 #[ignore = "graphify-rs-ihc.12"]
 fn test_scan_old_nodes_mutations() {
-    let mut rng = Rng(1);
+    // Go `rand.New(rand.NewSource(1))` (oldnodes_test.go:72): the same mutants as Go.
+    let mut rng = GoRand::new(1);
     const ALPHABET: &[u8] = b"{}[]\",:\\ \n0123456789-+.eEtrufalsn\x00\x1f\xffu";
     let mut accepted = 0;
     for seed in &scan_seeds()[..6] {

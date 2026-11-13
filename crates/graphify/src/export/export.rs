@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 use gostd::json::{Error as JsonError, Value};
 
 use super::oldnodes::OldNode;
-use crate::model::{Edge, Graph, Node};
+use crate::model::{Edge, Graph, Loc, Node};
 
 /// Go `ErrGraphShrink`: `to_json` would replace a larger graph.json with a smaller one.
 pub const ERR_GRAPH_SHRINK: &str = "refusing to overwrite graph.json with a smaller graph";
@@ -77,7 +77,7 @@ pub(super) struct JsonLink {
     pub(super) confidence: String,
     pub(super) deferred: bool,
     pub(super) source_file: String,
-    pub(super) source_location: String,
+    pub(super) source_location: Loc,
     pub(super) weight: f64,
     pub(super) confidence_score: f64,
 }

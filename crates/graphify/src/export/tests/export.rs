@@ -8,9 +8,9 @@ use std::path::{Path, PathBuf};
 use gostd::json::{Value, unmarshal};
 
 use super::to_json_at;
-use crate::export::export::{JsonGraph, norm_label};
+use crate::export::export::{JsonGraph, norm_label, to_json_link};
 use crate::export::{Error, check_shrink};
-use crate::model::{Confidence, Edge, Graph, Node, Relation};
+use crate::model::{Confidence, Edge, Graph, Node, Relation, line};
 use crate::testutil::TempDir;
 
 /// A `code` node in `source_file`, label = id.
@@ -808,4 +808,45 @@ fn norm_label_cgj_run() {
     let label = format!("e{}\u{1D165}", "\u{302E}".repeat(29));
     let want = format!("e\u{1D165}{}", "\u{302E}".repeat(29));
     assert_eq!(norm_label(&label), want, "29 x U+302E then U+1D165");
+}
+
+// Go `toJSONLink` (export.go:315) writes `e.Loc()`, the location without the type-only and
+// deferred flag bits (bits 30 and 29), never the raw `e.SourceLocation`.
+#[test]
+#[ignore = "graphify-rs-ihc.12"]
+fn link_source_location_strips_flag_bits() {
+    let mut e = Edge {
+        source: "a".to_string(),
+        target: "b".to_string(),
+        relation: Relation::CALLS,
+        confidence: Confidence::EXTRACTED,
+        source_location: line(12),
+        ..Edge::default()
+    };
+    e.set_type_only(true);
+    e.set_deferred(true);
+    assert_ne!(
+        e.source_location,
+        line(12),
+        "the flag bits are set on the raw field"
+    );
+    assert_eq!(to_json_link(&e).source_location, line(12));
+
+    let mut g = Graph::new();
+    g.add_node(node("a", "pkg/a.go"));
+    g.add_node(node("b", "pkg/b.go"));
+    g.add_edge(e);
+    let dir = TempDir::new();
+    let path = dir.join("graph.json");
+    to_json_at(&g, &BTreeMap::new(), &path, "c1", false).expect("ToJSON");
+    let data = fs::read(&path).expect("read");
+    let text = String::from_utf8(data.clone()).expect("graph.json is UTF-8");
+    assert!(
+        text.contains("\"source_location\": \"L12\""),
+        "graph.json link has no source_location L12:\n{text}"
+    );
+    let out = unmarshal::<JsonGraph>(&data).expect("unmarshal");
+    let links = out.links.unwrap_or_default();
+    assert_eq!(links.len(), 1);
+    assert_eq!(links[0].source_location, line(12));
 }
