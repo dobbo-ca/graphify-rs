@@ -82,12 +82,13 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
 # No C in the build graph: the ban list in deny.toml.
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
     cargo deny --locked check
-# /gotest holds the large Go test inputs (see the testinputs stage); a test that needs it panics
-# if GOSTD_GOTEST is not set.
+# /gotest holds the large Go test inputs (see the testinputs stage) and /ucd the pinned UCD files
+# (NormalizationTest.txt); a test that needs one panics if GOSTD_GOTEST or GOSTD_UCD is not set.
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
     --mount=type=cache,target=/src/target,sharing=locked \
     --mount=type=bind,from=testinputs,source=/gotest,target=/gotest \
-    sh ci/fresh.sh && GOSTD_GOTEST=/gotest cargo test --locked --workspace
+    --mount=type=bind,from=ucd,source=/ucd,target=/ucd \
+    sh ci/fresh.sh && GOSTD_GOTEST=/gotest GOSTD_UCD=/ucd cargo test --locked --workspace
 
 # qemu-user and the aarch64 cross toolchain, for the arm64 stage.
 FROM toolchain AS qemu-tools
@@ -105,7 +106,8 @@ FROM qemu-arm64 AS arm64
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
     --mount=type=cache,target=/src/target,sharing=locked \
     --mount=type=bind,from=testinputs,source=/gotest,target=/gotest \
-    sh ci/fresh.sh && GOSTD_GOTEST=/gotest cargo test --locked --workspace --target aarch64-unknown-linux-gnu
+    --mount=type=bind,from=ucd,source=/ucd,target=/ucd \
+    sh ci/fresh.sh && GOSTD_GOTEST=/gotest GOSTD_UCD=/ucd cargo test --locked --workspace --target aarch64-unknown-linux-gnu
 
 # gostd against the Go oracle: the two output trees must be equal. A difference is a Rust bug.
 # The Go trees are rw bind mounts from go-run (as in deflate-rs: keyed by go-run's cache key, not by
