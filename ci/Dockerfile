@@ -114,15 +114,14 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
 
 # gostd against the Go oracle: the two output trees must be equal. A difference is a Rust bug.
 # The Go trees are rw bind mounts from go-run (as in deflate-rs: keyed by go-run's cache key, not by
-# a hash of their content). PARITY_MIN_OUTPUTS proves the ops ran; each module PR raises it.
+# a hash of their content). Each oracle package declares the fewest outputs it may write (Go
+# register call, Rust PKGS entry); both oracles fail below it, so the stage needs no shared count.
 FROM src AS parity
-ARG PARITY_MIN_OUTPUTS=52933
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
     --mount=type=cache,target=/src/target,sharing=private \
     --mount=type=bind,from=go-run,source=/inputs,target=/inputs,rw \
     --mount=type=bind,from=go-run,source=/go-out,target=/go-out,rw \
     sh ci/fresh.sh && cargo run --locked --release -p gostd --example oracle -- /inputs /rust-out \
-    && n=$(find /go-out -type f | wc -l) && echo "$n Go outputs" && [ "$n" -ge "$PARITY_MIN_OUTPUTS" ] \
     && { diff -r /go-out /rust-out >/tmp/diff.txt || { head -50 /tmp/diff.txt; wc -l /tmp/diff.txt; exit 1; }; } \
     && GOSTD_SIMD=scalar cargo run --locked --release -p gostd --example oracle -- /inputs /rust-out-scalar \
     && { diff -r /go-out /rust-out-scalar >/tmp/diff.txt || { head -50 /tmp/diff.txt; wc -l /tmp/diff.txt; exit 1; }; } \
@@ -130,13 +129,11 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
 
 # The same on aarch64 under qemu-user (the ARMv8 SHA-256 tier, unsigned char paths).
 FROM qemu-arm64 AS parity-arm64
-ARG PARITY_MIN_OUTPUTS=52933
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
     --mount=type=cache,target=/src/target,sharing=private \
     --mount=type=bind,from=go-run,source=/inputs,target=/inputs,rw \
     --mount=type=bind,from=go-run,source=/go-out,target=/go-out,rw \
     sh ci/fresh.sh && cargo run --locked --release -p gostd --target aarch64-unknown-linux-gnu --example oracle -- /inputs /arm-out \
-    && n=$(find /go-out -type f | wc -l) && echo "$n Go outputs" && [ "$n" -ge "$PARITY_MIN_OUTPUTS" ] \
     && { diff -r /go-out /arm-out >/tmp/diff.txt || { head -50 /tmp/diff.txt; wc -l /tmp/diff.txt; exit 1; }; } \
     && GOSTD_SIMD=scalar cargo run --locked --release -p gostd --target aarch64-unknown-linux-gnu --example oracle -- /inputs /arm-out-scalar \
     && { diff -r /go-out /arm-out-scalar >/tmp/diff.txt || { head -50 /tmp/diff.txt; wc -l /tmp/diff.txt; exit 1; }; } \

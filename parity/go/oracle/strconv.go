@@ -22,7 +22,7 @@ import (
 // without regard to case.
 
 func init() {
-	register("strconv", scGen, scRun)
+	register("strconv", 36, scGen, scRun)
 }
 
 func scWrite(dir, name string, b []byte) error {

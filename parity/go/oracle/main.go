@@ -31,18 +31,21 @@ type op struct {
 }
 
 type pkg struct {
+	minOut int // the fewest output files the package may write; proves its ops ran
 	gen func(dir string) error
 	run func(name string, input []byte) []op
 }
 
 var pkgs = map[string]pkg{}
 
-// register is called from the init of each <pkg>.go.
-func register(name string, gen func(dir string) error, run func(name string, input []byte) []op) {
+// register is called from the init of each <pkg>.go. minOut is the fewest output files the
+// package may write: runAll fails if it writes fewer, so a package whose ops stop running cannot
+// pass. crates/gostd/examples/oracle/main.rs declares the same number in PKGS.
+func register(name string, minOut int, gen func(dir string) error, run func(name string, input []byte) []op) {
 	if _, dup := pkgs[name]; dup {
 		panic("duplicate package " + name)
 	}
-	pkgs[name] = pkg{gen, run}
+	pkgs[name] = pkg{minOut, gen, run}
 }
 
 func main() {
@@ -99,6 +102,7 @@ func runAll(in, out string) error {
 		if err := os.MkdirAll(od, 0o755); err != nil {
 			return err
 		}
+		count := 0
 		for _, f := range files {
 			data, err := os.ReadFile(filepath.Join(in, n, f.Name()))
 			if err != nil {
@@ -114,7 +118,12 @@ func runAll(in, out string) error {
 				if err != nil {
 					return err
 				}
+				count++
 			}
+		}
+		fmt.Printf("%s: %d outputs (minimum %d)\n", n, count, pkgs[n].minOut)
+		if count < pkgs[n].minOut {
+			return fmt.Errorf("%s: %d outputs, want at least %d", n, count, pkgs[n].minOut)
 		}
 	}
 	return nil

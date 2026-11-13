@@ -24,7 +24,7 @@ var pcgSeeds = []struct {
 var pcgBounds = []uint64{1, 2, 3, 5, 7, 10, 1 << 32, 1<<32 + 1, 1<<63 + 1, ^uint64(0)}
 
 func init() {
-	register("pcg", func(dir string) error {
+	register("pcg", 11, func(dir string) error {
 		for _, c := range pcgSeeds {
 			if err := os.WriteFile(filepath.Join(dir, c.name), []byte(strconv.FormatUint(c.seed, 10)), 0o644); err != nil {
 				return err

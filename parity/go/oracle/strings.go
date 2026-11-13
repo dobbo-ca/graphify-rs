@@ -26,7 +26,7 @@ var stringsAlphabet = []string{
 }
 
 func init() {
-	register("strings", func(dir string) error {
+	register("strings", 8000, func(dir string) error {
 		for i := 0; i < 2000; i++ {
 			name := fmt.Sprintf("s%04d", i)
 			r := seed("strings/" + name)
