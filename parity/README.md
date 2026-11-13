@@ -87,6 +87,8 @@ reached by graphify-go.
 | regexp | `regexp/exec_test.go` (re2-search.txt, Fowler .dat files) | 4 | 2 | 0 | TestLongest (POSIX leftmost-longest not reached); TestProgramTooLongForBacktrack (aa6.8) |
 | regexp | `regexp/exec2_test.go` (re2-exhaustive.txt from `GOSTD_GOTEST`) | 1 | 1 | 0 | the two Longest runs of each case |
 | regexp | `regexp/onepass_test.go` | 3 | 0 | 0 | onepass engine deferred to P4 (aa6.8) |
+| csv | `encoding/csv/writer_test.go`, `fuzz_test.go` | 3 | 2 (+1 added) | 0 | FuzzRoundtrip (no seeds, needs the reader); 8 of 29 writeTests rows (3 UseCRLF, 3 custom Comma, 2 invalid UTF-8 in `&str`); Reader and WriteAll not reached by graphify-go (Error is folded into flush's io::Result) |
+| pcg | x/exp v0.0.0-20260603202125-055de637280b `rand/{regress,arith128,modulo}_test.go` | 6 | 6 (TestRegress: Intn, Uint64n, Uint64 rows only) | 0 | rand_test.go funcs (Normal/Exp values and tables, Float32, Read*, ShuffleSmall, PCGSourceRoundTrip: not reached by graphify-go); race_test.go TestConcurrent (LockedSource not used by graphify-go) |
 
 ## bedrock (P1')
 
