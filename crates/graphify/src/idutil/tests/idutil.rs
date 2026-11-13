@@ -17,7 +17,6 @@ const MAKE_ID_CASES: &[(&[&str], &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-ihc.4"]
 fn test_make_id() {
     for &(parts, want) in MAKE_ID_CASES {
         assert_eq!(make_id(parts), want, "make_id({parts:?})");
@@ -25,7 +24,6 @@ fn test_make_id() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.4"]
 fn test_normalize_id_matches_make_id() {
     // An ID produced by MakeID must be a fixed point of NormalizeID, so edge endpoints
     // reconcile to the same key the node was stored under.
@@ -35,7 +33,6 @@ fn test_normalize_id_matches_make_id() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.4"]
 fn test_clean_is_idempotent_and_caseless_stable() {
     // Casefolding expands some characters into a base letter plus a combining mark; folding
     // after the non-word filter left that mark unfiltered, so the result was not a fixed point
@@ -65,7 +62,6 @@ fn check_ascii(s: &str) {
 
 /// The ASCII fast path must give exactly what the general path gives.
 #[test]
-#[ignore = "graphify-rs-ihc.4"]
 fn test_clean_ascii_matches_unicode() {
     // Every string of up to 3 bytes over an alphabet with one of each class, then every single
     // byte and every pair around a letter.
@@ -99,7 +95,6 @@ const FUZZ_CLEAN_ASCII_SEEDS: &[&str] = &["pkg__Some-Type.method()"];
 
 /// FuzzCleanASCII, its seed corpus: where the fast path accepts, it equals the general path.
 #[test]
-#[ignore = "graphify-rs-ihc.4"]
 fn fuzz_clean_ascii_seeds() {
     for &s in FUZZ_CLEAN_ASCII_SEEDS {
         if let Some(got) = clean_ascii(s) {
@@ -113,7 +108,6 @@ fn fuzz_clean_ascii_seeds() {
 /// 30 x U+0334 (ccc 1, no composite with "a"), U+0301. With the CGJ the letter stays "a";
 /// without it U+0301 composes to "á". The marks and the CGJ are then one "_" run.
 #[test]
-#[ignore = "graphify-rs-ihc.4"]
 fn make_id_cgj_run() {
     let part = format!("a{}\u{301}", "\u{334}".repeat(30));
     assert_eq!(make_id(&["x", &part]), "x_a");
