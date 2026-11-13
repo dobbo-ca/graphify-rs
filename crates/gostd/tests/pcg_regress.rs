@@ -8,7 +8,6 @@
 use gostd::pcg::{PcgSource, Rand};
 
 #[test]
-#[ignore = "graphify-rs-aa6.17"]
 fn test_source_regress() {
     let mut src = PcgSource::new(1);
     let mut got = [0u64; 20];
@@ -113,7 +112,6 @@ const UINT64: [u64; 20] = [
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.17"]
 fn test_regress_intn() {
     let mut r = Rand::new(PcgSource::new(0));
     for (n, want) in INTN {
@@ -122,7 +120,6 @@ fn test_regress_intn() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.17"]
 fn test_regress_uint64n() {
     let mut r = Rand::new(PcgSource::new(0));
     for (n, want) in UINT64N {
@@ -131,7 +128,6 @@ fn test_regress_uint64n() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.17"]
 fn test_regress_uint64() {
     let mut r = Rand::new(PcgSource::new(0));
     for want in UINT64 {

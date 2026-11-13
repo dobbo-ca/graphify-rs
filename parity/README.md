@@ -81,7 +81,7 @@ reached by graphify-go.
 | strconv | `internal/strconv/fp_test.go` (atof1k.txt) | 3 | 1 | 0 | TestFp, TestFormatFloatTestdata (every line is fixed precision) |
 | strconv | `internal/strconv/{atoi,itoa}_test.go` | 16 | 0 | 0 | the same tables as number_test.go, ported there |
 | strconv | `internal/strconv/{decimal,math}_test.go` | 5 | 0 | 0 | internals (decimal fallback, log helpers) |
-| pcg | x/exp v0.0.0-20260603202125-055de637280b `rand/{regress,arith128,modulo}_test.go` | 6 | 6 (TestRegress: Intn, Uint64n, Uint64 rows only) | 0 | rand_test.go funcs (Normal/Exp values and tables, Float32, Read*, ShuffleSmall, PCGSourceRoundTrip: not reached by graphify-go); race_test.go TestConcurrent (LockedSource not used by graphify-go) |
+| pcg | x/exp v0.0.0-20260603202125-055de637280b `rand/{regress,arith128,modulo}_test.go` | 6 | 6 (TestRegress: Intn, Uint64n, Uint64 rows only) | 6 | rand_test.go funcs (Normal/Exp values and tables, Float32, Read*, ShuffleSmall, PCGSourceRoundTrip: not reached by graphify-go); race_test.go TestConcurrent (LockedSource not used by graphify-go) |
 
 ## bedrock (P1')
 
