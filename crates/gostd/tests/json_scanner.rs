@@ -14,6 +14,12 @@
 //!
 //! Rows kept: 20 of 20 (6 + 10 + 2 + 2), none left out. Go's `Indent`/`Compact` write to a `bytes.Buffer`;
 //! here `indent`/`compact` append to a `Vec<u8>` (`Compact` is `compact(.., false)`, no HTML escaping).
+//!
+//! Go 1.27.4 runs v2_scanner_test.go (GOEXPERIMENT=jsonv2); its rows and expectations are the
+//! same as scanner_test.go (only a `%v` in a failure message differs, v2_scanner_test.go:205),
+//! so no row changed. Added: indent_close_after_top_level_value, compact_and_indent_errors (rows from
+//! v2_decode_test.go:480-496 and jsontext/encode_test.go:393, the rest traced), max_depth,
+//! indent_placeholder_patch. The decoder texts of `Valid` are tested in src/json/scanner.rs.
 
 use gostd::json::{Error, Value, compact, indent, marshal, valid};
 use std::collections::BTreeMap;
@@ -259,8 +265,8 @@ fn test_indent_errors() {
     }
 }
 
-/// Added (not a Go test): a `}` or `]` after a complete top-level value is Go's error, not a
-/// usize underflow in the depth counter (Go's int depth goes to -1 and the output is discarded).
+/// Added (not a Go test): a `}` or `]` after a complete top-level value is "after top-level
+/// value" (jsontext/encode.go:548-552) and `dst` is left as it was (v2_indent.go:123-125).
 #[test]
 fn indent_close_after_top_level_value() {
     for (src, c) in [("{}}", '}'), ("1]", ']'), ("[]]", ']')] {
@@ -275,4 +281,130 @@ fn indent_close_after_top_level_value() {
         );
         assert_eq!(dst, b"x");
     }
+}
+
+/// Syntax errors of `Compact` and `Indent`, which run Go's `jsontext` encoder
+/// (v2_indent.go:49-131). The texts follow `transformSyntacticError` (v2_scanner.go:56-91); the offset is past the
+/// invalid text (jsontext/errors.go:102-116). Rows from v2_decode_test.go:480-496 (the decoder
+/// gives the encoder's texts there); the array row from jsontext/encode_test.go:393 with the
+/// legacy offset; the rest added (no Go row), each traced through jsonwire/decode.go.
+#[test]
+fn compact_and_indent_errors() {
+    let rows: &[(&[u8], &str, i64)] = &[
+        (b"", "unexpected end of JSON input", 0),
+        (b" \n\r\t", "unexpected end of JSON input", 4),
+        (b"[2, 3", "unexpected end of JSON input", 5),
+        (
+            br#"{"X":12x}"#,
+            "invalid character 'x' after object key:value pair",
+            8,
+        ),
+        (
+            br#"{"F3": -}"#,
+            "invalid character '}' in numeric literal",
+            9,
+        ),
+        (
+            b"\x01 42",
+            "invalid character '\\x01' looking for beginning of value",
+            1,
+        ),
+        (
+            b" 42 \x01",
+            "invalid character '\\x01' after top-level value",
+            5,
+        ),
+        // jsontext/encode_test.go:393: the encoder says "after array value" where the decoder
+        // says "after array element" (jsontext/encode.go:891, jsontext/decode.go:1127).
+        (
+            br#" [ "fizz" "buzz" ] "#,
+            "invalid character '\"' after array value",
+            11,
+        ),
+        // Added: jsonwire.ConsumeNumber (internal/jsonwire/decode.go:532, 554) reports "in number".
+        (b"1.x", "invalid character 'x' in numeric literal", 3),
+        (b"1e+]", "invalid character ']' in numeric literal", 4),
+        // Added: a truncated number is reported where its last part starts (the encoder's
+        // `resumeOffset`), with nothing added for unexpected EOF.
+        (b"[1.", "unexpected end of JSON input", 2),
+        // Added: escape sequences (internal/jsonwire/decode.go:182-230, wire.go:134); the offset
+        // is past the sequence.
+        (br#"["\x"]"#, "invalid escape sequence `\\x` in string", 4),
+        (
+            br#""\u12g4""#,
+            "invalid escape sequence `\\u12g4` in string",
+            7,
+        ),
+        // Added: a control byte in a string (internal/jsonwire/decode.go:243-245).
+        (b"\"a\x1fb\"", "invalid character '\\x1f' in string", 3),
+        // Added: a byte-order mark is one rune, quoted by strconv.QuoteRune and counted whole
+        // (wire.go:62, jsontext/errors.go:106).
+        (
+            b"\xef\xbb\xbf{}",
+            "invalid character '\\ufeff' looking for beginning of value",
+            3,
+        ),
+        // Added: an invalid byte is quoted as '\xNN' (wire.go:64).
+        (
+            b"[\xff]",
+            "invalid character '\\xff' looking for beginning of value",
+            2,
+        ),
+        // Added: a literal keeps its "(expecting ...)" (v2_scanner.go:68).
+        (
+            b"[nul,1]",
+            "invalid character ',' in literal null (expecting 'l')",
+            5,
+        ),
+    ];
+    for &(input, msg, offset) in rows {
+        let want = Err(Error::Syntax {
+            msg: msg.to_string(),
+            offset,
+        });
+        let mut dst = b"x".to_vec();
+        assert_eq!(compact(&mut dst, input, false), want, "Compact({input:?})");
+        assert_eq!(dst, b"x", "Compact({input:?}) output");
+        assert_eq!(
+            indent(&mut dst, input, ">", "\t"),
+            want,
+            "Indent({input:?})"
+        );
+        assert_eq!(dst, b"x", "Indent({input:?}) output");
+    }
+}
+
+/// Max depth 10000 (jsontext/state.go:53): the 10001st open bracket is "exceeded max depth",
+/// one past the bracket (a structural error, jsontext/errors.go:114). Go's Unmarshal checks the
+/// text in v2_decode_test.go:2990; here through Compact and Valid.
+#[test]
+fn max_depth() {
+    let ok = format!("{}{}", "[".repeat(10000), "]".repeat(10000));
+    let mut dst = Vec::new();
+    assert_eq!(compact(&mut dst, ok.as_bytes(), false), Ok(()));
+    assert!(valid(ok.as_bytes()));
+
+    let deep = "[".repeat(10001);
+    let mut dst = Vec::new();
+    assert_eq!(
+        compact(&mut dst, deep.as_bytes(), false),
+        Err(Error::Syntax {
+            msg: "exceeded max depth".to_string(),
+            offset: 10001,
+        })
+    );
+    assert!(!valid(deep.as_bytes()));
+}
+
+/// Added (no Go row): with a prefix or indent that is not all spaces and tabs, Go formats with
+/// spaces and then overwrites every run of spaces after a newline, the trailing whitespace of
+/// the input included (v2_indent.go:94-111, 127-129).
+#[test]
+fn indent_placeholder_patch() {
+    let mut dst = Vec::new();
+    indent(&mut dst, b"[1,{\"a\":2}] \n  ", ">", "\t").unwrap();
+    assert_eq!(
+        String::from_utf8(dst).unwrap(),
+        "[\n>\t1,\n>\t{\n>\t\t\"a\": 2\n>\t}\n>] \n>\t"
+    );
 }

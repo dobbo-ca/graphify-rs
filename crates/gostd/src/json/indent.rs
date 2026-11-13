@@ -1,13 +1,13 @@
-//! Go `indent.go`.
+//! Go `v2_indent.go` (the active `HTMLEscape`, `Compact` and `Indent` under GOEXPERIMENT=jsonv2).
 
 use super::Error;
-use super::scanner::{Op, Scanner};
+use super::jsontext::{Opts, append_format};
 
 const HEX: &[u8; 16] = b"0123456789abcdef";
 
-/// Appends Go's `\u00XX` escape of the byte `c`, as `appendHTMLEscape` and `appendCompact` do for
-/// `<`, `>` and `&`.
-fn push_u00(dst: &mut Vec<u8>, c: u8) {
+/// Appends Go's `\u00XX` escape of the byte `c`, as `appendHTMLEscape` and
+/// `jsonwire.appendEscapedASCII` do for `<`, `>` and `&`.
+pub(super) fn push_u00(dst: &mut Vec<u8>, c: u8) {
     dst.extend_from_slice(&[
         b'\\',
         b'u',
@@ -18,13 +18,8 @@ fn push_u00(dst: &mut Vec<u8>, c: u8) {
     ]);
 }
 
-/// True at `src[i]` when `src[i..i + 3]` is U+2028 or U+2029 (E2 80 A8 and E2 80 A9).
-fn is_line_sep(src: &[u8], i: usize) -> bool {
-    src[i] == 0xE2 && i + 2 < src.len() && src[i + 1] == 0x80 && src[i + 2] & !1 == 0xA8
-}
-
-/// Go `appendHTMLEscape` (`indent.go:21`); Go `HTMLEscape` (`indent.go:16`) is not reached,
-/// this exists for the Go tests that call it.
+/// Go `appendHTMLEscape` (`v2_indent.go:26`); Go `HTMLEscape` (`v2_indent.go:21`) is not
+/// reached, this exists for the Go tests that call it.
 pub fn html_escape(dst: &mut Vec<u8>, src: &[u8]) {
     // The characters can only appear in string literals,
     // so just scan the string one byte at a time.
@@ -36,7 +31,7 @@ pub fn html_escape(dst: &mut Vec<u8>, src: &[u8]) {
             start = i + 1;
         }
         // Convert U+2028 and U+2029 (E2 80 A8 and E2 80 A9).
-        if is_line_sep(src, i) {
+        if c == 0xE2 && i + 2 < src.len() && src[i + 1] == 0x80 && src[i + 2] & !1 == 0xA8 {
             dst.extend_from_slice(&src[start..i]);
             dst.extend_from_slice(&[
                 b'\\',
@@ -52,117 +47,71 @@ pub fn html_escape(dst: &mut Vec<u8>, src: &[u8]) {
     dst.extend_from_slice(&src[start..]);
 }
 
-/// Go `appendCompact` (`indent.go:51`); `escape_html` is its `escape` argument.
+/// Go `Compact` (`v2_indent.go:49`): `jsontext.AppendFormat` with duplicate names and invalid
+/// UTF-8 allowed and raw strings kept. Go's `Compact` has no escaping; `escape_html` turns on
+/// `EscapeForHTML` and `EscapeForJS` (`<`, `>`, `&`, U+2028, U+2029 in strings), as v1's
+/// `appendCompact(.., true)` did. On an error `dst` is left as it was.
 pub fn compact(dst: &mut Vec<u8>, src: &[u8], escape_html: bool) -> Result<(), Error> {
-    let orig_len = dst.len();
-    let mut scan = Scanner::new();
-    let mut start = 0;
-    for (i, &c) in src.iter().enumerate() {
-        if escape_html && matches!(c, b'<' | b'>' | b'&') {
-            dst.extend_from_slice(&src[start..i]);
-            push_u00(dst, c);
-            start = i + 1;
-        }
-        // Convert U+2028 and U+2029 (E2 80 A8 and E2 80 A9).
-        if escape_html && is_line_sep(src, i) {
-            dst.extend_from_slice(&src[start..i]);
-            dst.extend_from_slice(&[
-                b'\\',
-                b'u',
-                b'2',
-                b'0',
-                b'2',
-                HEX[usize::from(src[i + 2] & 0xF)],
-            ]);
-            start = i + 3;
-        }
-        let v = scan.step(c);
-        if v >= Op::SkipSpace {
-            if v == Op::Error {
-                break;
-            }
-            dst.extend_from_slice(&src[start.min(i)..i]);
-            start = i + 1;
-        }
-    }
-    if scan.eof() == Op::Error {
-        dst.truncate(orig_len);
-        return Err(scan.err.expect("scanError sets err"));
-    }
-    if start < src.len() {
-        dst.extend_from_slice(&src[start..]);
-    }
-    Ok(())
+    append_format(
+        dst,
+        src,
+        &Opts {
+            decoder: false,
+            indent: None,
+            escape_html,
+            escape_js: escape_html,
+        },
+    )
 }
 
-/// Go `appendNewline` (`indent.go:96`).
-fn append_newline(dst: &mut Vec<u8>, prefix: &str, indent: &str, depth: usize) {
-    dst.push(b'\n');
-    dst.extend_from_slice(prefix.as_bytes());
-    for _ in 0..depth {
-        dst.extend_from_slice(indent.as_bytes());
-    }
-}
-
-/// Go `appendIndent` (`indent.go:128`).
+/// Go `appendIndent` (`v2_indent.go:91`). A prefix or indent with a byte other than space or tab
+/// is formatted with spaces of the same length, which are then overwritten (`:94-111`, run over
+/// the whole output, trailing whitespace included); the trailing whitespace of `src` is put back
+/// (`:127-129`). On an error `dst` is left as it was.
 pub fn indent(dst: &mut Vec<u8>, src: &[u8], prefix: &str, indent: &str) -> Result<(), Error> {
-    let orig_len = dst.len();
-    let mut scan = Scanner::new();
-    let mut need_indent = false;
-    let mut depth = 0usize;
-    for &c in src {
-        scan.bytes += 1;
-        let v = scan.step(c);
-        if v == Op::SkipSpace {
-            continue;
-        }
-        if v == Op::Error {
-            break;
-        }
-        if need_indent && v != Op::EndObject && v != Op::EndArray {
-            need_indent = false;
-            depth += 1;
-            append_newline(dst, prefix, indent, depth);
-        }
+    let orig = dst.len();
+    let not_space = |s: &str| s.bytes().any(|c| c != b' ' && c != b'\t');
+    let placeholder = not_space(prefix) || not_space(indent);
+    let (p, i) = if placeholder {
+        (" ".repeat(prefix.len()), " ".repeat(indent.len()))
+    } else {
+        (prefix.to_string(), indent.to_string())
+    };
+    append_format(
+        dst,
+        src,
+        &Opts {
+            decoder: false,
+            indent: Some((p.as_str(), i.as_str())),
+            escape_html: false,
+            escape_js: false,
+        },
+    )?;
 
-        // Emit semantically uninteresting bytes
-        // (in particular, punctuation in strings) unmodified.
-        if v == Op::Continue {
-            dst.push(c);
-            continue;
-        }
+    // In v2, trailing whitespace is discarded, while v1 preserved it.
+    let n = src
+        .iter()
+        .rev()
+        .take_while(|&&c| matches!(c, b' ' | b'\n' | b'\r' | b'\t'))
+        .count();
+    dst.extend_from_slice(&src[src.len() - n..]);
 
-        // Add spacing around real punctuation.
-        match c {
-            b'{' | b'[' => {
-                // delay indent so that empty object and array are formatted as {} and [].
-                need_indent = true;
-                dst.push(c);
+    if placeholder {
+        let b = &mut dst[orig..];
+        let mut at = 0;
+        while let Some(j) = b[at..].iter().position(|&c| c == b'\n') {
+            at += j + 1;
+            let n = b[at..].iter().take_while(|&&c| c == b' ').count(); // len(prefix)+n*len(indent)
+            let spaces = &mut b[at..at + n];
+            let k = prefix.len().min(n);
+            spaces[..k].copy_from_slice(&prefix.as_bytes()[..k]);
+            // Go copies `indent` until the spaces are filled; with an empty indent and spaces left
+            // (only from trailing whitespace) Go never returns. This stops instead.
+            for (s, &c) in spaces[k..].iter_mut().zip(indent.as_bytes().iter().cycle()) {
+                *s = c;
             }
-            b',' => {
-                dst.push(c);
-                append_newline(dst, prefix, indent, depth);
-            }
-            b':' => dst.extend_from_slice(&[c, b' ']),
-            b'}' | b']' => {
-                if need_indent {
-                    // suppress indent in empty object/array
-                    need_indent = false;
-                } else {
-                    // Go's int goes to -1 on a `}` or `]` after a complete top-level value
-                    // (`{}}`, `1]`); the scanner has already recorded the error, so the output is
-                    // discarded below. Saturate instead of underflowing the usize.
-                    depth = depth.saturating_sub(1);
-                    append_newline(dst, prefix, indent, depth);
-                }
-                dst.push(c);
-            }
-            _ => dst.push(c),
+            at += n;
         }
-    }
-    if scan.eof() == Op::Error {
-        dst.truncate(orig_len);
-        return Err(scan.err.expect("scanError sets err"));
     }
     Ok(())
 }
