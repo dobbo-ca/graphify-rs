@@ -61,6 +61,32 @@ pub fn on_worker_stack<R: Send>(f: impl FnOnce() -> R + Send) -> R {
     })
 }
 
+/// A small deterministic generator for property tests that port Go's `math/rand` use. The Go
+/// tests compare two code paths, so any sequence serves; the seed only fixes it.
+pub struct Rng(u64);
+
+impl Rng {
+    pub fn new(seed: u64) -> Rng {
+        Rng(seed.wrapping_mul(0x9e37_79b9_7f4a_7c15) | 1)
+    }
+
+    /// Go `rng.Intn(n)`: a value in `0..n`.
+    pub fn intn(&mut self, n: usize) -> usize {
+        self.0 ^= self.0 << 13;
+        self.0 ^= self.0 >> 7;
+        self.0 ^= self.0 << 17;
+        (self.0 % n as u64) as usize
+    }
+
+    /// Go `rng.Shuffle`.
+    pub fn shuffle<T>(&mut self, v: &mut [T]) {
+        for i in (1..v.len()).rev() {
+            let j = self.intn(i + 1);
+            v.swap(i, j);
+        }
+    }
+}
+
 /// `crates/graphify/testdata`.
 pub fn testdata() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata")

@@ -2,8 +2,8 @@
 //! Rust's `add_edges_at` takes the edges by value, so Go's checks that the caller's edges are not
 //! written and that some edges are kept in place (pointer identity) have no Rust form.
 
-use super::Rng;
 use crate::model::{Edge, Graph, NO_NODE, Node, rel};
+use crate::testutil::Rng;
 
 fn node(id: &str) -> Node {
     Node {
