@@ -409,7 +409,6 @@ fn read(case: &str, ext: &str) -> Vec<u8> {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.11"]
 fn test_toml() {
     let valid: Vec<String> = cases("valid")
         .into_iter()
@@ -453,7 +452,6 @@ fn test_toml() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.11"]
 fn test_toml_next_fails() {
     // TOML 1.1 syntax must fail by default.
     for case in NEXT_FAILS {
@@ -465,7 +463,6 @@ fn test_toml_next_fails() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.11"]
 fn error_tests() {
     let invalid = cases("invalid");
     for (pat, want, n) in ERROR_TESTS {

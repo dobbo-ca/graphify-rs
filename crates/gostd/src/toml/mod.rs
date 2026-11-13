@@ -1,7 +1,9 @@
 //! BurntSushi/toml v1.4.0, TOML 1.0 only (`BURNTSUSHI_TOML_110` is never set). Call site:
 //! graphify-go `cargo.go:187` `toml.DecodeFile(path, &data)` into `map[string]any`. The caller
-//! reads the file, so there is no `decode_file`. The decoder arrives with graphify-rs-aa6.11.
-#![allow(unused_variables)]
+//! reads the file, so there is no `decode_file`.
+
+mod lex;
+mod parse;
 
 use crate::strconv;
 use std::collections::BTreeMap;
@@ -82,5 +84,5 @@ impl std::error::Error for ParseError {}
 /// Go `toml.Decode` into `map[string]any` (`decode.go`, `parse.go`). `data` need not be UTF-8:
 /// invalid bytes are a `ParseError`.
 pub fn decode(data: &[u8]) -> Result<Table, ParseError> {
-    todo!("graphify-rs-aa6.11")
+    parse::parse(data)
 }
