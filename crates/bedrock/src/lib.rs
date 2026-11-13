@@ -5,7 +5,7 @@
 //! docs/superpowers/plans/2026-11-13-bedrock.md.
 
 // Task 1 lands signatures with todo!() bodies and ignored tests; graphify-rs-u2o.8 removes this.
-#![allow(dead_code, unused_variables)]
+#![allow(dead_code, unused_variables, clippy::ptr_arg)]
 
 mod client;
 mod creds;

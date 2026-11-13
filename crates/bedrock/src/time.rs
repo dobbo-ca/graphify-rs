@@ -22,7 +22,7 @@ impl Utc {
         todo!("graphify-rs-u2o.3")
     }
 
-    pub(crate) fn to_system(&self) -> SystemTime {
+    pub(crate) fn to_system(self) -> SystemTime {
         todo!("graphify-rs-u2o.3")
     }
 
