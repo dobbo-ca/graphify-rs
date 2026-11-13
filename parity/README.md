@@ -71,7 +71,7 @@ reached by graphify-go.
 | xtext norm | x/text v0.27.0 `unicode/norm/normalize_test.go` | 13 | 4 (+1 added) | 5 | 9 internals (boundaries, Span, IsNormal, DecomposeSegment, Linking); 28 NFKC append rows with invalid UTF-8 parts; NFC/NFD tables |
 | xtext norm | x/text v0.27.0 `unicode/norm/composition_test.go` | 4 | 3 | 3 | TestFlush (internals); 2 NFD rows not observable through NFKD |
 | xtext norm | x/text v0.27.0 `unicode/norm/ucd_test.go` (NormalizationTest.txt 15.0.0) | 3 | 2 | 2 | TestPerformance (Go timing); NFC/NFD columns |
-| regexp/syntax | `regexp/syntax/parse_test.go` | 10 | 7 (+1 added) | 0 | TestAppendRangeCollapse (internal appendRange); TestToStringEquivalentParse, TestString (Regexp.String round trip not called); 4 invalidRegexps rows with invalid UTF-8 (`&str` input) |
+| regexp/syntax | `regexp/syntax/parse_test.go` | 10 | 9 (+1 added) | 0 | TestAppendRangeCollapse (internal appendRange); 4 invalidRegexps rows with invalid UTF-8 (`&str` input) |
 | regexp/syntax | `regexp/syntax/prog_test.go` | 1 | 1 | 0 | - |
 | regexp/syntax | `regexp/syntax/simplify_test.go` | 1 | 1 | 0 | - |
 
