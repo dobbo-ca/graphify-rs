@@ -1,0 +1,43 @@
+//! Port of graphify-go `internal/langfamily/langfamily_test.go`.
+
+use crate::langfamily::{component, cross};
+
+const CROSS_CASES: &[(&str, &str, bool)] = &[
+    ("main.py", "Svc.java", true),    // python vs jvm
+    ("main.py", "Svc.kt", true),      // python vs jvm (kotlin)
+    ("app.ts", "widget.kt", true),    // jsts vs jvm
+    ("Svc.java", "Widget.kt", false), // both jvm
+    ("impl.c", "decl.h", false),      // both native
+    ("a.ts", "b.tsx", false),         // both jsts
+    ("a.py", "b.py", false),          // same family
+    ("a.go", "b.go", false),          // same family
+    ("App.vue", "util.py", true),     // sfc vs python
+    ("App.svelte", "lib.ts", false),  // sfc is jsts
+    ("Page.astro", "a.js", false),    // sfc is jsts
+    ("App.vue", "Other.vue", false),  // both jsts
+    ("README.md", "a.py", false),     // unknown family stays permissive
+    ("a.py", "", false),              // empty file stays permissive
+];
+
+#[test]
+#[ignore = "graphify-rs-ihc.5"]
+fn test_cross() {
+    for &(a, b, want) in CROSS_CASES {
+        assert_eq!(cross(a, b), want, "cross({a:?}, {b:?})");
+    }
+}
+
+#[test]
+#[ignore = "graphify-rs-ihc.5"]
+fn test_component() {
+    for (f, want) in [
+        ("App.vue", true),
+        ("P.SVELTE", true),
+        ("a.astro", true),
+        ("t.ejs", true),
+        ("a.ts", false),
+        ("", false),
+    ] {
+        assert_eq!(component(f), want, "component({f:?})");
+    }
+}

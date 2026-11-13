@@ -273,7 +273,7 @@ One block per module, in the plan's module order. A PR edits only its own module
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| `langfamily` (`graphify-rs-ihc.5`) | - | - | - | not started |
+| graphify-go `internal/langfamily/langfamily_test.go`, `langfamily_rake_test.go` (`graphify-rs-ihc.5`) | 3 | 3 | 0 | - (no upstream file has Go's behaviour) |
 
 #### security
 

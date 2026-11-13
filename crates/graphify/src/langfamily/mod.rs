@@ -7,3 +7,6 @@
 mod langfamily;
 
 pub use langfamily::*;
+
+#[cfg(test)]
+mod tests;
