@@ -121,7 +121,7 @@ Oracle package: none yet.
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| - | - | - | - | not started |
+| `crypto/sha256/sha256_test.go` (go1.27.4) | 13 | 6 (+2 added: FIPS vectors, `tiers_agree`) | 0 | TestGoldenMarshal, TestMarshalTypeMismatch (marshal/unmarshal not reached); TestAllocations, TestAllocatonsWithTypeAsserts (Go allocation counts); TestCgo (cgo); TestHash (`cryptotest.TestHash` hash.Hash helper); TestExtraMethods (`cryptotest.NoExtraMethods`: Go method-set check). TestLargeHashes ported by finalizing the saved state in the test, not via unmarshal; SHA-224 rows of TestGolden and TestSize skipped |
 
 #### sort
 

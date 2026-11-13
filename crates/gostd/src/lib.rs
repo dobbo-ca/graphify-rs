@@ -4,6 +4,7 @@ pub mod csv;
 pub mod json;
 pub mod pcg;
 pub mod regexp;
+pub mod sha256;
 pub mod sort;
 pub mod strconv;
 pub mod strings;
