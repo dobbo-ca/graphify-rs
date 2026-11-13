@@ -73,6 +73,12 @@ impl fmt::Display for Confidence {
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Loc(pub u32);
 
+/// Go `locText`, `locTypeOnly`, `locDeferred`, `locFlags` (`code.go:118-123`).
+pub(super) const LOC_TEXT: u32 = 1 << 31;
+pub(super) const LOC_TYPE_ONLY: u32 = 1 << 30;
+pub(super) const LOC_DEFERRED: u32 = 1 << 29;
+pub(super) const LOC_FLAGS: u32 = LOC_TYPE_ONLY | LOC_DEFERRED;
+
 /// Go `model.Line`: the location of line `n` (Go `int`).
 pub fn line(n: i64) -> Loc {
     todo!("graphify-rs-ihc.7")
