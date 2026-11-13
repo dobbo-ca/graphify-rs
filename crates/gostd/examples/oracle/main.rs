@@ -8,6 +8,7 @@
 mod bedrock_body;
 mod csv;
 mod echo;
+mod filepath;
 mod json;
 mod pcg;
 mod regexp;
@@ -39,6 +40,7 @@ const PKGS: &[(&str, usize, Run)] = &[
     ("bedrock-body", 201, bedrock_body::run),
     ("csv", 2000, csv::run),
     ("echo", 4, echo::run),
+    ("filepath", 40060, filepath::run),
     ("json", 87, json::run),
     ("pcg", 11, pcg::run),
     ("regexp", 22833, regexp::run),

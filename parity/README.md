@@ -61,13 +61,13 @@ Oracle package `csv`: inputs 2,000 generated records of 0 to 8 fields (the valid
 
 #### filepath
 
-Oracle package: none yet.
+Oracle package `filepath` (also covers `path`, the same code on unix): inputs `lex-0000`..`lex-4999` (5,000 cases of two generated paths over `{a, b, ., .., "", /, //}` up to 8 elements, a Go `matchTests` pattern and a name), `tree-00`..`tree-19` (20 tree descriptions: dot files, mixed case, symlinks to files and dirs, loops, an absolute link, a symlinked root; both oracles build the tree under `/tmp/oracle-tree/<case>`, run the ops and remove it); ops `clean`, `dir`, `base`, `ext`, `is_abs`, `join`, `rel`, `match` (lex), `walk` (SkipDir on names starting `s`), `glob` (10 patterns), `eval_symlinks` (tree; errors as a class, `notexist`, `notdir`, `toomany`, `other`). 40,060 outputs (5,000 x 8 + 20 x 3).
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| `path/filepath/path_test.go` | 34 | 19 (+2 added) | 0 | TestIsLocal, TestLocalize (IsLocal, Localize not reached by graphify-go); TestFromAndToSlash (identity on unix); TestSplitList, TestSplit (not reached); TestWalk, TestWalkSymlink, TestBug3486 (`Walk` not reached); TestWalkSkipAllOnFile (SkipAll not reached); TestAbsEmptyString, TestVolumeName, TestDriveLetterInEvalSymlinks (Windows); TestIssue29372, TestIssue51617 (not in the plan's list); TestEscaping (IsLocal not reached). Adapted, no chdir: TestAbs, TestEvalSymlinks*, TestRelativeSymlinkToAbsolute (absolute paths); TestWalkFileError (mode 0 directory in place of the `Lstat` hook); TestWalkDir without its PermErr subtest; Windows tables and AllocsPerRun left out |
-| `path/filepath/match_test.go` | 8 | 6 | 0 | TestGlobUNC, TestWindowsGlob (Windows); TestGlob and TestNonWindowsGlobEscape use a temp dir, not the working directory |
-| `path/path_test.go` | 8 | 6 | 0 | TestCleanMallocs (Go runtime AllocsPerRun); TestSplit (not reached); TestIsAbs runs through `gostd::filepath::is_abs` because `gostd::path` re-exports only clean, join, dir, base, ext |
+| `path/filepath/path_test.go` | 34 | 19 (+2 added) | 21 | TestIsLocal, TestLocalize (IsLocal, Localize not reached by graphify-go); TestFromAndToSlash (identity on unix); TestSplitList, TestSplit (not reached); TestWalk, TestWalkSymlink, TestBug3486 (`Walk` not reached); TestWalkSkipAllOnFile (SkipAll not reached); TestAbsEmptyString, TestVolumeName, TestDriveLetterInEvalSymlinks (Windows); TestIssue29372, TestIssue51617 (not in the plan's list); TestEscaping (IsLocal not reached). Adapted, no chdir: TestAbs, TestEvalSymlinks*, TestRelativeSymlinkToAbsolute (absolute paths); TestWalkFileError (mode 0 directory in place of the `Lstat` hook); TestWalkDir without its PermErr subtest; Windows tables and AllocsPerRun left out |
+| `path/filepath/match_test.go` | 8 | 6 | 6 | TestGlobUNC, TestWindowsGlob (Windows); TestGlob and TestNonWindowsGlobEscape use a temp dir, not the working directory |
+| `path/path_test.go` | 8 | 6 | 6 | TestCleanMallocs (Go runtime AllocsPerRun); TestSplit (not reached) |
 
 #### gen
 

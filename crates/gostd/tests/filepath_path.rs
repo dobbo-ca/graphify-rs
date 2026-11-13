@@ -146,7 +146,6 @@ const CLEAN_TESTS: &[(&str, &str)] = &[
 
 // Go t.Errorf continues after a failure; assert_eq! stops at the first.
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_clean() {
     for (path, result) in CLEAN_TESTS {
         assert_eq!(clean(path), *result, "clean({path:?})");
@@ -183,7 +182,6 @@ const JOIN_TESTS: &[(&[&str], &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_join() {
     for (elem, path) in JOIN_TESTS {
         assert_eq!(join(elem), *path, "join({elem:?})");
@@ -200,7 +198,6 @@ const EXT_TESTS: &[(&str, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_ext() {
     for (path, want) in EXT_TESTS {
         assert_eq!(ext(path), *want, "ext({path:?})");
@@ -294,7 +291,6 @@ fn mark(
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_walk_dir() {
     let td = TempDir::new();
     let mut tr = tree();
@@ -310,7 +306,6 @@ fn test_walk_dir() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_walk_skip_dir_on_file() {
     let td = TempDir::new();
     fs::create_dir_all(td.0.join("dir")).unwrap();
@@ -340,7 +335,6 @@ fn test_walk_skip_dir_on_file() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_walk_file_error() {
     let td = TempDir::new();
     touch(&td.0.join("foo"));
@@ -381,7 +375,6 @@ fn test_walk_file_error() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_walk_symlink_root() {
     let td = TempDir::new();
     let d = td.0.join("dir");
@@ -468,7 +461,6 @@ const BASE_TESTS: &[(&str, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_base() {
     for (path, want) in BASE_TESTS {
         assert_eq!(base(path), *want, "base({path:?})");
@@ -493,7 +485,6 @@ const DIR_TESTS: &[(&str, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_dir() {
     for (path, want) in DIR_TESTS {
         assert_eq!(dir(path), *want, "dir({path:?})");
@@ -513,7 +504,6 @@ const IS_ABS_TESTS: &[(&str, bool)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_is_abs() {
     for (path, want) in IS_ABS_TESTS {
         assert_eq!(is_abs(path), *want, "is_abs({path:?})");
@@ -568,7 +558,6 @@ fn check_eval_symlinks(path: &str, want: &str) {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_eval_symlinks() {
     let td = TempDir::new();
     // /tmp may itself be a symlink! Avoid the confusion, although it means trusting the thing we're testing.
@@ -610,7 +599,6 @@ fn test_eval_symlinks() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_eval_symlinks_is_not_exist() {
     let td = TempDir::new();
 
@@ -631,7 +619,6 @@ fn test_eval_symlinks_is_not_exist() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_issue13582() {
     let td = TempDir::new();
     let tmp_dir = &td.0;
@@ -670,7 +657,6 @@ fn test_issue13582() {
 
 // Issue 57905.
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_relative_symlink_to_absolute() {
     let td = TempDir::new();
     let tmp_dir = &td.0;
@@ -706,7 +692,6 @@ const ABS_TESTS: &[&str] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_abs() {
     let td = TempDir::new();
     let root = s(&td.0);
@@ -798,7 +783,6 @@ const REL_TESTS: &[(&str, &str, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_rel() {
     for (root, path, want) in REL_TESTS {
         let got = rel(root, path);
@@ -817,7 +801,6 @@ fn test_rel() {
 
 // Issue 30520 part 1.
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_eval_symlinks_above_root() {
     let td = TempDir::new();
     let eval_tmp_dir = eval_symlinks(&td.0).unwrap();
@@ -855,7 +838,6 @@ fn test_eval_symlinks_above_root() {
 
 // Issue 30520 part 2.
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_eval_symlinks_above_root_chdir() {
     let td = TempDir::new();
     let root = s(&td.0);
@@ -878,7 +860,6 @@ fn test_eval_symlinks_above_root_chdir() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_eval_symlinks_too_many_links() {
     let td = TempDir::new();
     let d = td.0.join("dir");
@@ -888,7 +869,6 @@ fn test_eval_symlinks_too_many_links() {
 
 // Added (no Go source): behaviours that differ from what a Rust reader expects.
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn go_not_rust_semantics() {
     assert_eq!(ext(".bashrc"), ".bashrc");
     assert_eq!(ext("a."), ".");
@@ -901,9 +881,9 @@ fn go_not_rust_semantics() {
 }
 
 // Added (Review Focus 5): a non-UTF-8 name is visited, sorted by bytes, and does not panic.
-// Linux only in practice: macOS APFS rejects such names.
+// Linux only: macOS APFS rejects such names.
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
+#[cfg(target_os = "linux")]
 fn walk_dir_non_utf8_name() {
     let td = TempDir::new();
     let bad = td.0.join(OsStr::from_bytes(b"\xff.txt"));

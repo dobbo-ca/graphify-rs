@@ -58,7 +58,6 @@ const CLEAN_TESTS: &[(&str, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_clean() {
     for (path, result) in CLEAN_TESTS {
         assert_eq!(clean(path), *result, "clean({path:?})");
@@ -86,7 +85,6 @@ const JOIN_TESTS: &[(&[&str], &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_join() {
     for (elem, path) in JOIN_TESTS {
         assert_eq!(join(elem), *path, "join({elem:?})");
@@ -103,7 +101,6 @@ const EXT_TESTS: &[(&str, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_ext() {
     for (path, want) in EXT_TESTS {
         assert_eq!(ext(path), *want, "ext({path:?})");
@@ -127,7 +124,6 @@ const BASE_TESTS: &[(&str, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_base() {
     for (path, want) in BASE_TESTS {
         assert_eq!(base(path), *want, "base({path:?})");
@@ -152,7 +148,6 @@ const DIR_TESTS: &[(&str, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_dir() {
     for (path, want) in DIR_TESTS {
         assert_eq!(dir(path), *want, "dir({path:?})");
@@ -174,7 +169,6 @@ const IS_ABS_TESTS: &[(&str, bool)] = &[
 // Go `path.IsAbs` is `len(path) > 0 && path[0] == '/'`: on unix the same code as filepath's,
 // re-exported by gostd::path.
 #[test]
-#[ignore = "graphify-rs-aa6.15"]
 fn test_is_abs() {
     for (path, want) in IS_ABS_TESTS {
         assert_eq!(gostd::path::is_abs(path), *want, "is_abs({path:?})");
