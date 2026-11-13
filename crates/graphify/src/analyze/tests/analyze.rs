@@ -353,7 +353,7 @@ fn god_nodes_by_sort(g: &Graph, top_n: i64, pct: i64) -> Vec<GodNode> {
     } else {
         None
     };
-    ids.sort_by(|a, b| g.degree(b).cmp(&g.degree(a)));
+    ids.sort_by_key(|a| std::cmp::Reverse(g.degree(a)));
     let mut out = Vec::new();
     for id in &ids {
         if hub_threshold.is_some_and(|t| g.degree(id) > t) {
