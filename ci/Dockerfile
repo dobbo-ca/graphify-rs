@@ -94,6 +94,13 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
     --mount=type=cache,target=/src/target,sharing=private \
     --mount=type=bind,from=testinputs,source=/gotest,target=/gotest \
     sh ci/fresh.sh && GOSTD_GOTEST=/gotest cargo test --locked --release -p gostd --test regexp_exhaustive -- --ignored
+# The scalar SHA-256 tier on its own (GOSTD_SIMD=scalar), after the default run above.
+RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
+    --mount=type=cache,target=/src/target,sharing=private \
+    --mount=type=bind,from=testinputs,source=/gotest,target=/gotest \
+    --mount=type=bind,from=ucd,source=/ucd,target=/ucd \
+    sh ci/fresh.sh && { grep -o -m1 -w sha_ni /proc/cpuinfo || echo "cpu: no sha_ni"; } \
+    && GOSTD_SIMD=scalar GOSTD_GOTEST=/gotest GOSTD_UCD=/ucd cargo test --locked -p gostd
 
 # qemu-user and the aarch64 cross toolchain, for the arm64 stage.
 FROM toolchain AS qemu-tools
@@ -113,6 +120,12 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
     --mount=type=bind,from=testinputs,source=/gotest,target=/gotest \
     --mount=type=bind,from=ucd,source=/ucd,target=/ucd \
     sh ci/fresh.sh && GOSTD_GOTEST=/gotest GOSTD_UCD=/ucd cargo test --locked --workspace --target aarch64-unknown-linux-gnu
+# The scalar SHA-256 tier on aarch64 (the default run above uses the ARMv8 tier).
+RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
+    --mount=type=cache,target=/src/target,sharing=private \
+    --mount=type=bind,from=testinputs,source=/gotest,target=/gotest \
+    --mount=type=bind,from=ucd,source=/ucd,target=/ucd \
+    sh ci/fresh.sh && GOSTD_SIMD=scalar GOSTD_GOTEST=/gotest GOSTD_UCD=/ucd cargo test --locked -p gostd --target aarch64-unknown-linux-gnu
 
 # gostd against the Go oracle: the two output trees must be equal. A difference is a Rust bug.
 # The Go trees are rw bind mounts from go-run (as in deflate-rs: keyed by go-run's cache key, not by

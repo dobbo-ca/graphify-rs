@@ -41,7 +41,6 @@ impl XorShift64 {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.18"]
 fn tiers_agree() {
     let mut rng = XorShift64(0x9e3779b97f4a7c15);
     let mut inputs: Vec<Vec<u8>> = (0..=1024usize)

@@ -155,7 +155,6 @@ const GOLDEN: &[(&str, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.18"]
 fn test_golden() {
     for &(out, input) in GOLDEN {
         let got = hex(&sum256(input.as_bytes()));
@@ -200,7 +199,6 @@ fn large(n: usize, ok: &str) {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.18"]
 fn test_large() {
     // sha256sum of "0123456789" * 1000
     large(
@@ -210,7 +208,6 @@ fn test_large() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.18"]
 fn test_extra_large() {
     // sha256sum of "0123456789" * 10000
     large(
@@ -220,14 +217,12 @@ fn test_extra_large() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.18"]
 fn test_size() {
     assert_eq!(SIZE, 32);
     assert_eq!(Digest::new().sum().len(), SIZE);
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.18"]
 fn test_block_size() {
     assert_eq!(BLOCK_SIZE, 64);
 }
@@ -235,7 +230,6 @@ fn test_block_size() {
 /// Saved states of Go's `largeUnmarshalTests` (h words, buffered tail `x[..len % 64]`, byte
 /// count, expected sum). Lengths above 2^32 exercise the 32nd-bit problem of golang/go#29517.
 #[test]
-#[ignore = "graphify-rs-aa6.18"]
 fn test_large_hashes() {
     let tail39 = [0u8; 39];
     let seq39: Vec<u8> = (0..39).collect();
@@ -284,7 +278,6 @@ fn test_large_hashes() {
 
 /// Added: FIPS 180-4 example vectors.
 #[test]
-#[ignore = "graphify-rs-aa6.18"]
 fn fips_180_4_vectors() {
     let million_a = vec![b'a'; 1_000_000];
     let cases: [(&[u8], &str); 4] = [
