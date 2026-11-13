@@ -10,3 +10,11 @@ pub(crate) fn extract_java(rel: &str, src: &[u8]) -> Option<Result> {
 /// Names this language's kinds in Go's init order and stores its masks (see `kinds`). Empty
 /// until graphify-rs-ihc.27.
 pub(super) fn register_kinds() {}
+
+#[cfg(test)]
+#[path = "tests/java.rs"]
+mod java_tests;
+
+#[cfg(test)]
+#[path = "tests/java_chain.rs"]
+mod java_chain_tests;
