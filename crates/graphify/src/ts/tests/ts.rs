@@ -1,7 +1,7 @@
 //! graphify-go `internal/ts/ts_test.go`, and the plan's Task 14 tests.
 
 use crate::ts::ts::limit_with;
-use crate::ts::{budget, limit, parse};
+use crate::ts::{budget, limit, parse, with_budget};
 
 #[test]
 fn test_limit() {
@@ -65,4 +65,29 @@ fn parse_reuses_the_parser_across_languages() {
         parse(b"[1]", json, |r| r.to_sexp()),
         Some("(document (array (number)))".to_string())
     );
+}
+
+/// `with_budget` replaces the budget for this thread, nests, and `limit` scales it.
+#[test]
+fn with_budget_nests_and_scales() {
+    let outer = budget();
+    with_budget(100, || {
+        assert_eq!(budget(), 100, "inside with_budget(100)");
+        assert_eq!(limit(16384), 400, "limit(16384) scales the override");
+        with_budget(0, || {
+            assert_eq!(budget(), 0, "nested with_budget(0)");
+            assert_eq!(limit(16384), 0, "no limit inside with_budget(0)");
+        });
+        assert_eq!(budget(), 100, "after the nested call");
+    });
+    assert_eq!(budget(), outer, "after with_budget");
+}
+
+/// The previous budget comes back when `f` panics.
+#[test]
+fn with_budget_restores_after_a_panic() {
+    let outer = budget();
+    let r = std::panic::catch_unwind(|| with_budget(7, || -> u32 { panic!("boom") }));
+    assert!(r.is_err(), "the panic reaches the caller");
+    assert_eq!(budget(), outer, "budget after the panic");
 }

@@ -4,7 +4,7 @@
 #[allow(clippy::module_inception)]
 mod ts;
 
-pub use ts::{budget, limit, parse};
+pub use ts::{budget, limit, parse, with_budget};
 
 #[cfg(test)]
 mod tests;

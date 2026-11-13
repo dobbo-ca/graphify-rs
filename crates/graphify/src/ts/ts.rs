@@ -1,21 +1,42 @@
 //! Port of `ts.go`. Extractors use `gositter::Node` directly: the Go adapter's methods map 1:1.
 
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::sync::OnceLock;
 
 use gositter::{Language, Node, Parser};
 
 /// Go `ts.Budget`: the most parser steps in a row without progress for a source of up to 4 KB;
 /// 0 is no limit. `GRAPHIFY_PARSE_BUDGET` (Go `strconv.ParseUint(s, 10, 32)`), default 65,536,
-/// read once.
+/// read once; inside [`with_budget`] on this thread, that budget instead.
 pub fn budget() -> u32 {
     static BUDGET: OnceLock<u32> = OnceLock::new();
-    *BUDGET.get_or_init(|| {
-        std::env::var("GRAPHIFY_PARSE_BUDGET")
-            .ok()
-            .and_then(|s| gostd::strconv::parse_uint(&s, 10, 32).ok())
-            .map_or(65536, |n| n as u32)
+    OVERRIDE.with(Cell::get).unwrap_or_else(|| {
+        *BUDGET.get_or_init(|| {
+            std::env::var("GRAPHIFY_PARSE_BUDGET")
+                .ok()
+                .and_then(|s| gostd::strconv::parse_uint(&s, 10, 32).ok())
+                .map_or(65536, |n| n as u32)
+        })
     })
+}
+
+thread_local! {
+    /// The budget [`with_budget`] puts in place of the env one on this thread.
+    static OVERRIDE: Cell<Option<u32>> = const { Cell::new(None) };
+}
+
+/// Runs `f` with `budget` in place of [`budget`] for this thread's parses (and [`limit`]), then
+/// puts the previous value back, also when `f` panics. The seam for tests that set Go's
+/// `ts.Budget` and restore it; production code does not call it.
+pub fn with_budget<R>(budget: u32, f: impl FnOnce() -> R) -> R {
+    struct Restore(Option<u32>);
+    impl Drop for Restore {
+        fn drop(&mut self) {
+            OVERRIDE.with(|o| o.set(self.0));
+        }
+    }
+    let _restore = Restore(OVERRIDE.with(|o| o.replace(Some(budget))));
+    f()
 }
 
 /// Go `limit`: the budget scaled by the source size (`ts.go:100-104`), at most `u32::MAX`.

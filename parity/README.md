@@ -372,7 +372,7 @@ The Rust tests read graph.json back with `gostd::json::unmarshal` into the priva
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| graphify-go `internal/ts/ts_test.go` (`graphify-rs-ihc.15`) | 1 | 1 (+3 added: `limit_scaling`, `parse_json_root_kind`, `parse_reuses_the_parser_across_languages`) | 1 (+3) | - (no upstream file) |
+| graphify-go `internal/ts/ts_test.go` (`graphify-rs-ihc.15`) | 1 | 1 (+5 added: `limit_scaling`, `parse_json_root_kind`, `parse_reuses_the_parser_across_languages`, `with_budget_nests_and_scales`, `with_budget_restores_after_a_panic`) | 1 (+5) | - (no upstream file) |
 
 #### extract
 
