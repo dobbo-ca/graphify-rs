@@ -30,7 +30,8 @@ enum Fail {
     Start(String),
     /// Exit status text and captured stderr.
     Exit(String, String),
-    Timeout,
+    /// Which wait ran out: the child's exit, or the end of its output.
+    Timeout(&'static str),
 }
 
 /// Go `ExitError.Error()` text.
@@ -88,7 +89,7 @@ fn exec(
         if Instant::now() >= deadline {
             let _ = child.kill();
             let _ = child.wait();
-            return Err(Fail::Timeout);
+            return Err(Fail::Timeout("the process did not exit"));
         }
         std::thread::sleep(Duration::from_millis(10));
     };
@@ -98,10 +99,10 @@ fn exec(
     let end = deadline + Duration::from_secs(1);
     let stdout = out
         .recv_timeout(end.saturating_duration_since(Instant::now()))
-        .map_err(|_| Fail::Timeout)?;
+        .map_err(|_| Fail::Timeout("its output stayed open after it exited"))?;
     let stderr = err
         .recv_timeout(end.saturating_duration_since(Instant::now()))
-        .map_err(|_| Fail::Timeout)?;
+        .map_err(|_| Fail::Timeout("its output stayed open after it exited"))?;
     if status.success() {
         Ok(stdout)
     } else {
@@ -123,7 +124,7 @@ pub(crate) fn run(command: &str, env: &Env, timeout: Duration) -> Result<Credent
     match exec(cmd, env, timeout, false) {
         Ok(out) => parse_output(&String::from_utf8_lossy(&out)),
         // provider.go:230-240 (the killed child's wait error is "signal: killed")
-        Err(Fail::Timeout) => Err(provider_error(
+        Err(Fail::Timeout(_)) => Err(provider_error(
             "credential process timed out: signal: killed",
         )),
         Err(Fail::Start(e) | Fail::Exit(e, _)) => {
@@ -159,7 +160,7 @@ pub(crate) fn cli(profile: Option<&str>, env: &Env) -> Result<Credentials, Strin
         Ok(out) => parse_output(&String::from_utf8_lossy(&out)),
         Err(Fail::Exit(status, stderr)) => Err(format!("{FAILED}{status}: {stderr}")),
         Err(Fail::Start(e)) => Err(format!("{FAILED}{e}")),
-        Err(Fail::Timeout) => Err(format!("{FAILED}timed out")),
+        Err(Fail::Timeout(why)) => Err(format!("{FAILED}timed out: {why}")),
     }
 }
 

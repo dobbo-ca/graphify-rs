@@ -120,12 +120,19 @@ trait Stream: Read + Write + Send {
     fn finish(&mut self) {}
 }
 
-impl Stream for TcpStream {}
+impl Stream for TcpStream {
+    /// Send FIN now: dropping the socket does not, when another process holds a copy of it
+    /// (a child forked by a concurrent test inherits it until its exec).
+    fn finish(&mut self) {
+        let _ = self.shutdown(std::net::Shutdown::Write);
+    }
+}
 
 impl Stream for rustls::StreamOwned<rustls::ServerConnection, TcpStream> {
     fn finish(&mut self) {
         self.conn.send_close_notify();
         let _ = self.flush();
+        let _ = self.sock.shutdown(std::net::Shutdown::Write);
     }
 }
 
@@ -277,7 +284,7 @@ fn serve(
     next: &AtomicUsize,
     reqs: &Mutex<Vec<RecordedRequest>>,
 ) {
-    let _ = tcp.set_read_timeout(Some(Duration::from_secs(10)));
+    let _ = tcp.set_read_timeout(Some(scaled(Duration::from_secs(10))));
     let stream: Box<dyn Stream> = match tls {
         Some(cfg) => {
             let Ok(conn) = rustls::ServerConnection::new(cfg) else {
@@ -375,7 +382,7 @@ fn proxy_conn(
     lines: &Mutex<Vec<String>>,
     heads: &Mutex<Vec<Headers>>,
 ) -> Option<()> {
-    let _ = client.set_read_timeout(Some(Duration::from_secs(10)));
+    let _ = client.set_read_timeout(Some(scaled(Duration::from_secs(10))));
     let mut client_w = client.try_clone().ok()?;
     let mut r = BufReader::new(client);
     let (line, headers) = read_head(&mut r)?;
@@ -422,4 +429,15 @@ fn proxy_conn(
         let _ = io::copy(&mut up, &mut client_w);
     }
     Some(())
+}
+
+/// `d` times `BEDROCK_TEST_TIME_SCALE` (default 1). The `arm64` stage sets 10: under qemu-user every
+/// safety deadline needs a wide margin. Only deadlines a test must never hit are scaled.
+pub fn scaled(d: std::time::Duration) -> std::time::Duration {
+    let k = std::env::var("BEDROCK_TEST_TIME_SCALE")
+        .ok()
+        .and_then(|v| v.parse::<u32>().ok())
+        .unwrap_or(1)
+        .max(1);
+    d * k
 }

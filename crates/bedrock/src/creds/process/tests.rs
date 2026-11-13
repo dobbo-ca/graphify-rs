@@ -157,7 +157,12 @@ fn provider_force_expire() {
 // ADAPT: no NewProviderCommand or command builder here; `run` takes the command string and a 1 s timeout.
 #[test]
 fn provider_alt_construct() {
-    let v = run(&cat("static.json"), &env(), Duration::from_secs(1)).unwrap();
+    let v = run(
+        &cat("static.json"),
+        &env(),
+        crate::testutil::scaled(Duration::from_secs(1)),
+    )
+    .unwrap();
     assert!(v.expires.is_none(), "static credentials can not expire");
 }
 
