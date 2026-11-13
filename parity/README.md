@@ -65,7 +65,9 @@ Oracle package: none yet.
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| - | - | - | - | not started |
+| `path/filepath/path_test.go` | 34 | 19 (+2 added) | 0 | TestIsLocal, TestLocalize (IsLocal, Localize not reached by graphify-go); TestFromAndToSlash (identity on unix); TestSplitList, TestSplit (not reached); TestWalk, TestWalkSymlink, TestBug3486 (`Walk` not reached); TestWalkSkipAllOnFile (SkipAll not reached); TestAbsEmptyString, TestVolumeName, TestDriveLetterInEvalSymlinks (Windows); TestIssue29372, TestIssue51617 (not in the plan's list); TestEscaping (IsLocal not reached). Adapted, no chdir: TestAbs, TestEvalSymlinks*, TestRelativeSymlinkToAbsolute (absolute paths); TestWalkFileError (mode 0 directory in place of the `Lstat` hook); TestWalkDir without its PermErr subtest; Windows tables and AllocsPerRun left out |
+| `path/filepath/match_test.go` | 8 | 6 | 0 | TestGlobUNC, TestWindowsGlob (Windows); TestGlob and TestNonWindowsGlobEscape use a temp dir, not the working directory |
+| `path/path_test.go` | 8 | 6 | 0 | TestCleanMallocs (Go runtime AllocsPerRun); TestSplit (not reached); TestIsAbs runs through `gostd::filepath::is_abs` because `gostd::path` re-exports only clean, join, dir, base, ext |
 
 #### gen
 
