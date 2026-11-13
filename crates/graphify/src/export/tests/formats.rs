@@ -96,7 +96,6 @@ fn parse_graphml(data: &[u8]) -> GraphMl {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_graph_ml_from_json() {
     let (dir, json_path) = write_sample();
     let out = dir.join("graph.graphml");
@@ -116,7 +115,6 @@ fn test_graph_ml_from_json() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_dot_from_json() {
     let (dir, json_path) = write_sample();
     let out = dir.join("graph.dot");
@@ -138,7 +136,6 @@ fn test_dot_from_json() {
 // is an empty field. The Go assertions follow from this text: 3 node rows (header + 2), header
 // `id` .. `community`, row 2 label `B<x> "q"`, 2 edge rows, `erows[1][2]` = `calls`.
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_csv_from_json() {
     let (dir, json_path) = write_sample();
     let nodes = dir.join("graph.nodes.csv");
@@ -166,7 +163,6 @@ fn test_csv_from_json() {
 
 // test_export.py::test_to_graphml_creates_file
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_to_graphml_creates_file() {
     let (dir, json_path) = write_sample();
     let out = dir.join("graph.graphml");
@@ -176,7 +172,6 @@ fn test_to_graphml_creates_file() {
 
 // test_export.py::test_to_graphml_valid_xml
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_to_graphml_valid_xml() {
     let (dir, json_path) = write_sample();
     let out = dir.join("graph.graphml");
@@ -188,7 +183,6 @@ fn test_to_graphml_valid_xml() {
 
 // test_export.py::test_to_graphml_has_community_attribute
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_to_graphml_has_community_attribute() {
     let (dir, json_path) = write_sample();
     let out = dir.join("graph.graphml");
@@ -246,7 +240,6 @@ const KEEP: [(&str, char); 3] = [(r"\t", '\t'), (r"\n", '\n'), (r"\r", '\r')];
 
 // test_graphml_survives_a_control_character
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_graphml_survives_a_control_character() {
     for (esc, ch) in BREAK {
         let data = graphml_of(&ctl_graph_json("a", &format!("Build {esc}log capture")));
@@ -267,7 +260,6 @@ fn test_graphml_survives_a_control_character() {
 
 // test_graphml_keeps_the_whitespace_xml_allows
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_graphml_keeps_the_whitespace_xml_allows() {
     for (esc, ch) in KEEP {
         let data = graphml_of(&ctl_graph_json("a", &format!("a{esc}b")));
@@ -283,7 +275,6 @@ fn test_graphml_keeps_the_whitespace_xml_allows() {
 
 // test_graphml_survives_a_control_character_in_a_node_id: ids become XML attributes too.
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_graphml_survives_a_control_character_in_a_node_id() {
     let data = graphml_of(&ctl_graph_json(r"we\u000bird", "x"));
     let doc = parse_graphml(&data);
@@ -292,7 +283,6 @@ fn test_graphml_survives_a_control_character_in_a_node_id() {
 
 // test_graphml_still_carries_the_readable_part_of_the_label
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_graphml_still_carries_the_readable_part_of_the_label() {
     let data = graphml_of(&ctl_graph_json(
         "a",
@@ -305,7 +295,6 @@ fn test_graphml_still_carries_the_readable_part_of_the_label() {
 
 // test_a_clean_label_round_trips_unchanged (the GraphML half)
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_a_clean_label_round_trips_unchanged() {
     let data = graphml_of(&ctl_graph_json("a", "Perfectly Ordinary Heading"));
     let text = String::from_utf8(data).expect("GraphML is UTF-8");
@@ -329,7 +318,6 @@ fn test_a_clean_label_round_trips_unchanged() {
 //   123456789 -> digits 123456789, exp 8 >= 6  -> "1.23456789e+08"
 //   1e21 -> exp 21 >= 6                        -> "1e+21"
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn csv_confidence_score_g_format() {
     const CASES: [(&str, &str); 10] = [
         ("0.85", "0.85"),

@@ -120,7 +120,6 @@ fn scan_seeds() -> Vec<Vec<u8>> {
 // the input is cut into reads, and what it accepts must decode to the same nodes. The
 // cargo-fuzz target comes with the code PR.
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn scan_old_nodes_seeds() {
     let seeds = scan_seeds();
     assert_eq!(seeds.len(), 47, "Go has 47 seeds");
@@ -136,7 +135,6 @@ fn scan_old_nodes_seeds() {
 
 // Byte edits of valid documents: the scan must refuse or agree, never differ.
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_scan_old_nodes_mutations() {
     // Go `rand.New(rand.NewSource(1))` (oldnodes_test.go:72): the same mutants as Go.
     let mut rng = GoRand::new(1);
@@ -173,7 +171,6 @@ fn test_scan_old_nodes_mutations() {
 // Nodes past one decode batch, the later ones without a source: a batch
 // must not inherit fields from the one before.
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_scan_old_nodes_batches() {
     let mut b = String::from(r#"{"nodes":["#);
     const N: usize = 20000;
@@ -212,7 +209,6 @@ fn test_scan_old_nodes_batches() {
 // The scan must take what ToJSON writes, or the whole decode it replaces
 // would quietly come back.
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_scan_old_nodes_takes_to_json() {
     let dir = TempDir::new();
     let path = dir.join("graph.json");

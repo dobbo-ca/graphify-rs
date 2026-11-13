@@ -60,7 +60,6 @@ fn keys(m: &BTreeMap<String, String>) -> Vec<&String> {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_okf_concept_path_and_frontmatter() {
     let (dir, json_path) = write_okf_sample();
     let out = dir.join("okf");
@@ -97,7 +96,6 @@ fn test_okf_concept_path_and_frontmatter() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_okf_cross_link_form() {
     let (dir, json_path) = write_okf_sample();
     let out = dir.join("okf");
@@ -128,7 +126,6 @@ fn test_okf_cross_link_form() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_okf_index_generation() {
     let (dir, json_path) = write_okf_sample();
     let out = dir.join("okf");
@@ -163,7 +160,6 @@ fn test_okf_index_generation() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_okf_deterministic() {
     let (dir, json_path) = write_okf_sample();
     let out1 = dir.join("okf1");
@@ -187,7 +183,6 @@ fn test_okf_deterministic() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_okf_containment() {
     // A source path with .. components must not escape the bundle root; conceptDir
     // sanitises each segment to a safe idutil token, so traversal is impossible.
@@ -231,7 +226,6 @@ fn test_okf_containment() {
 // The key pattern (j * a) % m is searched over a few (n, m, a) until the three orders all
 // differ from the stable ones: the one that is used is not computed by hand, the assertions are.
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn okf_ties_use_go_pdqsort() {
     /// A concept as okf.go:64 sorts it.
     #[derive(Clone)]
