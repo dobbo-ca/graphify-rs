@@ -4,7 +4,7 @@
 //! graphify-rs-ihc.16 (plan Task 15).
 #![allow(dead_code, unused_variables, clippy::ptr_arg)]
 
-mod builder;
+pub(crate) mod builder;
 mod c;
 #[allow(clippy::module_inception)]
 mod extract;
@@ -20,3 +20,6 @@ pub use extract::{
     SegVal, TypeRef, file, file_from_bytes,
 };
 pub use resolve::{join, resolve, resolve_parts};
+
+#[cfg(test)]
+mod tests;

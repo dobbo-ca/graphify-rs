@@ -6,11 +6,14 @@
 //! its own methods read; a language's extra state (Go `goPkgs`, `javaRets`, `cppTParams`, ...)
 //! lives in that extractor's own file, beside a `Builder`.
 //!
+//! Tests: `src/extract/tests/builder.rs`.
+//!
 //! Extractor convention: `pub(crate) fn extract_<lang>(rel: &str, src: &[u8]) -> Option<Result>`
 //! in `src/extract/<go file>.rs`; `None` means the parse budget stopped the parse (Go's
 //! `ts.ErrBudget` panic), and `file_from_bytes` then returns the file node with `over_budget`
 //! set, as Go's `FileFromBytes` recover does.
 
+use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
 
 use gositter::{Language, Node};
@@ -130,10 +133,19 @@ pub(crate) fn parse_root<R>(
     todo!("graphify-rs-ihc.16")
 }
 
-/// Go `n.Utf8Text(src)` as a `&str`. gositter-rs returns the bytes; `src` went through
-/// `to_utf8`, and a node's byte range ends on a rune boundary (the lexer advances by runes), so
-/// the slice is valid UTF-8. A slice that is not is a bug, and panics with the node's range.
-pub(crate) fn node_text<'s>(n: Node<'_>, src: &'s [u8]) -> &'s str {
+/// Go `n.Utf8Text(src)` as text. gositter-rs returns the bytes; `src` went through `to_utf8`
+/// and the lexer advances by whole runes, so a node's range ends on a rune boundary and the text
+/// is borrowed. If it ever is not (a bug, or an odd ERROR/MISSING range), a debug build fails a
+/// `debug_assert!` naming the range; a release build keeps going with [`go_text`], as Go keeps
+/// going with a string of invalid bytes.
+pub(crate) fn node_text<'s>(n: Node<'_>, src: &'s [u8]) -> Cow<'s, str> {
+    todo!("graphify-rs-ihc.16")
+}
+
+/// The text Go holds for these bytes: borrowed when they are valid UTF-8, else
+/// `detect::go_lossy` (one U+FFFD per byte Go's `DecodeRune` reads as `RuneError` of width 1,
+/// which graph.json writes as Go does, plan R3). No assert: [`node_text`] has it.
+pub(crate) fn go_text(b: &[u8]) -> Cow<'_, str> {
     todo!("graphify-rs-ihc.16")
 }
 
