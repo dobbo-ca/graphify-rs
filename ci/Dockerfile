@@ -29,7 +29,7 @@ FROM src AS gen-build
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
     --mount=type=cache,target=/src/target,sharing=locked \
     --mount=type=bind,from=ucd,source=/ucd,target=/ucd \
-    cargo run --locked --release -p gostd-gen -- /ucd /out && cp /ucd/ucd.lock /out/
+    sh ci/fresh.sh && cargo run --locked --release -p gostd-gen -- /ucd /out && cp /ucd/ucd.lock /out/
 
 FROM scratch AS gen
 COPY --from=gen-build /out /
