@@ -87,6 +87,11 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
     --mount=type=bind,from=testinputs,source=/gotest,target=/gotest \
     --mount=type=bind,from=ucd,source=/ucd,target=/ucd \
     sh ci/fresh.sh && GOSTD_GOTEST=/gotest GOSTD_UCD=/ucd cargo test --locked --workspace
+# The slow regexp exhaustive test (ignored by default) runs in release mode.
+RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
+    --mount=type=cache,target=/src/target,sharing=private \
+    --mount=type=bind,from=testinputs,source=/gotest,target=/gotest \
+    sh ci/fresh.sh && GOSTD_GOTEST=/gotest cargo test --locked --release -p gostd --test regexp_exhaustive -- --ignored
 
 # qemu-user and the aarch64 cross toolchain, for the arm64 stage.
 FROM toolchain AS qemu-tools
@@ -111,7 +116,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
 # The Go trees are rw bind mounts from go-run (as in deflate-rs: keyed by go-run's cache key, not by
 # a hash of their content). PARITY_MIN_OUTPUTS proves the ops ran; each module PR raises it.
 FROM src AS parity
-ARG PARITY_MIN_OUTPUTS=30100
+ARG PARITY_MIN_OUTPUTS=52933
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
     --mount=type=cache,target=/src/target,sharing=private \
     --mount=type=bind,from=go-run,source=/inputs,target=/inputs,rw \
@@ -125,7 +130,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
 
 # The same on aarch64 under qemu-user (the ARMv8 SHA-256 tier, unsigned char paths).
 FROM qemu-arm64 AS parity-arm64
-ARG PARITY_MIN_OUTPUTS=30100
+ARG PARITY_MIN_OUTPUTS=52933
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
     --mount=type=cache,target=/src/target,sharing=private \
     --mount=type=bind,from=go-run,source=/inputs,target=/inputs,rw \

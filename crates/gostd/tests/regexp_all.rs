@@ -87,7 +87,6 @@ fn compile_test(expr: &str, error: &str) -> Option<Regexp> {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn test_good_compile() {
     for expr in GOOD_RE {
         compile_test(expr, "");
@@ -95,7 +94,6 @@ fn test_good_compile() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn test_bad_compile() {
     for (expr, err) in bad_re() {
         compile_test(&expr, err);
@@ -326,7 +324,6 @@ fn match_test(test: &FindTest) {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn test_match() {
     for test in find_tests() {
         match_test(&test);
@@ -364,7 +361,6 @@ fn match_function_test(test: &FindTest) {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn test_match_function() {
     for test in find_tests() {
         match_function_test(&test);
@@ -491,7 +487,6 @@ const REPLACE_TESTS: &[(&str, &str, &str, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn test_replace_all() {
     for &(pattern, replacement, input, output) in REPLACE_TESTS {
         let re = Regexp::compile(pattern)
@@ -512,7 +507,6 @@ const REPLACE_FUNC_TESTS: &[(&str, &str, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn test_replace_all_func() {
     for &(pattern, input, output) in REPLACE_FUNC_TESTS {
         let re = Regexp::compile(pattern)
@@ -536,7 +530,6 @@ const META_TESTS: &[(&str, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn test_quote_meta() {
     for &(pattern, output) in META_TESTS {
         // Verify that QuoteMeta returns the expected string.
@@ -579,7 +572,6 @@ const SUBEXP_CASES: &[(&str, usize, Option<&[&str]>)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn test_subexp() {
     for &(input, num, want_names) in SUBEXP_CASES {
         let re = Regexp::must_compile(input);
@@ -641,7 +633,6 @@ fn strings_split_n<'s>(s: &'s str, sep: &str, n: isize) -> Vec<&'s str> {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn test_split() {
     for (i, &(s, r, n, out)) in SPLIT_TESTS.iter().enumerate() {
         let re =
@@ -662,7 +653,6 @@ fn test_split() {
 
 // The following sequence of Match calls used to panic. See issue #12980.
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn test_parse_and_compile() {
     let expr = "a$";
     let s = "a\nb";
@@ -806,7 +796,6 @@ const GRAPHIFY_PATTERNS: &[(&str, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn graphify_patterns_compile() {
     assert_eq!(GRAPHIFY_PATTERNS.len(), 43);
     for (site, pattern) in GRAPHIFY_PATTERNS {
