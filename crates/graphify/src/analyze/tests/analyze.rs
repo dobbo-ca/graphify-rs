@@ -57,7 +57,6 @@ fn sample_graph() -> Graph {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_god_nodes_exclude_file_hubs() {
     let g = sample_graph();
     let gods = god_nodes(&g, 10, 0);
@@ -88,7 +87,6 @@ fn test_god_nodes_exclude_file_hubs() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_surprising_finds_cross_file_call() {
     let g = sample_graph();
     let comm = communities(&[
@@ -115,7 +113,6 @@ fn test_surprising_finds_cross_file_call() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_import_cycles_detects_mutual_import() {
     let g = sample_graph();
     let cycles = import_cycles(&g, 5, 20);
@@ -140,7 +137,6 @@ fn test_import_cycles_detects_mutual_import() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_import_cycles_none_when_acyclic() {
     let mut g = Graph::new();
     g.add_node(node("fa", "a.go", "pkg/a.go"));
@@ -184,7 +180,6 @@ fn semantic_graph() -> Graph {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_god_nodes_includes_semantic_concepts() {
     let gods = god_nodes(&semantic_graph(), 10, 0);
     let mut found = false;
@@ -205,7 +200,6 @@ fn test_god_nodes_includes_semantic_concepts() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_surprising_includes_note_to_concept() {
     let g = semantic_graph();
     // Each note in its own community so a note->concept edge bridges them.
@@ -244,7 +238,6 @@ fn file_hub_note_graph() -> Graph {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_surprising_includes_semantic_edge_from_file_hub_note() {
     let g = file_hub_note_graph();
     let comm = communities(&[(0, &["na"]), (1, &["nb", "c1"])]);
@@ -256,7 +249,6 @@ fn test_surprising_includes_semantic_edge_from_file_hub_note() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_god_nodes_exclude_noise_labels() {
     let mut g = sample_graph();
     // A mechanical hub out-degreeing every real entity.
@@ -302,7 +294,6 @@ fn hub_graph() -> Graph {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_god_nodes_exclude_hubs_percentile() {
     let g = hub_graph();
 
@@ -375,7 +366,6 @@ fn god_nodes_by_sort(g: &Graph, top_n: i64, pct: i64) -> Vec<GodNode> {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_god_nodes_matches_stable_sort() {
     let mut rng = GoRand::new(1);
     for run in 0..300 {
@@ -420,7 +410,6 @@ fn test_god_nodes_matches_stable_sort() {
 // ---- Upstream: test_analyze.py (the cases that hold for graphify-go v0.12.0) ----
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_is_concept_node_empty_source() {
     let mut g = Graph::new();
     g.add_node(node("c1", "", ""));
@@ -428,7 +417,6 @@ fn test_is_concept_node_empty_source() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_is_concept_node_real_file() {
     let mut g = Graph::new();
     g.add_node(node("n1", "", "model.py"));
@@ -436,7 +424,6 @@ fn test_is_concept_node_real_file() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_is_json_key_node_noise_label() {
     let mut g = Graph::new();
     g.add_node(node("j1", "name", "schema.json"));
@@ -444,7 +431,6 @@ fn test_is_json_key_node_noise_label() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_is_json_key_node_non_json_file() {
     let mut g = Graph::new();
     g.add_node(node("n1", "name", "model.py"));
@@ -452,7 +438,6 @@ fn test_is_json_key_node_non_json_file() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_is_json_key_node_real_label() {
     let mut g = Graph::new();
     g.add_node(node("j2", "UserProfile", "schema.json"));
@@ -462,7 +447,6 @@ fn test_is_json_key_node_real_label() {
 /// npm dep-block keys of a package.json are filtered from the god nodes even at the highest
 /// degree, and the real-domain node stays.
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_god_nodes_excludes_npm_dep_block_keys() {
     const DEP_KEYS: [&str; 5] = [
         "dependencies",
@@ -521,7 +505,6 @@ fn test_god_nodes_excludes_npm_dep_block_keys() {
 
 /// god nodes must not return generic JSON key nodes like `name` or `id`.
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_god_nodes_excludes_json_noise() {
     let mut g = Graph::new();
     g.add_node(node("real", "AuthService", "src/auth.py"));
@@ -546,7 +529,6 @@ fn test_god_nodes_excludes_json_noise() {
 
 /// The JSON-key filter matches regardless of label casing.
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_god_nodes_filter_is_case_insensitive() {
     let mut g = Graph::new();
     g.add_node(node("real", "RealAbstraction", "libs/real.py"));
@@ -579,7 +561,6 @@ fn test_god_nodes_filter_is_case_insensitive() {
 /// With `exclude_hubs_percentile=90` and `top_n=10` the hub is suppressed and the ranking is not
 /// emptied (the other tests of the file are `test_god_nodes_exclude_hubs_percentile`).
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_the_percentile_suppresses_the_hub() {
     let gods = god_nodes(&hub_graph(), 10, 90);
     let labels: Vec<&str> = gods.iter().map(|g| g.label.as_str()).collect();
