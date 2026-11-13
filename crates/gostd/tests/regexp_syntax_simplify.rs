@@ -125,7 +125,6 @@ const SIMPLIFY_TESTS: &[(&str, &str)] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-aa6.6"]
 fn test_simplify() {
     for (pattern, want) in SIMPLIFY_TESTS {
         let re = parse(pattern, Flags::MATCH_NL | (Flags::PERL & !Flags::ONE_LINE))
