@@ -119,7 +119,6 @@ fn cycle_strings(cs: &[Cycle]) -> Vec<String> {
 
 /// Pins what the report has always shown on small graphs.
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_import_cycles_pinned() {
     struct Case {
         name: &'static str,
@@ -211,7 +210,6 @@ fn test_import_cycles_pinned() {
 /// Random import graphs, sparse to complete, including several nodes per file, duplicate edges,
 /// non-import and type-only edges, and caps small enough to trip the topN*10 early exit.
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_import_cycles_matches_oracle() {
     let (mut non_empty, mut capped) = (0, 0);
     for trial in 0..4000_i64 {
@@ -254,7 +252,6 @@ fn test_import_cycles_matches_oracle() {
 /// A dense acyclic import graph has width^maxLen paths and no cycle; the search must not walk
 /// them.
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_import_cycles_dense_acyclic_is_fast() {
     const LAYERS: usize = 7;
     const WIDTH: usize = 40;
@@ -339,7 +336,6 @@ fn make_cycle_graph_directed() -> Graph {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_find_import_cycles_detects_2_and_3_cycles() {
     let cycles = import_cycles(&make_cycle_graph_directed(), 5, 20);
     let sets: Vec<BTreeSet<&str>> = cycles
@@ -355,7 +351,6 @@ fn test_find_import_cycles_detects_2_and_3_cycles() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_find_import_cycles_respects_max_cycle_length() {
     let cycles = import_cycles(&make_cycle_graph_directed(), 2, 20);
     assert!(
@@ -365,7 +360,6 @@ fn test_find_import_cycles_respects_max_cycle_length() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_find_import_cycles_skips_nodes_without_source_file() {
     let cycles = import_cycles(&make_cycle_graph_directed(), 5, 20);
     let flat = cycles
@@ -377,7 +371,6 @@ fn test_find_import_cycles_skips_nodes_without_source_file() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_find_import_cycles_ignores_non_import_relations() {
     let mut g = Graph::new();
     g.add_node(node("a", "a.ts", "src/a.ts"));
@@ -390,14 +383,12 @@ fn test_find_import_cycles_ignores_non_import_relations() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_find_import_cycles_empty_graph() {
     let cycles = import_cycles(&Graph::new(), 5, 20);
     assert!(cycles.is_empty(), "cycles = {cycles:?}");
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_find_import_cycles_no_cycles() {
     let mut g = Graph::new();
     g.add_node(node("x", "x.ts", "x.ts"));
@@ -428,7 +419,6 @@ fn two_file_graph(edges: Vec<crate::model::Edge>) -> Graph {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_only_a_runtime_reverse_import_closes_a_cycle() {
     struct Case {
         name: &'static str,
@@ -476,7 +466,6 @@ fn test_only_a_runtime_reverse_import_closes_a_cycle() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_the_directed_build_is_unchanged() {
     let g = two_file_graph(vec![
         edge("a", "b", Relation::IMPORTS_FROM, Confidence::EXTRACTED),
@@ -543,7 +532,6 @@ fn chain_graph(extra: &[(usize, usize)]) -> Graph {
 /// - The plain chain with the same f99999 -> f99998 edge: the only component of two files is
 ///   f99998, f99999; the same single cycle.
 #[test]
-#[ignore = "graphify-rs-ihc.10"]
 fn test_deep_import_chain() {
     struct Case {
         name: &'static str,
