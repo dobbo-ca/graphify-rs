@@ -66,8 +66,16 @@ impl Config {
 pub enum Error {
     Config(String),
     Credentials(String),
-    Transport { url: String, msg: String },
-    Timeout { url: String },
+    /// A credential refresh failed during a call (awsauth.go:226-229); retried like a
+    /// connection error.
+    RetrieveCredentials(String),
+    Transport {
+        url: String,
+        msg: String,
+    },
+    Timeout {
+        url: String,
+    },
     Api(ApiError),
     Decode(String),
 }
@@ -86,6 +94,7 @@ impl fmt::Display for Error {
         match self {
             Error::Config(m) | Error::Decode(m) => f.write_str(m),
             Error::Credentials(m) => write!(f, "failed to resolve AWS credentials: {m}"),
+            Error::RetrieveCredentials(m) => write!(f, "failed to retrieve AWS credentials: {m}"),
             Error::Transport { url, msg } => write!(f, "Post \"{url}\": {msg}"),
             Error::Timeout { .. } => f.write_str("context deadline exceeded"),
             Error::Api(e) => {

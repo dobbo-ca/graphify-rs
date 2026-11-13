@@ -964,3 +964,74 @@ fn expired_creds_are_fetched_again() {
         assert!(auth.contains(&format!("Credential={AKID}/")), "got: {auth}");
     }
 }
+
+/// A `credential_process` script: run 1 (in `Client::new`) prints expired credentials; later
+/// runs fail when their number is in `fail_runs`, else print expired credentials again.
+fn flaky_creds(tag: &str, fail_runs: &str) -> (std::path::PathBuf, Vec<(String, String)>) {
+    let dir = common::tmp_dir(tag);
+    let count = dir.join("count");
+    let script = common::write_script(
+        &dir,
+        "creds.sh",
+        &format!(
+            "echo run >> {count}\n\
+             n=$(wc -l < {count} | tr -d ' ')\n\
+             case \" {fail_runs} \" in *\" $n \"*) echo boom >&2; exit 1;; esac\n\
+             echo '{{\"Version\":1,\"AccessKeyId\":\"{AKID}\",\"SecretAccessKey\":\"{SECRET}\",\"SessionToken\":\"{TOKEN}\",\"Expiration\":\"2020-01-01T00:00:00Z\"}}'",
+            count = path_str(&count)
+        ),
+    );
+    let config = dir.join("config");
+    std::fs::write(
+        &config,
+        format!("[default]\ncredential_process = {}\n", path_str(&script)),
+    )
+    .unwrap();
+    let env = vec![
+        ("HOME".to_string(), path_str(&dir)),
+        ("AWS_CONFIG_FILE".to_string(), path_str(&config)),
+        (
+            "AWS_SHARED_CREDENTIALS_FILE".to_string(),
+            path_str(&dir.join("credentials")),
+        ),
+        ("PATH".to_string(), "/usr/bin:/bin".to_string()),
+    ];
+    (count, env)
+}
+
+fn lines_in(path: &Path) -> usize {
+    std::fs::read_to_string(path)
+        .unwrap_or_default()
+        .lines()
+        .count()
+}
+
+#[test]
+fn credential_refresh_failure_is_retried() {
+    // awsauth.go:226-229 + requestconfig.go:256: a refresh error has no response, so it is
+    // retried like a connection error. Run 2 (the first attempt's refresh) fails.
+    let (count, env) = flaky_creds("refresh-once", "2");
+    let env: Vec<(&str, &str)> = env.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+    let (server, client) = setup(vec![ok()], &env);
+    call(&client).expect("the retry succeeds");
+    assert_eq!(lines_in(&count), 3, "new, failed refresh, refresh on retry");
+    let reqs = server.requests();
+    assert_eq!(reqs.len(), 1, "only the retry reaches the server");
+    assert_eq!(reqs[0].header("X-Stainless-Retry-Count"), Some("1"));
+}
+
+#[test]
+fn credential_refresh_always_failing_reports_go_text() {
+    let (count, env) = flaky_creds("refresh-never", "2 3 4");
+    let env: Vec<(&str, &str)> = env.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+    let (server, client) = setup(vec![ok()], &env);
+    let err = call(&client).expect_err("every refresh fails");
+    assert!(matches!(err, Error::RetrieveCredentials(_)), "got {err:?}");
+    assert!(
+        err.to_string()
+            .starts_with("failed to retrieve AWS credentials: "),
+        "got: {err}"
+    );
+    assert_eq!(lines_in(&count), 4, "new + 3 attempts (2 retries)");
+    assert!(server.requests().is_empty(), "no request is sent");
+}

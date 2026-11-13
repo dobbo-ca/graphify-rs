@@ -119,17 +119,26 @@ impl Client {
         let mut retry = 0;
         let res = loop {
             let deadline = Instant::now() + self.cfg.attempt_timeout;
-            let headers = self.headers(retry, body)?;
-            let sent =
-                match self
-                    .transport
-                    .send(&self.url, self.proxy.as_ref(), &headers, body, deadline)
-                {
+            // A failed credential refresh has no response, so Go retries it as a connection
+            // error (awsauth.go:226-229, requestconfig.go:256).
+            let sent = match self.headers(retry, body) {
+                Err(e) => Err(e),
+                Ok(headers) => match self.transport.send(
+                    &self.url,
+                    self.proxy.as_ref(),
+                    &headers,
+                    body,
+                    deadline,
+                ) {
                     Ok(r) => Ok(r),
-                    Err(SendError::Io(msg)) => Err(msg),
+                    Err(SendError::Io(msg)) => Err(Error::Transport {
+                        url: self.endpoint.clone(),
+                        msg,
+                    }),
                     // requestconfig.go:450-452: no retry after the attempt's deadline.
                     Err(SendError::Timeout) => return Err(self.timeout()),
-                };
+                },
+            };
             if retry < self.cfg.max_retries && should_retry(sent.as_ref().ok()) {
                 let delay = retry_delay(sent.as_ref().ok(), retry, SystemTime::now(), &mut jitter);
                 // requestconfig.go:475-479: the wait runs on the attempt's context.
@@ -143,10 +152,7 @@ impl Client {
             }
             break sent;
         };
-        let res = res.map_err(|msg| Error::Transport {
-            url: self.endpoint.clone(),
-            msg,
-        })?;
+        let res = res?;
         let text = String::from_utf8_lossy(&res.body);
         if res.status >= 400 {
             return Err(Error::Api(ApiError {
@@ -221,7 +227,7 @@ impl Client {
         let creds = {
             let mut c = cached.lock().unwrap_or_else(PoisonError::into_inner);
             if c.expires.is_some_and(|t| t <= SystemTime::now()) {
-                *c = creds::fetch(source, &self.cfg.env).map_err(Error::Credentials)?;
+                *c = creds::fetch(source, &self.cfg.env).map_err(Error::RetrieveCredentials)?;
             }
             c.clone()
         };
