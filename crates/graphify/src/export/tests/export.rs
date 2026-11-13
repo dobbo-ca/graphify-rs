@@ -694,7 +694,7 @@ fn test_to_json_hyperedges_empty_when_none() {
 
 // ---- Added tests ----
 
-// The texts of the two guard errors (plan R6; they reach stderr through cli::path_error).
+// The texts of the two guard errors (plan R6; they reach stderr as Go prints them).
 #[test]
 fn shrink_error_texts() {
     let comm = BTreeMap::new();

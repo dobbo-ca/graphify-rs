@@ -49,9 +49,9 @@ impl Concept<'_> {
 /// Go `OKFFromJSON` (`okf.go:42`).
 pub fn okf_from_json(json_path: &Path, out_dir: &Path) -> Result<(), Error> {
     let g = read_graph_json(json_path)?;
-    // ponytail: Go's error here is os.Getwd's "getwd: <errno>"; ours is the io text. It fails
-    // only when the working directory was removed.
-    let abs_out = filepath::abs(out_dir)?;
+    // Go's error here is os.Getwd's `*os.SyscallError`: "getwd: <errno>".
+    let abs_out = filepath::abs(out_dir)
+        .map_err(|e| Error::Other(format!("getwd: {}", crate::goerr::errno_text(&e))))?;
     mkdir_all(&abs_out)?;
 
     // Place every node at a bundle path derived from its source file, then index by ID so

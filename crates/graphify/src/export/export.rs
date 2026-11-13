@@ -58,7 +58,7 @@ impl From<io::Error> for Error {
 
 /// Go's `*os.PathError` text for a failed `op` on `path` (plan hazard "Go I/O error text").
 pub(super) fn path_err(op: &str, path: &Path, e: &io::Error) -> Error {
-    Error::Other(crate::cli::path_error(op, path, e).to_string())
+    Error::Other(crate::goerr::path_error(op, path, e).to_string())
 }
 
 /// Go `os.WriteFile(path, data, 0o644)`.
@@ -241,7 +241,8 @@ pub fn to_json(
             }
         })
     })
-    .map_err(|e| failed.take().unwrap_or_else(|| path_err("open", path, &e)))
+    // fsutil's errors already carry Go's text for their step (open/write/chmod/rename/createtemp).
+    .map_err(|e| failed.take().unwrap_or_else(|| Error::Other(e.to_string())))
 }
 
 /// Go `writeJSON` (`export.go:119`): streams the document `marshal_indent(JsonGraph, "", "  ")`
