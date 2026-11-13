@@ -13,7 +13,7 @@ use std::fmt;
 pub type Table = BTreeMap<String, Value>;
 
 /// Go `any` holding a decoded TOML value.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum Value {
     String(String),
     Integer(i64),
@@ -25,6 +25,48 @@ pub enum Value {
     Table(Table),
     /// Go `[]map[string]any`, from `[[x]]`. Distinct from `Array`: graphify asserts `.([]any)`.
     ArrayOfTables(Vec<Table>),
+}
+
+/// Clones with a work list, not one call per level: the parser clones each inline table's value
+/// (Go shares one map between `p.mapping` and `topHash`), and a value can be nested as deep as
+/// its input is long (graphify-rs-aa6.24). Pass 1 lists every value in pre-order; pass 2 walks the
+/// list backwards, so a container's children are built before it and pop off `built` in order.
+impl Clone for Value {
+    fn clone(&self) -> Value {
+        let mut order = Vec::new();
+        let mut todo = vec![self];
+        while let Some(v) = todo.pop() {
+            order.push(v);
+            match v {
+                Value::Array(a) => todo.extend(a.iter().rev()),
+                Value::Table(t) => todo.extend(t.values().rev()),
+                Value::ArrayOfTables(ts) => {
+                    todo.extend(ts.iter().rev().flat_map(|t| t.values().rev()));
+                }
+                _ => {}
+            }
+        }
+        let mut built: Vec<Value> = Vec::with_capacity(order.len());
+        for v in order.into_iter().rev() {
+            let mut child = || built.pop().expect("child built before its container");
+            let c = match v {
+                Value::String(s) => Value::String(s.clone()),
+                Value::Integer(i) => Value::Integer(*i),
+                Value::Float(f) => Value::Float(*f),
+                Value::Bool(b) => Value::Bool(*b),
+                Value::Datetime(d) => Value::Datetime(d.clone()),
+                Value::Array(a) => Value::Array(a.iter().map(|_| child()).collect()),
+                Value::Table(t) => Value::Table(t.keys().map(|k| (k.clone(), child())).collect()),
+                Value::ArrayOfTables(ts) => Value::ArrayOfTables(
+                    ts.iter()
+                        .map(|t| t.keys().map(|k| (k.clone(), child())).collect())
+                        .collect(),
+                ),
+            };
+            built.push(c);
+        }
+        built.pop().expect("the root")
+    }
 }
 
 /// Drops nested arrays and tables with a work list, not one call per level: a value can be

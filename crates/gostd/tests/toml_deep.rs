@@ -49,10 +49,12 @@ fn deep_array_decodes_and_drops_on_2mib_stack() {
     assert_eq!(depth, N);
 }
 
+/// 3,000 levels: deep enough for one call per level to overflow 2 MiB, and small enough for the
+/// O(depth^2) key strings that Go's `implicits` (and so ours) store per level.
 #[test]
 fn deep_unclosed_inline_tables_on_2mib_stack() {
     assert!(on_small_stack(|| decode(
-        format!("k = {}", "{ a = ".repeat(100_000)).as_bytes()
+        format!("k = {}", "{ a = ".repeat(3_000)).as_bytes()
     )
     .is_err()));
 }
@@ -73,4 +75,25 @@ fn deep_inline_tables_decode_on_2mib_stack() {
         n
     });
     assert_eq!(depth, N);
+}
+
+#[test]
+fn deep_value_clones_on_2mib_stack() {
+    const N: usize = 100_000;
+    let (a, b) = on_small_stack(|| {
+        let src = format!("k = {}{}\n", "[".repeat(N), "]".repeat(N));
+        let t = decode(src.as_bytes()).unwrap();
+        let c = t["k"].clone();
+        (array_depth(&t["k"]), array_depth(&c))
+    });
+    assert_eq!((a, b), (N, N));
+}
+
+#[test]
+fn clone_keeps_order_and_kinds() {
+    let src = b"a = [1, [2.5, \"x\"], { y = true, z = [] }]\n[[t]]\nk = 1\n[[t]]\nk = 2\n";
+    let t = decode(src).unwrap();
+    for v in t.values() {
+        assert_eq!(&v.clone(), v);
+    }
 }
