@@ -27,6 +27,32 @@ pub enum Value {
     ArrayOfTables(Vec<Table>),
 }
 
+/// Drops nested arrays and tables with a work list, not one call per level: a value can be
+/// nested as deep as its input is long (graphify-rs-aa6.24), and Go frees it with no stack at all.
+impl Drop for Value {
+    fn drop(&mut self) {
+        let mut rest = Vec::new();
+        take_children(self, &mut rest);
+        while let Some(mut v) = rest.pop() {
+            take_children(&mut v, &mut rest);
+        }
+    }
+}
+
+/// Moves the direct children of `v` to `rest`, leaving `v` with none.
+fn take_children(v: &mut Value, rest: &mut Vec<Value>) {
+    match v {
+        Value::Array(a) => rest.append(a),
+        Value::Table(t) => rest.extend(std::mem::take(t).into_values()),
+        Value::ArrayOfTables(ts) => {
+            for t in ts.drain(..) {
+                rest.extend(t.into_values());
+            }
+        }
+        _ => {}
+    }
+}
+
 /// Go `time.Time` as BurntSushi builds it. Fields the kind does not carry are 0 (a `LocalDate`
 /// has zero time fields, a `LocalTime` zero date fields); `offset_seconds` is `Some` only for
 /// `OffsetDateTime` (`Some(0)` for `Z`).

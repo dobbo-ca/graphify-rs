@@ -273,8 +273,8 @@ impl Parser<'_> {
             | ItemType::StringEsc
             | ItemType::MultilineString
             | ItemType::RawString
-            | ItemType::RawMultilineString => match self.value(it, false)?.0 {
-                Value::String(s) => Ok(s),
+            | ItemType::RawMultilineString => match &mut self.value(it, false)?.0 {
+                Value::String(s) => Ok(std::mem::take(s)),
                 _ => Err(self.bug("key is not a string".to_string())),
             },
             other => Err(self.bug(format!("Unexpected key type: {other:?}"))),
@@ -282,7 +282,162 @@ impl Parser<'_> {
     }
 
     /// parse.go:236 `value`: the Go value of an item and whether its tomlType is `tomlArray`.
+    ///
+    /// Go's `value`, `valueArray` and `valueInlineTable` call each other once per nesting level,
+    /// on a goroutine stack that grows to 1 GB; `k = [[[[...` thousands deep overflowed a Rust
+    /// thread (graphify-rs-aa6.24). Here the nesting is the explicit stack `frames`: an array or
+    /// inline table pushes a frame, its items are read in a loop, and a finished child value
+    /// goes back to the frame below, in the order of Go's calls and returns.
     fn value(&mut self, it: &Item, parent_is_array: bool) -> Result<(Value, bool), ParseError> {
+        let mut frames: Vec<Frame> = Vec::new();
+        let mut it = it.clone();
+        let mut parent_is_array = parent_is_array;
+        loop {
+            // Go `value(it, parentIsArray)`: a scalar is done at once; an array or inline table
+            // starts a frame and continues below.
+            let mut done = match it.typ {
+                ItemType::Array => {
+                    // parse.go:384 `valueArray`.
+                    let key = self.current_key.clone();
+                    self.set_type(&key, true);
+                    frames.push(Frame::Array(Vec::new()));
+                    None
+                }
+                ItemType::InlineTableStart => {
+                    // parse.go:419 `valueInlineTable`. `top` is Go's `topHash`.
+                    let outer_context = self.context.clone();
+                    let outer_key = self.current_key.clone();
+
+                    self.context.push(self.current_key.clone());
+                    let prev_context = self.context.clone();
+                    self.current_key.clear();
+
+                    self.implicits.insert(key_string(&prev_context));
+                    self.add_context(&prev_context, parent_is_array)?;
+                    frames.push(Frame::Table {
+                        top: Table::new(),
+                        outer_context,
+                        outer_key,
+                        prev_context,
+                        key: Key::new(),
+                    });
+                    None
+                }
+                _ => Some(self.value_scalar(&it)?),
+            };
+
+            // Return `done` to the frame below, or read the frame's next item.
+            loop {
+                let Some(frame) = frames.last_mut() else {
+                    // `done` is always set here: a frame is only popped with its value.
+                    return Ok(done.take().expect("value of the outermost item"));
+                };
+                match frame {
+                    Frame::Array(array) => {
+                        if let Some((val, _)) = done.take() {
+                            array.push(val);
+                        }
+                        let next = self.next()?;
+                        if next.typ == ItemType::ArrayEnd {
+                            let Some(Frame::Array(array)) = frames.pop() else {
+                                unreachable!()
+                            };
+                            done = Some((Value::Array(array), true));
+                            continue;
+                        }
+                        if next.typ == ItemType::CommentStart {
+                            self.expect(ItemType::Text)?;
+                            continue;
+                        }
+                        it = next;
+                        parent_is_array = true;
+                        break;
+                    }
+                    Frame::Table {
+                        top,
+                        prev_context,
+                        key,
+                        ..
+                    } => {
+                        if let Some((val, is_array)) = done.take() {
+                            let Some((last, parents)) = key.split_last() else {
+                                return Err(self.bug("empty key".to_string()));
+                            };
+                            self.set_value(last, val.clone())?;
+                            self.set_type(last, is_array);
+
+                            let mut hash = &mut *top;
+                            for c in parents {
+                                let h = hash
+                                    .entry(c.clone())
+                                    .or_insert_with(|| Value::Table(Table::new()));
+                                match h {
+                                    Value::Table(t) => hash = t,
+                                    _ => {
+                                        return Err(self.err_pos(format!(
+                                            "{} is not a table",
+                                            strconv::quote(key_string(&self.context).as_bytes())
+                                        )));
+                                    }
+                                }
+                            }
+                            hash.insert(last.clone(), val);
+
+                            // Restore context.
+                            self.context = prev_context.clone();
+                        }
+
+                        // Loop over all table key/value pairs.
+                        let next = self.next()?;
+                        if next.typ == ItemType::InlineTableEnd {
+                            let Some(Frame::Table {
+                                top,
+                                outer_context,
+                                outer_key,
+                                ..
+                            }) = frames.pop()
+                            else {
+                                unreachable!()
+                            };
+                            self.context = outer_context;
+                            self.current_key = outer_key;
+                            done = Some((Value::Table(top), false));
+                            continue;
+                        }
+                        if next.typ == ItemType::CommentStart {
+                            self.expect(ItemType::Text)?;
+                            continue;
+                        }
+
+                        // Read all key parts.
+                        *key = self.key_parts()?;
+                        let Some((last, parents)) = key.split_last() else {
+                            return Err(self.bug("empty key".to_string()));
+                        };
+
+                        // The current key is the last part.
+                        self.current_key = last.clone();
+
+                        // All the other parts (if any) are the context; need to set each part as
+                        // implicit.
+                        for part in parents {
+                            let mut kc = self.context.clone();
+                            kc.push(part.clone());
+                            self.add_implicit_context(&kc)?;
+                        }
+
+                        // Set the value.
+                        it = self.next()?;
+                        parent_is_array = false;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /// The scalar cases of parse.go:236 `value`.
+    fn value_scalar(&mut self, it: &Item) -> Result<(Value, bool), ParseError> {
         match it.typ {
             ItemType::String | ItemType::RawString => Ok((Value::String(it.val.clone()), false)),
             ItemType::StringEsc => Ok((Value::String(self.replace_escapes(it, &it.val)?), false)),
@@ -302,8 +457,6 @@ impl Parser<'_> {
                 v => Err(self.bug(format!("Expected boolean value, but got '{v}'."))),
             },
             ItemType::Datetime => self.value_datetime(it),
-            ItemType::Array => self.value_array(),
-            ItemType::InlineTableStart => self.value_inline_table(parent_is_array),
             other => Err(self.bug(format!("Unexpected value type: {other:?}"))),
         }
     }
@@ -412,98 +565,6 @@ impl Parser<'_> {
             it.line,
             format!("invalid datetime: {}", strconv::quote(val.as_bytes())),
         ))
-    }
-
-    /// parse.go:384 `valueArray`.
-    fn value_array(&mut self) -> Result<(Value, bool), ParseError> {
-        let key = self.current_key.clone();
-        self.set_type(&key, true);
-
-        let mut array = Vec::new();
-        loop {
-            let it = self.next()?;
-            if it.typ == ItemType::ArrayEnd {
-                break;
-            }
-            if it.typ == ItemType::CommentStart {
-                self.expect(ItemType::Text)?;
-                continue;
-            }
-            let (val, _) = self.value(&it, true)?;
-            array.push(val);
-        }
-        Ok((Value::Array(array), true))
-    }
-
-    /// parse.go:419 `valueInlineTable`. `top` is Go's `topHash`.
-    fn value_inline_table(&mut self, parent_is_array: bool) -> Result<(Value, bool), ParseError> {
-        let mut top = Table::new();
-        let outer_context = self.context.clone();
-        let outer_key = self.current_key.clone();
-
-        self.context.push(self.current_key.clone());
-        let prev_context = self.context.clone();
-        self.current_key.clear();
-
-        self.implicits.insert(key_string(&prev_context));
-        self.add_context(&prev_context, parent_is_array)?;
-
-        // Loop over all table key/value pairs.
-        loop {
-            let it = self.next()?;
-            if it.typ == ItemType::InlineTableEnd {
-                break;
-            }
-            if it.typ == ItemType::CommentStart {
-                self.expect(ItemType::Text)?;
-                continue;
-            }
-
-            // Read all key parts.
-            let key = self.key_parts()?;
-            let Some((last, parents)) = key.split_last() else {
-                return Err(self.bug("empty key".to_string()));
-            };
-
-            // The current key is the last part.
-            self.current_key = last.clone();
-
-            // All the other parts (if any) are the context; need to set each part as implicit.
-            for part in parents {
-                let mut kc = self.context.clone();
-                kc.push(part.clone());
-                self.add_implicit_context(&kc)?;
-            }
-
-            // Set the value.
-            let v_item = self.next()?;
-            let (val, is_array) = self.value(&v_item, false)?;
-            self.set_value(last, val.clone())?;
-            self.set_type(last, is_array);
-
-            let mut hash = &mut top;
-            for c in parents {
-                let h = hash
-                    .entry(c.clone())
-                    .or_insert_with(|| Value::Table(Table::new()));
-                match h {
-                    Value::Table(t) => hash = t,
-                    _ => {
-                        return Err(self.err_pos(format!(
-                            "{} is not a table",
-                            strconv::quote(key_string(&self.context).as_bytes())
-                        )));
-                    }
-                }
-            }
-            hash.insert(last.clone(), val);
-
-            // Restore context.
-            self.context = prev_context.clone();
-        }
-        self.context = outer_context;
-        self.current_key = outer_key;
-        Ok((Value::Table(top), false))
     }
 
     /// parse.go:513 `stripEscapedNewlines` and parse.go:535 `replaceEscapes`.
@@ -1043,4 +1104,19 @@ fn parse_layout(layout: usize, v: &[u8]) -> Option<Datetime> {
         nanosecond: nsec,
         offset_seconds: offset,
     })
+}
+
+/// A nesting level of [`Parser::value`]: Go's `valueArray` or `valueInlineTable` call.
+enum Frame {
+    /// The array read so far.
+    Array(Vec<Value>),
+    /// `top` is Go's `topHash`; `outer_context`, `outer_key` and `prev_context` are the locals
+    /// of the same names; `key` is the key whose value is being read.
+    Table {
+        top: Table,
+        outer_context: Key,
+        outer_key: String,
+        prev_context: Key,
+        key: Key,
+    },
 }

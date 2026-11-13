@@ -13,10 +13,11 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-// toml: BurntSushi/toml v1.4.0 Decode into map[string]any against gostd::toml. Inputs, 2,756
+// toml: BurntSushi/toml v1.4.0 Decode into map[string]any against gostd::toml. Inputs, 2,761
 // files: the 556 toml-test .toml files (185 valid, 371 invalid; "t_" and the path under tests/
 // with "/" as "__"), 200 generated manifests ("m000".."m199", Cargo.toml and pyproject.toml
-// shapes) and 2,000 single-byte mutations of the manifests ("x0000".."x1999").
+// shapes), 2,000 single-byte mutations of the manifests ("x0000".."x1999") and 5 deeply nested
+// documents ("d0".."d4", tmDeep; graphify-rs-aa6.24).
 //
 // The toml-test files are read from the module cache of the go-mods stage, where
 // `go mod download` put BurntSushi/toml (the same directory the testinputs stage copies to
@@ -31,7 +32,7 @@ import (
 // decode error is its text; a Go panic (a BUG in the parser) is "panic".
 
 func init() {
-	register("toml", 2756, tmGen, tmRun)
+	register("toml", 2761, tmGen, tmRun)
 }
 
 // tmTestsDir is internal/toml-test/tests of the BurntSushi/toml v1.4.0 module in the module
@@ -168,7 +169,27 @@ func tmGen(dir string) error {
 			return err
 		}
 	}
+	for i, d := range tmDeep() {
+		if err := os.WriteFile(filepath.Join(dir, fmt.Sprintf("d%d", i)), []byte(d), 0o644); err != nil {
+			return err
+		}
+	}
 	return nil
+}
+
+// tmDeep: nesting deeper than a Rust thread stack holds with one call per level. d0 is the
+// fuzz.yml crash input (2,244 unclosed arrays); d1 a valid array 1,000 deep; d2 inline tables
+// 500 deep; d3 2,000 unclosed inline tables; d4 arrays and inline tables in turn, 400 levels.
+// The dump of a valid one repeats the key path on each line, so the valid ones stay small.
+func tmDeep() []string {
+	r := strings.Repeat
+	return []string{
+		"k = " + r("[", 2244),
+		"k = " + r("[", 1000) + r("]", 1000) + "\n",
+		"k = " + r("{ a = ", 500) + "1" + r(" }", 500) + "\n",
+		"k = " + r("{ a = ", 2000),
+		"k = " + r("[ { a = ", 200) + "1" + r(" } ]", 200) + "\n",
+	}
 }
 
 func tmJoin(path, seg string) string {

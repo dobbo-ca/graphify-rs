@@ -48,7 +48,7 @@ const PKGS: &[(&str, usize, Run)] = &[
     ("sort", 1200, sort::run),
     ("strconv", 36, strconv::run),
     ("strings", 8000, strings::run),
-    ("toml", 2756, toml::run),
+    ("toml", 2761, toml::run),
     ("unicode17", 3, unicode17::run),
     ("url", 5113, url::run),
     ("xml-dec", 3300, xml_dec::run),
