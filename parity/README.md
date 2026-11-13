@@ -238,7 +238,7 @@ bead id (graphify-rs-u2o.3 … .8) and lose the ignore in that bead's PR.
 
 | Source | Functions | Ported | Passing | Skipped (reason) |
 |---|---|---|---|---|
-| graphify-go `internal/semantic/bedrock_test.go`, `semantic_test.go` | 13 | 0 | 0 | 13: P2, bead graphify-rs-ihc.1 (need idutil, model, detect, cache) |
+| graphify-go `internal/semantic/bedrock_test.go`, `semantic_test.go` | 13 | 0 | 0 | 13: ported in the P2 `semantic` block (bead graphify-rs-ihc.1) |
 | anthropic-sdk-go `client_test.go` | 10 | 3 (`TestContextDeadline` adapted to the attempt timeout) | 3 | 7: User-Agent value, header-override options, context cancel API, streaming |
 | anthropic-sdk-go `internal/requestconfig/requestconfig_test.go` | 3 | 3 (adapted to `Error::Api`) | 3 | 0 |
 | anthropic-sdk-go `bedrock/bedrockmantle_test.go` | 20 | 13 (7 port, 6 adapt) | 13 | 7: SkipAuth, Beta API, user request options, middleware |
@@ -381,7 +381,21 @@ The Louvain tests draw their random graphs from Go `math/rand` (seeded source), 
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| `semantic` (`graphify-rs-ihc.1`) | - | - | - | not started |
+| graphify-go `internal/semantic/bedrock_test.go` | 4 | 4 | 0 | - |
+| graphify-go `internal/semantic/semantic_test.go` | 9 | 9 (+1 added: `test_enrich_no_backend_error_text`) | 0 | the `var _ = cache.HashBytes` compile-time line (not a test) |
+| upstream `test_llm_parser.py` | 10 | 0 | 0 | 10: `_parse_llm_json` (fences, prose, refusal: Go reads a tool call, not free text) and `_call_claude_cli` argv (no Claude CLI backend in Go) |
+| upstream `test_chunking.py` | 33 | 1 (`test_corpus_parallel_continues_after_chunk_failure` as `test_enrich_continues_after_note_failure`, without the stderr text) | 0 | 32: token-aware packing, tiktoken, parallel chunks, checkpoints, adaptive retry, out-of-scope and omitted-document reconciliation (Go sends one note per call, no chunks) |
+| upstream `test_semantic_cache_basename_recovery.py` | 4 | 0 | 0 | 4: `save_semantic_cache` basename recovery of a drifted `source_file` (Go's cache is keyed by note id) |
+| upstream `test_semantic_cleanup.py` | 26 | 0 | 0 | 26: `validate_semantic_fragment` and the rationale-node sanitiser (Go has no fragment validation; its `sanitize` keeps rationale nodes, which the Python tests drop) |
+| upstream `test_semantic_fragment_sanitize.py` | 5 | 0 | 0 | 5: non-dict entries in a JSON fragment (Go's backend returns typed `Node` and `Edge`) |
+| upstream `test_semantic_id_remap_root.py` | 7 | 0 | 0 | 7: `_semantic_id_remap`, `build_from_json` (no id remap in Go) |
+| upstream `test_semantic_origin_stamp.py` | 8 | 0 | 0 | 8: the `_origin` stamp (no such field in Go) |
+| upstream `test_llm_null_token_counts.py` | 4 | 0 | 0 | 4: `usage` token counts (Go reads no usage) |
+| upstream `test_llm_parser_reasoning.py` | 12 | 0 | 0 | 12: `_parse_llm_json` candidate scan over reasoning text |
+| upstream `test_oversized_document_slicing.py` | 7 | 0 | 0 | 7: `expand_oversized_files` slicing (Go skips a note over `MaxNoteBytes`; `test_enrich_skips_sensitive_and_oversized_notes` covers it) |
+| upstream `test_partial_extraction_warning.py` | 13 | 0 | 0 | 13: extractor syntax-error warnings (not the semantic stage) |
+
+`BedrockBackend` has no test of its own: the 13 Go tests never reach the network, and `crates/bedrock` keeps its mock server in its own integration-test helpers (`crates/bedrock/tests/common`), which another crate cannot import. The call is covered by the `bedrock` block above.
 
 #### cli
 
