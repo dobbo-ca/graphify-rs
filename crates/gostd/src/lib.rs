@@ -12,6 +12,7 @@ pub mod strings;
 pub mod tables;
 pub mod toml;
 pub mod unicode;
+pub mod url;
 pub mod utf8;
 pub mod xml;
 pub mod xtext;

@@ -185,7 +185,7 @@ Oracle package: none yet.
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| - | - | - | - | not started |
+| `net/url/url_test.go` | 29 | 10 | 0 | 19 not reached by graphify-go (it calls `Parse` and `PathUnescape` only): TestParseRequestURI (`ParseRequestURI`), TestURLString and TestURLRedacted (`String`, `Redacted`), TestQueryEscape, TestPathEscape and TestShouldEscape (escaping), TestEncodeQuery, TestQueryValues, TestParseQuery and TestParseQueryLimits (`Values`, `ParseQuery`), TestResolvePath, TestResolveReference and TestJoinPath (resolve, join), TestRequestURI, TestURLClone and TestValuesClone, TestURLErrorImplementsNetError (`net.Error`), TestJSON and TestGob (marshalling); 1 of 62 `urltests` rows (empty `in`, skipped by Go); `OmitHost` not a `Url` field; TestParseFailure, TestStarRequest, TestNilUser and TestRejectControlCharacters adapted (no `ParseQuery`, `RequestURI`, nil `*Userinfo` or non-UTF-8 `&str`) |
 
 #### utf8
 
