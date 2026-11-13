@@ -16,7 +16,7 @@ fn str_of(src: &str) -> String {
 #[test]
 fn request_body_golden() {
     let want = std::fs::read(testdata("request_body.json")).expect("read golden");
-    let got = crate::client::request_body("docs/a.md", "hello <world> & \"q\"\n");
+    let got = crate::client::request_body("docs/a.md", "hello <world> & \"q\"\n".as_bytes());
     assert_eq!(
         got.as_bytes(),
         want.as_slice(),
@@ -224,4 +224,15 @@ fn parse_strings() {
         "simple escapes"
     );
     assert_eq!(str_of(r#""\u00e9\u2014""#), "é—", "bmp escapes");
+}
+
+#[test]
+fn parse_first_ignores_trailing() {
+    // Go json.Decoder.Decode reads one value and leaves the rest (requestconfig.go:560).
+    let v = parse_first(" {\"a\":1} trailing").expect("first value");
+    assert_eq!(
+        v.get("a").map(|n| n.kind.clone()),
+        Some(Kind::Number("1".into()))
+    );
+    assert!(parse("{\"a\":1} trailing").is_err(), "parse stays strict");
 }

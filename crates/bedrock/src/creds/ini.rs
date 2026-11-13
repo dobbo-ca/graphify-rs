@@ -14,6 +14,7 @@ pub(crate) enum IniValue {
 
 impl IniValue {
     /// Go `fmt.Sprintf("%v", ...)`: the string, or `map[a:b b:c]` with sorted keys.
+    #[cfg_attr(not(test), allow(dead_code))]
     pub(crate) fn display(&self) -> String {
         match self {
             IniValue::Str(s) => s.clone(),
@@ -48,6 +49,7 @@ pub(crate) struct Sections {
 }
 
 impl Sections {
+    #[cfg_attr(not(test), allow(dead_code))]
     pub(crate) fn get(&self, section: &str) -> Option<&Section> {
         self.sections.get(section)
     }

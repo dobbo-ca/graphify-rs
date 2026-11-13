@@ -37,9 +37,16 @@ impl std::fmt::Debug for Credentials {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) enum Source {
     Env,
-    Static { profile: String },
-    Process { command: String },
-    Cli { profile: Option<String> },
+    #[cfg_attr(not(test), allow(dead_code))]
+    Static {
+        profile: String,
+    },
+    Process {
+        command: String,
+    },
+    Cli {
+        profile: Option<String>,
+    },
 }
 
 /// env_config.go:24-30, 88-96, 319: the long names win; both keys are needed.

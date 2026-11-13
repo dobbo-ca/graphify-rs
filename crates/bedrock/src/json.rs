@@ -55,6 +55,7 @@ pub(crate) struct Value {
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) enum Kind {
     Null,
+    #[cfg_attr(not(test), allow(dead_code))]
     Bool(bool),
     /// The number's text, as written.
     Number(String),
@@ -78,6 +79,17 @@ pub(crate) fn parse(src: &str) -> Result<Value, String> {
         return Err(format!("trailing data at byte {}", p.pos));
     }
     Ok(v)
+}
+
+/// Go `json.Decoder.Decode` (requestconfig.go:560): the first value; whatever follows it is ignored.
+pub(crate) fn parse_first(src: &str) -> Result<Value, String> {
+    let mut p = Parser {
+        src,
+        b: src.as_bytes(),
+        pos: 0,
+    };
+    p.ws();
+    p.value(0)
 }
 
 /// Go encoding/json's nesting limit (scanner.go maxNestingDepth).

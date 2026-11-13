@@ -32,6 +32,7 @@ impl Utc {
         }
     }
 
+    #[cfg_attr(not(test), allow(dead_code))]
     pub(crate) fn to_system(self) -> SystemTime {
         match u64::try_from(self.epoch_secs()) {
             Ok(s) => UNIX_EPOCH + Duration::from_secs(s),

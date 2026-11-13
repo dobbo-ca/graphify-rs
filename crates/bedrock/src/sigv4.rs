@@ -33,6 +33,7 @@ pub(crate) struct Options {
 }
 
 #[derive(Clone, Debug)]
+#[cfg_attr(not(test), allow(dead_code))]
 pub(crate) struct SignOutput {
     pub canonical_request: String,
     pub string_to_sign: String,
