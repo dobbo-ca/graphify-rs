@@ -1,7 +1,7 @@
-//! Go 1.27.4 `encoding/json`, encode half. Go 1.27.4 builds it with GOEXPERIMENT=jsonv2 on, so
-//! the active code is the `v2_*.go` files over `encoding/json/jsontext` and
-//! `internal/jsonwire` (`v2_encode.go`, `v2_indent.go`, `v2_scanner.go`, `v2_stream.go`,
-//! `tags.go`). The decode half is API stubs until graphify-rs-aa6.10.
+//! Go 1.27.4 `encoding/json`. Go 1.27.4 builds it with GOEXPERIMENT=jsonv2 on, so the active
+//! code is the `v2_*.go` files over `encoding/json/jsontext`, `encoding/json/v2` and
+//! `internal/jsonwire` (`v2_encode.go`, `v2_decode.go`, `v2_inject.go`, `v2_indent.go`,
+//! `v2_scanner.go`, `v2_stream.go`, `tags.go`).
 mod decode;
 mod encode;
 mod indent;
@@ -11,7 +11,7 @@ mod value;
 
 use std::fmt;
 
-pub use decode::{DecodeState, Unmarshal, touch_field, unmarshal, unmarshal_into};
+pub use decode::{DecodeState, Unmarshal, unmarshal, unmarshal_into};
 pub use encode::{
     EncodeState, Encoder, Marshal, append_float, append_string, marshal, marshal_indent,
     write_field,
@@ -40,8 +40,9 @@ pub enum Error {
     /// Go `UnmarshalTypeError` (`v2_decode.go:123`), as `transformUnmarshalError` builds it
     /// (`v2_inject.go:69-159`). `value` is Go's `Value` (`"bool"`, `"number -5"`), `go_type` is
     /// `Type.String()`, `offset` is bytes read. `struct_name` is Go's `Struct`: the `Name()` of the
-    /// root type (empty for an unnamed type), set only when `field` is non-empty
-    /// (`v2_inject.go:137-143`). `field` is Go's `Field`: the JSON Pointer of the value without its
+    /// root type (empty for an unnamed type), set only when the JSON Pointer is non-empty
+    /// (`v2_inject.go:137-143`; so when `field` is, or the key is `""`). `field` is Go's `Field`:
+    /// the JSON Pointer of the value without its
     /// leading `/`, every `/` turned into `.`, so object keys, map keys and array indices all
     /// appear (`Ts.2.Y`; `v2_inject.go:144-146`). `err` is the text of Go's `Err`, `None` for nil.
     /// Go `InvalidUnmarshalError` (`v2_decode.go:178`) cannot occur in Rust and has no variant.
@@ -131,8 +132,10 @@ pub struct UnmarshalTypeError {
 /// argument is the Go type name used in error text.
 ///
 /// With the leading keyword `decode`, `json_fields!(decode Type, "go.Type", { ... })` also
-/// implements [`Unmarshal`] (Go's `d.object` into a struct, `decode.go:588`; the key `"-"` is not
-/// decoded) and requires every field type to implement [`Unmarshal`]. The keyword is opt-in
+/// implements [`Unmarshal`] (Go's struct arshaler, `v2/arshal_default.go:1288-1419`, through
+/// [`DecodeState::read_struct`]: exact key first, then `strings.EqualFold`, unknown keys skipped,
+/// the last duplicate wins, `null` leaves the struct alone; the key `"-"` is not decoded) and
+/// requires every field type to implement [`Unmarshal`]. The keyword is opt-in
 /// because many structs have fields that are `Marshal` only (a hand-written `MarshalJSON`
 /// stand-in), and an unconditional `Unmarshal` impl would stop them compiling.
 ///
@@ -156,15 +159,17 @@ macro_rules! json_fields {
         $crate::json_fields!($ty, $go_type, { $($field => $key $($oe)?),* });
         impl $crate::json::Unmarshal for $ty {
             const GO_TYPE: &'static str = $go_type;
-            /// Go `d.object` into a struct (`decode.go:588`). Every field is touched, key `"-"`
-            /// included, so the caller's crate gets no dead_code warning.
+            /// Go's struct arshaler (`v2/arshal_default.go:1288-1419`). A `"-"` field is never
+            /// matched; its arm only checks at compile time that the type is `Unmarshal`.
             fn unmarshal_json(
                 &mut self,
                 d: &mut $crate::json::DecodeState<'_>,
             ) -> ::core::result::Result<(), $crate::json::Error> {
-                let _ = &d;
-                $( $crate::json::touch_field(&mut self.$field); )*
-                todo!("graphify-rs-aa6.10")
+                d.read_struct(&[$($key),*], |d, key| {
+                    $( if key == $key { return d.value(&mut self.$field); } )*
+                    let _ = (d, key);
+                    ::core::result::Result::Ok(())
+                })
             }
         }
     };

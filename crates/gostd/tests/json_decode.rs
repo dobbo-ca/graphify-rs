@@ -4,7 +4,7 @@
 //! v2_decode_test.go has 35 Test funcs: 17 ported (several adapted or partial, noted per entry),
 //! 18 not ported. Go structs are Rust structs with `gostd::json_fields!(decode ...)`, or a hand-written
 //! `Marshal` and `Unmarshal` where Go has `UnmarshalJSON` or `UnmarshalText`. A Go nil slice, map or
-//! pointer is an `Option`; `any` is `Value`. Every test is `#[ignore]`d until graphify-rs-aa6.10.
+//! pointer is an `Option`; `any` is `Value`.
 //!
 //! Types the API lacks: `Unmarshal` exists for `bool`, `i64`, `i32`, `u64`, `u32`, `usize`, `f64`,
 //! `String`, `Value`, `RawMessage`, `Option`, `Vec` and string-keyed maps only, so Go `int8`, `int16`,
@@ -940,7 +940,6 @@ const PALL_VALUE_INDENT: &str = r#"{
 // ---- TestUnmarshal (:1463), rows from unmarshalTests (:425) ----
 
 #[test]
-#[ignore = "graphify-rs-aa6.10"]
 fn test_unmarshal() {
     // basic types
     ok("true", true);
@@ -1452,7 +1451,6 @@ fn gen_map(r: &mut Rng, n: usize) -> Value {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.10"]
 fn test_unmarshal_marshal() {
     let json_big = marshal(&gen_value(&mut Rng(0x9E37_79B9_7F4A_7C15), 10000)).expect("Marshal");
     let v: Value = unmarshal(&json_big).expect("Unmarshal error");
@@ -1469,7 +1467,6 @@ struct Xint {
 gostd::json_fields!(decode Xint, "json.Xint", { x => "X" });
 
 #[test]
-#[ignore = "graphify-rs-aa6.10"]
 fn test_unmarshal_interface() {
     let mut xint = Xint::default();
     unmarshal_into(br#"{"X":1}"#, &mut xint).expect("Unmarshal error");
@@ -1479,7 +1476,6 @@ fn test_unmarshal_interface() {
 // ---- TestEscape (:1646) ----
 
 #[test]
-#[ignore = "graphify-rs-aa6.10"]
 fn test_escape() {
     let input = "\"foobar\"<html> [\u{2028} \u{2029}]";
     let want = r#""\"foobar\"\u003chtml\u003e [\u2028 \u2029]""#;
@@ -1497,7 +1493,6 @@ struct T2 {
 gostd::json_fields!(decode T2, "json.T2", { number1 => "Number1", number2 => "Number2" });
 
 #[test]
-#[ignore = "graphify-rs-aa6.10"]
 fn test_empty_string() {
     // Go: `{"Number1":"1", "Number2":""}` with `,string`
     let data = r#"{"Number1":1, "Number2":""}"#;
@@ -1517,7 +1512,6 @@ struct NullString {
 gostd::json_fields!(decode NullString, "json.T", { a => "A", b => "B", c => "C" });
 
 #[test]
-#[ignore = "graphify-rs-aa6.10"]
 fn test_null_string() {
     // Go: `{"A": "1", "B": null, "C": null}` with `,string`
     let data = br#"{"A": 1, "B": null, "C": null}"#;
@@ -1541,7 +1535,6 @@ struct Holder {
 gostd::json_fields!(decode Holder, "struct { X interface {} }", { x => "X" });
 
 #[test]
-#[ignore = "graphify-rs-aa6.10"]
 fn test_interface_set() {
     // (pre, json, post)
     let tests: Vec<(Value, &str, Value)> = vec![
@@ -1619,7 +1612,6 @@ gostd::json_fields!(decode NullTest, "json.NullTest", {
 });
 
 #[test]
-#[ignore = "graphify-rs-aa6.10"]
 fn test_unmarshal_nulls() {
     let json_data = br#"{
 				"Bool"    : null,
@@ -1718,7 +1710,6 @@ fn test_unmarshal_nulls() {
 // TestUnmarshalSyntax (:2433) ----
 
 #[test]
-#[ignore = "graphify-rs-aa6.10"]
 fn test_unmarshal_type_error() {
     // issue 4628; the 5 `new(error)` rows (issue 4222) are left out
     let err = unmarshal::<String>(br#"{"user": "name"}"#);
@@ -1766,7 +1757,6 @@ fn test_unmarshal_type_error_message() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.10"]
 fn test_unmarshal_syntax() {
     for input in [
         "tru",
@@ -1800,7 +1790,6 @@ impl Unmarshal for ZeroArray {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.10"]
 fn test_skip_array_objects() {
     let mut dest = ZeroArray;
     unmarshal_into(b"[{}]", &mut dest).expect("Unmarshal error");
@@ -1817,7 +1806,6 @@ struct Xyz {
 gostd::json_fields!(decode Xyz, "json.XYZ", { x => "X", y => "Y", z => "Z" });
 
 #[test]
-#[ignore = "graphify-rs-aa6.10"]
 fn test_prefilled() {
     // `float32(3)` and `int16(4)` in an `any` are `Value::Number`
     let mut xyz = Xyz {
@@ -1901,7 +1889,6 @@ type StreamRow = (
 );
 
 #[test]
-#[ignore = "graphify-rs-aa6.10"]
 fn test_unmarshal_error_after_multiple_json() {
     let tests: [StreamRow; 5] = [
         (
@@ -1966,7 +1953,6 @@ impl Unmarshal for UnmarshalPanic {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.10"]
 fn test_unmarshal_panic() {
     match catch_unwind(AssertUnwindSafe(|| {
         unmarshal_into(b"{}", &mut UnmarshalPanic)
@@ -1979,7 +1965,6 @@ fn test_unmarshal_panic() {
 // ---- TestUnmarshalRescanLiteralMangledUnquote (:2872) ----
 
 #[test]
-#[ignore = "graphify-rs-aa6.10"]
 fn test_unmarshal_rescan_literal_mangled_unquote() {
     // See golang.org/issues/38105.
     let p: BTreeMap<String, String> =
@@ -2055,7 +2040,6 @@ fn max_depth() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.10"]
 fn test_unmarshal_max_depth() {
     // 9,999 levels of nesting decode recursively: run on a thread with a large stack
     std::thread::Builder::new()
@@ -2084,7 +2068,6 @@ gostd::json_fields!(decode AnonNodes, r#"struct { Nodes []json.IdOnly "json:\"no
 });
 
 #[test]
-#[ignore = "graphify-rs-aa6.10"]
 fn v1_compat_rules() {
     // Traced, no Go row: DefaultV1Flags sets AllowDuplicateNames, MatchCaseInsensitiveNames and
     // MatchCaseSensitiveDelimiter (internal/jsonflags/flags.go:51-72). A duplicate key is decoded
