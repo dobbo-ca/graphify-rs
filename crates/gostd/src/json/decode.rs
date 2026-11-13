@@ -743,6 +743,18 @@ impl<T: Unmarshal + Default> Unmarshal for Option<T> {
             *self = None;
             return Ok(());
         }
+        // `Option<Vec<_>>` and `Option<map>` stand for Go's nil-able slice and map: their
+        // arshalers (`v2/arshal_default.go:1541-1611`, `:958-1069`) check the token kind before
+        // they allocate, so a value of the wrong kind leaves a nil slice or map nil. The
+        // temporary records the type error and skips the value.
+        let opener = match T::GO_TYPE {
+            "[]" => Some(b'['),
+            "map[string]" => Some(b'{'),
+            _ => None,
+        };
+        if self.is_none() && opener.is_some_and(|o| d.peek() != o) {
+            return d.value(&mut T::default());
+        }
         d.value(self.get_or_insert_with(T::default))
     }
 }
