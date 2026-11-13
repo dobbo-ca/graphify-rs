@@ -14,9 +14,22 @@ use std::sync::Once;
 pub fn register_kinds() {
     static ONCE: Once = Once::new();
     ONCE.call_once(|| {
+        super::bash::register_kinds();
         super::c::register_kinds();
+        super::cpp::register_kinds();
+        super::csharp::register_kinds();
         super::golang::register_kinds();
         super::java::register_kinds();
+        super::javascript::register_kinds();
+        super::julia::register_kinds();
+        super::kotlin::register_kinds();
+        super::lua::register_kinds();
+        super::php::register_kinds();
+        super::python::register_kinds();
+        super::ruby::register_kinds();
+        super::rust::register_kinds();
+        super::scala::register_kinds();
+        super::terraform::register_kinds();
         super::verilog::register_kinds();
         super::zig::register_kinds();
     });
