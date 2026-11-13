@@ -4,10 +4,10 @@
 use std::path::Path;
 
 use super::maint_util::{
-    git_run, hook_args, install_ok, is_exec, must, run_cmd, status_ok, text, uninstall_ok,
-    write_exec,
+    git_run, hook_args, install_ok, is_exec, must, status_ok, text, uninstall_ok, write_exec,
 };
 use super::{HOOK_MARKER, cmd_hook, hook_install, hook_script, watch_tick};
+use crate::cli::main::{cmd_build, cmd_update};
 use crate::testutil::TempDir;
 
 const FOREIGN: &[u8] = b"#!/bin/sh\necho mine\n";
@@ -154,8 +154,8 @@ fn test_hook_unknown_subcommand() {
     );
 }
 
-// `cmdBuild` and `cmdUpdate` run through `cli::run`. It needs `.go` extraction: the golang
-// grammar (graphify-rs-ihc.24).
+// Go calls `cmdBuild([]string{root})` and `cmdUpdate([]string{root})` (maintenance_test.go:140,
+// :153). It needs `.go` extraction: the golang grammar (graphify-rs-ihc.24).
 #[test]
 #[ignore = "graphify-rs-ihc.24"]
 fn test_watch_tick() {
@@ -163,12 +163,10 @@ fn test_watch_tick() {
     let write = |rel: &str, content: &str| {
         root.write(rel, content.as_bytes());
     };
-    let run_ok = |sub: &str| {
-        let (code, err) = run_cmd(sub, root.path());
-        assert_eq!(code, 0, "{sub}: {err}");
-    };
+    let root_arg = [root.path().as_os_str().to_owned()];
+    let (mut out, mut err) = (Vec::<u8>::new(), Vec::<u8>::new());
     write("a.go", "package p\n\nfunc A() {}\n");
-    run_ok("build");
+    must("build", cmd_build(&root_arg, &mut out, &mut err));
 
     let changed = must("watch_tick", watch_tick(root.path()));
     assert!(!changed, "no edit: changed=true, want false");
@@ -179,7 +177,7 @@ fn test_watch_tick() {
         "edited file: want changed=true"
     );
 
-    run_ok("update");
+    must("update", cmd_update(&root_arg, &mut out, &mut err));
     write("c.go", "package p\n\nfunc C() {}\n");
     assert!(
         watch_tick(root.path()).unwrap_or(false),
