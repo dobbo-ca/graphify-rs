@@ -261,7 +261,7 @@ One block per module, in the plan's module order. A PR edits only its own module
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| graphify-go `internal/fsutil/fsutil_test.go` (`graphify-rs-ihc.3`) | 2 | 2 | 2 | - |
+| graphify-go `internal/fsutil/fsutil_test.go` (`graphify-rs-ihc.3`) | 2 | 2 (+3 added: Go's error text per step, `go_errors.rs`) | 5 | - |
 | upstream `test_atomic_writes.py`, `test_atomic_version_stamp.py` | 18 + 5 | 3 (`preserves_existing_on_failure`, `temp_name_is_bounded` without the `.tmp` suffix, `replaces_symlink_instead_of_following`) | 3 | 20 do not hold for Go: a missing parent dir is created, the existing mode is kept, a new file follows the umask, a symlink is written through, a read-only destination is refused, a predictable tmp symlink, Windows and JSON-helper cases |
 | upstream `test_paths.py` | 9 | 0 | 0 | they test the csharp_resolve.go:529 test-path rules: Task 28 (`graphify-rs-ihc.28`) |
 
