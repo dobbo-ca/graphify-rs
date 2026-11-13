@@ -119,6 +119,15 @@ pub struct MdRef {
     pub loc: Loc,
 }
 
+/// Go `callText` (`extract.go:53`): a call with its texts looked up.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub(crate) struct CallText {
+    pub(crate) caller_id: String,
+    pub(crate) callee: String,
+    pub(crate) recv: String,
+    pub(crate) loc: Loc,
+}
+
 /// Go `extract.Result`: one file's extraction plus the facts the resolver binds.
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Result {
@@ -151,6 +160,11 @@ pub struct Result {
 }
 
 impl Result {
+    /// Go `Result.call` (`extract.go:58`): the texts of `c`.
+    pub(crate) fn call(&self, c: &Call) -> CallText {
+        todo!("graphify-rs-ihc.16")
+    }
+
     /// Go `Result.CallsOK`: every call index is inside `call_text` and its first entry is empty.
     pub fn calls_ok(&self) -> bool {
         todo!("graphify-rs-ihc.16")
