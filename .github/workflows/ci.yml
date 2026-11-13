@@ -1,18 +1,27 @@
 name: ci
-on: { pull_request: {}, push: { branches: [main] }, workflow_dispatch: {} }
+on:
+  pull_request: {}
+  push: { branches: [main] }
+  workflow_dispatch: {}
+  # The heavy main stages (arm64, parity, parity-arm64) run on this schedule against the newest
+  # main, not on every push: with several streams merging, per-push main runs queued behind PR
+  # runs on the shared ARC runners and were replaced while pending, so none finished.
+  schedule: [{ cron: '23 */3 * * *' }]
 permissions:
   contents: read
 concurrency:
-  # Main pushes share one group and never cancel: a started main run always finishes, and only
-  # the newest pending main run waits (GitHub drops older pending ones). A bead closes on any
-  # green main run at or after its commit. PR runs share a group per ref and cancel the older run.
-  group: ${{ github.workflow }}-${{ github.ref }}
+  # One group per ref for push and PR runs (a PR's newer run cancels its older one; main pushes
+  # never cancel). Scheduled runs have their own group, so a push never replaces a pending
+  # scheduled run. A bead closes on a green scheduled or dispatched main run at or after its commit.
+  group: ${{ github.workflow }}-${{ github.event_name == 'schedule' && 'scheduled' || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   # The checks run inside ci/Dockerfile on the in-cluster BuildKit (pattern from dobbo-ca/deflate-rs).
-  # A PR needs only `test`; arm64, parity and parity-arm64 run on main and on workflow_dispatch. A bead is done only when
-  # the main stages are green.
+  # A PR runs test and gen (the required check is `test`). A push to main runs only macos (GitHub
+  # hosted): the PR run already tested the same merge result. The scheduled run (and dispatch)
+  # runs every ARC job on the newest main. A bead is done when that run is green.
   test:
+    if: github.event_name != 'push'
     runs-on: github-arc-runner-set
     timeout-minutes: 30
     steps:
@@ -37,6 +46,7 @@ jobs:
   # into crates/gostd/src/tables/ and ucd.lock into crates/gostd-gen/, and commit. The `test`
   # job fails while the committed files differ from it.
   gen:
+    if: github.event_name != 'push'
     runs-on: github-arc-runner-set
     timeout-minutes: 30
     steps:
@@ -59,7 +69,7 @@ jobs:
         with: { name: ucd-tables, path: gen-out, if-no-files-found: error }
 
   arm64:
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: github-arc-runner-set
     timeout-minutes: 45
     steps:
@@ -81,7 +91,7 @@ jobs:
 
   # gostd against the Go oracle (parity/README.md): diff -r of the Go and Rust output trees.
   parity:
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: github-arc-runner-set
     timeout-minutes: 60
     steps:
@@ -103,7 +113,7 @@ jobs:
 
   # The same, with the oracle example built for aarch64 and run under qemu-aarch64.
   parity-arm64:
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: github-arc-runner-set
     timeout-minutes: 60
     steps:
