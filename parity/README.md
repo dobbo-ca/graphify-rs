@@ -89,4 +89,4 @@ bead id (graphify-rs-u2o.3 … .8) and lose the ignore in that bead's PR.
 | aws-sdk-go-v2 config v1.27.27 env, shared config, process creds, credential source | 16 in scope | 15 | 15 | `TestSetEnvValue`; role, SSO, IMDS and web-identity cases (D-006: those go to the AWS CLI) |
 | aws-sdk-go-v2 credentials v1.17.27 `processcreds` | 11 | 11 (`TestProviderWithAccountID` does not check the account id: not used) | 11 | 0 |
 | golang.org/x/net v0.55.0 `http/httpproxy/proxy_test.go` | 7 | 7 (`https://`/`socks5://` rows adapted to D-007) | 7 | 0 |
-| New (no source): SHA-256, HMAC, time, JSON, HTTP/TLS, proxy tunnel, retry rules, CLI fallback, Review Focus | 61 | — | 61 | — |
+| New (no source): SHA-256, HMAC, time, JSON, HTTP/TLS, proxy tunnel, retry rules, CLI fallback, Review Focus | 64 | — | 64 | — |
