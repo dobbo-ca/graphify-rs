@@ -65,6 +65,10 @@ reached by graphify-go.
 | utf8 | `unicode/utf8/utf8_test.go` | 15 | 6 (+1 added) | 7 | Constants, FullRune, EncodeRune, AppendRune, RuntimeConversion, NegativeRune, RuneCountNonASCIIAllocation, RuneLen, ValidRune (Rust std encodes runes) |
 | strings | `strings/strings_test.go` | 41 | 7 | 7 | the 34 funcs that are not Unicode-table functions graphify-go calls; rows with invalid UTF-8 in `&str` inputs |
 | strings | `bytes/bytes_test.go` | 1 (TestTrimSpace) | 1 | 1 | - |
+| xtext cases | x/text v0.27.0 `cases/fold_test.go`, `cases/context_test.go` | 7 | 2 (+1 added) | 0 | TestCaseProperties, TestCCC, TestContext (internals); TestMapping, TestWordBreaks (Lower/Upper/Title casers not called) |
+| xtext norm | x/text v0.27.0 `unicode/norm/normalize_test.go` | 13 | 4 (+1 added) | 0 | 9 internals (boundaries, Span, IsNormal, DecomposeSegment, Linking); 28 NFKC append rows with invalid UTF-8 parts; NFC/NFD tables |
+| xtext norm | x/text v0.27.0 `unicode/norm/composition_test.go` | 4 | 3 | 0 | TestFlush (internals); 2 NFD rows not observable through NFKD |
+| xtext norm | x/text v0.27.0 `unicode/norm/ucd_test.go` (NormalizationTest.txt 15.0.0) | 3 | 2 | 0 | TestPerformance (Go timing); NFC/NFD columns |
 
 ## bedrock (P1')
 
