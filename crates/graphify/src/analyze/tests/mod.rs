@@ -7,7 +7,6 @@ use crate::model::{Confidence, Edge, Node, Relation};
 
 mod analyze;
 mod cycles;
-mod gorand;
 mod typeonly_cycle;
 
 /// Go `model.Node{ID: id, Label: label, SourceFile: source_file}`.

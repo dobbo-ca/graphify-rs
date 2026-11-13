@@ -8,4 +8,4 @@ mod louvain;
 pub use cluster::{cluster, cohesion, node_community, remap_to_previous, scores};
 
 #[cfg(test)]
-mod tests;
+pub(crate) mod tests;

@@ -8,7 +8,7 @@ use crate::analyze::analyze::{is_concept_node, is_file_node, is_json_key_node};
 use crate::analyze::{GodNode, god_nodes, import_cycles, surprising};
 use crate::model::{Confidence, Graph, Relation, conf, rel};
 
-use super::gorand::GoRand;
+use crate::cluster::tests::gorand::GoRand;
 
 /// Go `sampleGraph`: two files (a.go, b.go) each with three functions, file hubs that "contain"
 /// their functions, a cross-file inferred call a1->b1, and a mutual file-level import cycle

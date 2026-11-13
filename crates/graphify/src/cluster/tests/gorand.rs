@@ -1,7 +1,7 @@
 //! Go `math/rand` (v1) with a seeded source: the generator the Louvain tests draw their random
 //! graphs from (`rand.New(rand.NewSource(seed))`). gostd has only x/exp/rand's PCG, so the tests
 //! carry this port of `math/rand/rng.go` and the `Intn`, `Shuffle` paths of `rand.go` (Go 1.27.4).
-//! Test-only. The `RNG_COOKED` table is copied from `rng.go`; Copyright 2009 The Go Authors,
+//! Test-only, shared with the analyze tests (`crate::cluster::tests::gorand`). The `RNG_COOKED` table is copied from `rng.go`; Copyright 2009 The Go Authors,
 //! BSD-3-Clause licence (https://go.dev/LICENSE).
 
 const RNG_LEN: usize = 607;

@@ -6,9 +6,9 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::sync::mpsc;
 use std::time::Duration;
 
-use super::gorand::GoRand;
 use super::{edge, names, node};
 use crate::analyze::{Cycle, import_cycles};
+use crate::cluster::tests::gorand::GoRand;
 use crate::model::{Confidence, Graph, Relation, rel};
 
 /// Go `importCyclesOracle`'s state: the pre-SCC `ImportCycles`, kept as the reference the pruned
