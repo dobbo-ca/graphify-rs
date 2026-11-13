@@ -74,3 +74,9 @@ pub fn parse<R>(src: &[u8], lang: &'static Language, f: impl FnOnce(Node<'_>) ->
     PARSERS.with(|ps| ps.borrow_mut().push(p));
     out
 }
+
+/// Runs `f` with `budget` in place of [`budget()`] for parses on this thread (Go's tests set the
+/// package variable `ts.Budget` and restore it). Test seam; production code never calls it.
+pub fn with_budget<R>(budget: u32, f: impl FnOnce() -> R) -> R {
+    todo!("graphify-rs-ihc.15")
+}
