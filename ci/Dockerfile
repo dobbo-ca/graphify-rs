@@ -64,6 +64,8 @@ RUN /out/oracle -gen /inputs && /out/oracle /inputs /go-out \
 # The checks run in the build, so a red check fails the build; a rerun of the same source is a
 # BuildKit cache hit.
 FROM src AS ci
+# Informational: prints "sha_ni" if the CI host has SHA-NI, so the log shows whether the x86 SHA kernel can run here.
+RUN grep -o -m1 -w sha_ni /proc/cpuinfo || true
 RUN cargo fmt --all --check
 # The committed UCD lock and tables must equal what the generator makes from the pinned files.
 RUN --mount=type=bind,from=gen-build,source=/out,target=/gen \
