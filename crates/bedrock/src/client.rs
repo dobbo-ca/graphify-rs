@@ -4,6 +4,7 @@
 use std::time::{Duration, SystemTime};
 
 use crate::http::Response;
+use crate::json::write_string;
 use crate::{Config, Error};
 
 #[cfg(test)]
@@ -39,7 +40,15 @@ impl Client {
 
 /// The exact request body graphify-go sends (testdata/request_body.json).
 pub(crate) fn request_body(note_file: &str, note_content: &str) -> String {
-    todo!("graphify-rs-u2o.4")
+    let note = format!("Note path: {note_file}\n\n{note_content}");
+    let mut out = String::from(r#"{"max_tokens":1024,"messages":[{"content":[{"text":"#);
+    write_string(&mut out, note.as_bytes());
+    out.push_str(
+        r#","type":"text"}],"role":"user"}],"model":"anthropic.claude-opus-4-8","system":[{"text":"#,
+    );
+    write_string(&mut out, SYSTEM_PROMPT.as_bytes());
+    out.push_str(r##","type":"text"}],"tool_choice":{"name":"record_concepts","type":"tool"},"tools":[{"input_schema":{"properties":{"concepts":{"description":"The concepts the note discusses. 1-6 of the most central concepts.","items":{"additionalProperties":false,"properties":{"name":{"description":"Short canonical concept name (e.g. \"AppConfig\", \"Flux\", \"forge\", \"build environment\", \"CI dependency management\").","type":"string"},"relation":{"description":"How the note relates to the concept.","enum":["cites","conceptually_related_to","semantically_similar_to"],"type":"string"},"score":{"description":"Confidence the note is genuinely about this concept, 0.0-1.0.","type":"number"}},"required":["name","relation","score"],"type":"object"},"type":"array"}},"required":["concepts"],"type":"object"},"name":"record_concepts","description":"Record the key concepts this engineering/design note is about and how the note relates to each, for building a knowledge graph."}]}"##);
+    out
 }
 
 /// The messages URL for a base URL (option/requestoption.go:148-152, requestconfig.go:391).

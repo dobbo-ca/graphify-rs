@@ -14,7 +14,6 @@ fn str_of(src: &str) -> String {
 
 // New: golden body for client::request_body (plan Task 3 Step 1; graphify-go bedrock.go:27-64).
 #[test]
-#[ignore = "graphify-rs-u2o.4"]
 fn request_body_golden() {
     let want = std::fs::read(testdata("request_body.json")).expect("read golden");
     let got = crate::client::request_body("docs/a.md", "hello <world> & \"q\"\n");
@@ -28,7 +27,6 @@ fn request_body_golden() {
 // New: cases from appendString (anthropic-sdk-go v1.51.0 internal/encoding/json/encode.go:1028-1097, escapeHTML on).
 // The SDK ships no encode_test.go; each row below follows one branch of appendString.
 #[test]
-#[ignore = "graphify-rs-u2o.4"]
 fn string_escapes() {
     // (case name, input, expected)
     let cases: &[(&str, &str, &str)] = &[
@@ -64,7 +62,6 @@ fn string_escapes() {
 
 // New: encode.go:1072-1077 emits one \ufffd per invalid byte (utf8.DecodeRuneInString size 1).
 #[test]
-#[ignore = "graphify-rs-u2o.4"]
 fn string_invalid_utf8_one_fffd_per_byte() {
     assert_eq!(enc(b"a\xffb\xe2\x80"), r#""a\ufffdb\ufffd\ufffd""#);
     assert_eq!(
@@ -81,7 +78,6 @@ fn string_invalid_utf8_one_fffd_per_byte() {
 
 // New: write_string appends to existing output.
 #[test]
-#[ignore = "graphify-rs-u2o.4"]
 fn string_appends() {
     let mut out = String::from("x:");
     write_string(&mut out, b"y");
@@ -90,7 +86,6 @@ fn string_appends() {
 
 // New: Value::raw returns the exact source text, whitespace inside included.
 #[test]
-#[ignore = "graphify-rs-u2o.4"]
 fn parse_spans_raw_keeps_text() {
     let src = r#"{"content":[{"type":"tool_use","name":"record_concepts","input": {"concepts" : [ ]} }]}"#;
     let root = parse(src).expect("parse");
@@ -110,7 +105,6 @@ fn parse_spans_raw_keeps_text() {
 
 // New: leading and trailing whitespace is allowed, and is not part of the span.
 #[test]
-#[ignore = "graphify-rs-u2o.4"]
 fn parse_span_excludes_outer_whitespace() {
     let src = " \n[1, 2.5e3, -0, true, false, null]\t ";
     let v = parse(src).expect("parse");
@@ -134,7 +128,6 @@ fn parse_span_excludes_outer_whitespace() {
 
 // New: plan Task 3 parse_rejects. The plan's `""` is read as empty input.
 #[test]
-#[ignore = "graphify-rs-u2o.4"]
 fn parse_rejects() {
     for (name, src) in [
         ("not json", "not json"),
@@ -160,7 +153,6 @@ fn parse_rejects() {
 
 // New: Value::get returns the first exact match; duplicate keys are kept in order.
 #[test]
-#[ignore = "graphify-rs-u2o.4"]
 fn get_first_match() {
     let v = parse(r#"{"k":"first","K":"upper","k":"second"}"#).expect("parse");
     assert_eq!(v.get("k").and_then(Value::as_str), Some("first"));
@@ -177,7 +169,6 @@ fn get_first_match() {
 // New: Go encoding/json v1 decode assigns every matching key in input order, so the last
 // case-insensitive match wins (credential_process output).
 #[test]
-#[ignore = "graphify-rs-u2o.4"]
 fn get_go_rules() {
     let cases: &[(&str, &str, &str)] = &[
         (
@@ -212,7 +203,6 @@ fn get_go_rules() {
 
 // New: plan Task 3 parse_strings (Go decode rules for surrogates).
 #[test]
-#[ignore = "graphify-rs-u2o.4"]
 fn parse_strings() {
     assert_eq!(str_of(r#""\ud83d\ude00""#), "\u{1F600}", "surrogate pair");
     assert_eq!(str_of("\"\u{1F600}\""), "\u{1F600}", "raw astral");
