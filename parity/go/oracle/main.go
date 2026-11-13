@@ -2,6 +2,7 @@
 //
 //	oracle -gen <inputs>     write the test inputs
 //	oracle <inputs> <out>    run every op on every input
+//	oracle -bench <inputs> <corpus>  time the bench workloads (bench.go)
 //
 // Inputs live in <inputs>/<pkg>/<case>. For each input and op, the run writes
 // <out>/<pkg>/<case>.<op>.out (the output bytes) or <out>/<pkg>/<case>.<op>.err (the Go
@@ -50,12 +51,15 @@ func register(name string, minOut int, gen func(dir string) error, run func(name
 
 func main() {
 	gen := flag.Bool("gen", false, "write the inputs: -gen <inputs>")
+	bench := flag.Bool("bench", false, "time the workloads: -bench <inputs> <corpus>")
 	flag.Parse()
 	a := flag.Args()
 	switch {
-	case *gen && len(a) == 1:
+	case *gen && !*bench && len(a) == 1:
 		check(generate(a[0]))
-	case !*gen && len(a) == 2:
+	case *bench && !*gen && len(a) == 2:
+		check(runBench(a[0], a[1]))
+	case !*gen && !*bench && len(a) == 2:
 		check(runAll(a[0], a[1]))
 	default:
 		flag.Usage()

@@ -164,3 +164,31 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
     && GOSTD_SIMD=scalar cargo run --locked --release -p gostd --target aarch64-unknown-linux-gnu --example oracle -- /inputs /arm-out-scalar \
     && sh ci/paritydiff.sh /go-out /arm-out-scalar \
     && rm -rf /arm-out /arm-out-scalar
+
+# Fuzzing (fuzz.yml): nightly and cargo-fuzz, with the targets built into the image. fuzz/ is its
+# own workspace with its own Cargo.lock. The workflow runs it with `docker run`, so a BuildKit
+# cache hit cannot skip the fuzzing.
+FROM toolchain AS fuzz-tools
+RUN rustup toolchain install nightly --profile minimal \
+    && cargo install cargo-fuzz --locked --version 0.13.1
+
+FROM fuzz-tools AS fuzz
+COPY . .
+RUN cargo +nightly fuzz build
+
+# Benchmark (bench.yml): the oracle inputs and a corpus of Go source lines (the first 20,000 lines
+# of net/http's .go files, UTF-8), read identically by both sides.
+FROM go-oracle AS bench-data
+RUN /out/oracle -gen /inputs \
+    && find "$(go env GOROOT)/src/net/http" -maxdepth 1 -name '*.go' | sort | xargs cat | head -n 20000 > /corpus.txt \
+    && wc -l /corpus.txt
+
+# The Go oracle and the Rust bench example in one image; `sh parity/bench.sh` runs both.
+FROM src AS bench
+COPY --from=go-oracle /out/oracle /usr/local/bin/oracle
+COPY --from=bench-data /inputs /inputs
+COPY --from=bench-data /corpus.txt /corpus.txt
+RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
+    --mount=type=cache,target=/src/target,sharing=private \
+    sh ci/fresh.sh && cargo build --locked --release -p gostd --example bench \
+    && cp target/release/examples/bench /usr/local/bin/bench

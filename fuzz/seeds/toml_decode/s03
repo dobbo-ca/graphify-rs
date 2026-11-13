@@ -1,0 +1,8 @@
+[a.b.c]
+x = 1
+[a]
+y = 2
+[ a . b ]
+z = 3
+["quoted header"]
+k = "v"

@@ -1,6 +1,8 @@
 [workspace]
 resolver = "3"
 members = ["crates/gostd", "crates/gostd-gen", "crates/bedrock", "crates/graphify"]
+# fuzz/ is its own workspace (libfuzzer-sys, own Cargo.lock): see README.
+exclude = ["fuzz"]
 
 [workspace.package]
 version = "0.1.0"

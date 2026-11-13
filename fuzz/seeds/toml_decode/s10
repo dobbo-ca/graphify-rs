@@ -1,0 +1,4 @@
+k = """
+line1
+line2 \
+   cont"""

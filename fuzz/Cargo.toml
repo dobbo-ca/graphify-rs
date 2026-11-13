@@ -1,0 +1,37 @@
+[package]
+name = "gostd-fuzz"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+gostd = { path = "../crates/gostd" }
+
+# Not part of the root workspace (it has `exclude = ["fuzz"]`): only this crate may depend on
+# libfuzzer-sys, and fuzz/Cargo.lock stays outside the root lock and `cargo deny`.
+[workspace]
+
+[[bin]]
+name = "json_syntax"
+path = "fuzz_targets/json_syntax.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "regexp_compile_match"
+path = "fuzz_targets/regexp_compile_match.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "toml_decode"
+path = "fuzz_targets/toml_decode.rs"
+test = false
+doc = false
+bench = false
