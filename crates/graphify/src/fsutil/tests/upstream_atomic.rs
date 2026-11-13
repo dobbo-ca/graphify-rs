@@ -14,7 +14,6 @@ use crate::testutil::TempDir;
 /// test_write_text_atomic_preserves_existing_on_failure: a write that fails leaves the old file
 /// and no temp file (Go: `write` errors before the rename; the deferred Remove runs).
 #[test]
-#[ignore = "graphify-rs-ihc.3"]
 fn preserves_existing_on_failure() {
     let dir = TempDir::new();
     let path = dir.write("graph.json", b"original");
@@ -31,7 +30,6 @@ fn preserves_existing_on_failure() {
 /// test_atomic_replace_temp_name_is_bounded_and_does_not_embed_long_filename, without
 /// upstream's `.tmp` suffix: Go's temp name is `.gfy-` and a random number (`os.CreateTemp`).
 #[test]
-#[ignore = "graphify-rs-ihc.3"]
 fn temp_name_is_bounded() {
     let dir = TempDir::new();
     let long_name = format!("{}.md", "a".repeat(120));
@@ -59,7 +57,6 @@ fn temp_name_is_bounded() {
 /// test_write_version_stamp_replaces_symlink_instead_of_following: the rename replaces a
 /// symlink at the destination; its target is untouched.
 #[test]
-#[ignore = "graphify-rs-ihc.3"]
 fn replaces_symlink_instead_of_following() {
     let dir = TempDir::new();
     let target = dir.write("elsewhere.txt", b"keep");

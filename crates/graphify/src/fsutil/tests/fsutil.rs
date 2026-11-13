@@ -6,7 +6,6 @@ use crate::fsutil::write_file_atomic;
 use crate::testutil::TempDir;
 
 #[test]
-#[ignore = "graphify-rs-ihc.3"]
 fn test_write_file_atomic_replaces_and_cleans_up() {
     let dir = TempDir::new();
     let path = dir.write("graph.json", b"old");
@@ -20,7 +19,6 @@ fn test_write_file_atomic_replaces_and_cleans_up() {
 
 /// A concurrent reader must see either the whole old file or the whole new one.
 #[test]
-#[ignore = "graphify-rs-ihc.3"]
 fn test_write_file_atomic_reader_sees_no_partial_file() {
     let dir = TempDir::new();
     let old = vec![b'a'; 1 << 20];
