@@ -55,3 +55,28 @@ reached by graphify-go.
 | utf8 | `unicode/utf8/utf8_test.go` | 15 | 6 (+1 added) | 0 | Constants, FullRune, EncodeRune, AppendRune, RuntimeConversion, NegativeRune, RuneCountNonASCIIAllocation, RuneLen, ValidRune (Rust std encodes runes) |
 | strings | `strings/strings_test.go` | 41 | 7 | 0 | the 34 funcs that are not Unicode-table functions graphify-go calls; rows with invalid UTF-8 in `&str` inputs |
 | strings | `bytes/bytes_test.go` | 1 (TestTrimSpace) | 1 | 0 | - |
+
+## bedrock (P1')
+
+`crates/bedrock` makes graphify-go's Bedrock call with anthropic-sdk-go v1.51.0 behaviour. There is
+no oracle stage (plan decision 6); the evidence is the ported tests below, the aws-c-auth SigV4
+vectors, and the request-body golden `crates/bedrock/testdata/request_body.json` (graphify-rs-1kw
+adds that case to the gostd Go oracle). Plan: `docs/superpowers/plans/2026-11-13-bedrock.md`.
+
+Passing counts a test that runs (not ignored) and is green on main. Tests land ignored with their
+bead id (graphify-rs-u2o.3 … .8) and lose the ignore in that bead's PR.
+
+| Source | Functions | Ported | Passing | Skipped (reason) |
+|---|---|---|---|---|
+| graphify-go `internal/semantic/bedrock_test.go`, `semantic_test.go` | 13 | 0 | 0 | 13: P2, bead graphify-rs-ihc.1 (need idutil, model, detect, cache) |
+| anthropic-sdk-go `client_test.go` | 10 | 3 (`TestContextDeadline` adapted to the attempt timeout) | 0 | 7: User-Agent value, header-override options, context cancel API, streaming |
+| anthropic-sdk-go `internal/requestconfig/requestconfig_test.go` | 3 | 3 (adapted to `Error::Api`) | 0 | 0 |
+| anthropic-sdk-go `bedrock/bedrockmantle_test.go` | 20 | 13 (7 port, 6 adapt) | 0 | 7: SkipAuth, Beta API, user request options, middleware |
+| anthropic-sdk-go `message_test.go` | 10 | 1 (`TestCalculateNonStreamingTimeout`: 600 s) | 0 | 9: count tokens, streaming, model limits, param decode |
+| aws-sdk-go-v2 v1.30.3 `aws/signer/v4`, `internal/v4` tests | 9 in scope | 9 | 0 | presign, middleware, custom URI escape, Opaque-URL cases of `TestGetURIPath` |
+| aws-c-auth v0.9.0 signing vectors (via aws-sigv4 1.6.5) | 38 + 2 migrated | 40 (header files only) | 0 | `query-*` (presign) files not copied |
+| aws-sdk-go-v2 internal/ini v1.8.0 `TestValidDataFiles` | 1 (20 fixtures) | 1 | 0 | 0 |
+| aws-sdk-go-v2 config v1.27.27 env, shared config, process creds, credential source | 16 in scope | 15 | 0 | `TestSetEnvValue`; role, SSO, IMDS and web-identity cases (D-006: those go to the AWS CLI) |
+| aws-sdk-go-v2 credentials v1.17.27 `processcreds` | 11 | 11 (`TestProviderWithAccountID` does not check the account id: not used) | 0 | 0 |
+| golang.org/x/net v0.55.0 `http/httpproxy/proxy_test.go` | 7 | 7 (`https://`/`socks5://` rows adapted to D-007) | 0 | 0 |
+| New (no source): SHA-256, HMAC, time, JSON, HTTP/TLS, proxy tunnel, retry rules, CLI fallback, Review Focus | 61 | — | 0 | — |
