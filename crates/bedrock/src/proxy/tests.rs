@@ -206,7 +206,6 @@ const CASES: &[Case] = &[
 
 // Port of proxy_test.go:256 TestProxyForURL (v0.55.0)
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn proxy_for_url() {
     for (i, c) in CASES.iter().enumerate() {
         let req = if c.req.is_empty() {
@@ -258,7 +257,6 @@ fn want_config(cgi: bool) -> Config {
 
 // Port of proxy_test.go:262 TestFromEnvironment (v0.55.0)
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn from_environment() {
     let got = env_config(&[
         ("HTTP_PROXY", "httpproxy"),
@@ -271,7 +269,6 @@ fn from_environment() {
 
 // Port of proxy_test.go:278 TestFromEnvironmentWithRequestMethod (v0.55.0)
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn from_environment_with_request_method() {
     let got = env_config(&[
         ("HTTP_PROXY", "httpproxy"),
@@ -284,7 +281,6 @@ fn from_environment_with_request_method() {
 
 // Port of proxy_test.go:295 TestFromEnvironmentLowerCase (v0.55.0)
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn from_environment_lower_case() {
     let got = env_config(&[
         ("http_proxy", "httpproxy"),
@@ -332,7 +328,6 @@ const NO_PROXY: &str = "foobar.com, .barbaz.net, *.wildcard.io, 192.168.1.1, 192
 
 // Port of proxy_test.go:349 TestUseProxy (v0.55.0)
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn use_proxy() {
     let cfg = Config {
         no_proxy: NO_PROXY.to_string(),
@@ -349,7 +344,6 @@ fn use_proxy() {
 
 // Port of proxy_test.go:360 TestInvalidNoProxy (v0.55.0)
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn invalid_no_proxy() {
     let cfg = Config {
         no_proxy: ":1".to_string(),
@@ -363,7 +357,6 @@ fn invalid_no_proxy() {
 
 // Port of proxy_test.go:370 TestAllNoProxy (v0.55.0)
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn all_no_proxy() {
     let cfg = Config {
         no_proxy: "*".to_string(),
@@ -379,7 +372,6 @@ fn all_no_proxy() {
 
 // New: D-007, `socks5://` proxies are an error here.
 #[test]
-#[ignore = "graphify-rs-u2o.7"]
 fn proxy_scheme_socks5_rejected() {
     let cfg = env_config(&[("HTTPS_PROXY", "socks5://h:1")]);
     let got = cfg.proxy_for(&Url::parse("https://example.com").unwrap());

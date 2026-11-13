@@ -11,3 +11,4 @@ a difference only if it is listed here; from phase 3 each entry also has an allo
 | D-003 | `watch` on SIGINT or SIGTERM ends with the default signal exit, not Go's clean exit (maintenance.go:336) | a signal handler needs FFI to libc | CLI test |
 | D-004 | `ask` scores on arm64 can differ from Go arm64 in the last bit | Go fuses multiply-add on arm64 (ask.go); Rust never fuses; goldens are amd64 | none needed |
 | D-005 | `GFY_CPUPROFILE` is ignored (Go: prof.go:13) | it writes a Go pprof profile | CLI test |
+| D-007 | A proxy URL with scheme `https://` or `socks5://` is an error ("unsupported proxy scheme <s>"); Go's http.Transport supports both | not needed for the Bedrock call; `http://` and bare `host:port` proxies work | `src/proxy/tests.rs` `proxy_scheme_socks5_rejected` |
