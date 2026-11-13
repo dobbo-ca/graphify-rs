@@ -70,16 +70,48 @@ pub(super) fn write_file(path: &Path, data: &[u8]) -> Result<(), Error> {
         .mode(0o644)
         .open(path)
         .map_err(|e| path_err("open", path, &e))?;
+    // ponytail: Go also returns the close error; std closes on drop and drops it. A checked close
+    // needs unsafe (or an fsync per file); close errors on a local file are rare.
     f.write_all(data).map_err(|e| path_err("write", path, &e))
 }
 
-/// Go `os.MkdirAll(path, 0o755)`.
+/// Go `os.MkdirAll(path, 0o755)` (os/path.go): an existing non-directory is ENOTDIR on `path`;
+/// otherwise the parent is made first, so an error names the component that failed, as Go's do.
+/// The recursion is one level per path component, not per input byte.
 pub(super) fn mkdir_all(path: &Path) -> Result<(), Error> {
-    DirBuilder::new()
-        .recursive(true)
-        .mode(0o755)
-        .create(path)
-        .map_err(|e| path_err("mkdir", path, &e))
+    use std::os::unix::ffi::OsStrExt;
+    if let Ok(m) = fs::metadata(path) {
+        if m.is_dir() {
+            return Ok(());
+        }
+        return Err(path_err(
+            "mkdir",
+            path,
+            &io::Error::from_raw_os_error(20), // ENOTDIR
+        ));
+    }
+    // Slow path: make sure the parent exists, then make `path`.
+    let b = path.as_os_str().as_bytes();
+    let mut i = b.len();
+    while i > 0 && b[i - 1] == b'/' {
+        i -= 1; // skip trailing separators
+    }
+    let mut j = i;
+    while j > 0 && b[j - 1] != b'/' {
+        j -= 1; // scan back over the last element
+    }
+    if j > 1 {
+        let parent = Path::new(std::ffi::OsStr::from_bytes(&b[..j - 1]));
+        mkdir_all(parent)?;
+    }
+    if let Err(e) = DirBuilder::new().mode(0o755).create(path) {
+        // Handle arguments like "foo/." by double-checking that the directory does not exist.
+        if fs::symlink_metadata(path).is_ok_and(|m| m.is_dir()) {
+            return Ok(());
+        }
+        return Err(path_err("mkdir", path, &e));
+    }
+    Ok(())
 }
 
 /// Go `jsonNode` (`export.go:43`).

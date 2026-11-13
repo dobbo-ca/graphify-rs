@@ -17,15 +17,11 @@ use super::export::{Error, JsonGraph, path_err, write_file};
 
 /// Go `readGraphJSON` (`formats.go:18`).
 pub(super) fn read_graph_json(path: &Path) -> Result<JsonGraph, Error> {
-    // Go's `os.ReadFile` fails on a directory at the read, not the open.
-    let data = fs::read(path).map_err(|e| {
-        let op = if e.raw_os_error() == Some(21) {
-            "read"
-        } else {
-            "open"
-        };
-        path_err(op, path, &e)
-    })?;
+    // Go `os.ReadFile`: an open error is "open <path>", anything after it "read <path>" (a
+    // directory opens and fails at the read with EISDIR).
+    let mut f = File::open(path).map_err(|e| path_err("open", path, &e))?;
+    let mut data = Vec::new();
+    std::io::Read::read_to_end(&mut f, &mut data).map_err(|e| path_err("read", path, &e))?;
     unmarshal::<JsonGraph>(&data).map_err(Error::Json)
 }
 
