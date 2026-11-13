@@ -1,0 +1,25 @@
+# Rust std calls whose Unicode version, case mapping, whitespace set, sort stability or path
+# rules differ from the Go code graphify-go runs (plan R7). Use the gostd equivalent.
+disallowed-methods = [
+  { path = "str::to_lowercase", reason = "Go strings.ToLower maps rune by rune (Unicode 17): gostd::strings::to_lower" },
+  { path = "str::to_uppercase", reason = "Go strings.ToUpper: gostd::strings::to_upper" },
+  { path = "char::to_lowercase", reason = "Go unicode.ToLower: gostd::unicode::to_lower" },
+  { path = "char::to_uppercase", reason = "Go unicode.ToUpper: gostd::unicode::to_upper" },
+  { path = "char::is_alphabetic", reason = "Go unicode.IsLetter (Unicode 17): gostd::unicode::is_letter" },
+  { path = "char::is_alphanumeric", reason = "Go unicode.IsLetter/IsNumber: gostd::unicode" },
+  { path = "char::is_numeric", reason = "Go unicode.IsNumber: gostd::unicode::is_number" },
+  { path = "char::is_whitespace", reason = "Go unicode.IsSpace: gostd::unicode::is_space" },
+  { path = "char::is_uppercase", reason = "Go unicode.IsUpper: gostd::unicode::is_upper" },
+  { path = "char::is_lowercase", reason = "Go unicode.IsLower: gostd::unicode" },
+  { path = "str::trim", reason = "Go strings.TrimSpace: gostd::strings::trim_space" },
+  { path = "str::trim_start", reason = "Go strings.TrimLeftFunc(unicode.IsSpace): gostd::unicode::is_space" },
+  { path = "str::trim_end", reason = "Go strings.TrimRightFunc(unicode.IsSpace): gostd::unicode::is_space" },
+  { path = "str::split_whitespace", reason = "Go strings.Fields: gostd::strings::fields" },
+  { path = "slice::sort_unstable", reason = "ties: Go sort.Slice is gostd::sort::slice; Go stable sorts are sort_by" },
+  { path = "slice::sort_unstable_by", reason = "ties: gostd::sort::slice (Go pdqsort) or sort_by (Go stable sort)" },
+  { path = "slice::sort_unstable_by_key", reason = "ties: gostd::sort::slice or sort_by" },
+  { path = "std::path::Path::extension", reason = "Go filepath.Ext (\".bashrc\" is an extension): gostd::filepath::ext" },
+  { path = "std::path::Path::file_stem", reason = "Go filepath rules: gostd::filepath" },
+  { path = "std::string::String::from_utf8_lossy", reason = "Go replaces each bad byte (RuneError width 1): detect::go_lossy (plan R3)" },
+  { path = "std::fs::read_dir", reason = "Go os.ReadDir sorts by name: gostd::filepath::walk_dir or the sorted helper in detect" },
+]

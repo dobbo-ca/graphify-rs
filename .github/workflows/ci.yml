@@ -122,3 +122,15 @@ jobs:
           outputs: type=cacheonly
           cache-from: type=gha,scope=graphify-rs-parity-arm64
           cache-to: type=gha,mode=min,scope=graphify-rs-parity-arm64
+
+  # The graphify tests on GitHub-hosted macOS (spec section 7, P2 on). Main and workflow_dispatch
+  # only. gostd's tests need the Linux-only /gotest and /ucd inputs, so only graphify runs here.
+  macos:
+    if: github.event_name != 'pull_request'
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { lfs: false }
+      - run: rustup show
+      - run: cargo test --locked -p graphify
