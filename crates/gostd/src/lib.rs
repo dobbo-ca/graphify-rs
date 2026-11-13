@@ -11,4 +11,5 @@ pub mod strings;
 pub mod tables;
 pub mod unicode;
 pub mod utf8;
+pub mod xml;
 pub mod xtext;

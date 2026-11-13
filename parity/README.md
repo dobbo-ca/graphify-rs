@@ -196,7 +196,9 @@ Oracle package: none yet.
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| - | - | - | - | not started |
+| `encoding/xml/xml_test.go` (go1.27.4) | 42 | 21 | 0 | not reached by graphify-go (non-strict mode, AutoClose, HTMLEntity, CopyToken, EncodeToken, Token wrappers): DecodeEOF, DecodeNilToken, NonStrictRawToken, RawTokenAltEncoding, AllScalars, Issue569, UnquotedAttrs, ValuelessAttrs, CopyTokenCharData, CopyTokenStartElement, CopyTokenComment, EscapeTextIOErrors, Issue5880, Issue8535, EncodeXMLNS, Issue7113, NewTokenDecoderIdempotent, WrapDecoder, TokenUnmarshaler, RoundTrip, HTMLAutoClose |
+| `encoding/xml/read_test.go` (go1.27.4) | 23 | 6 (+1 added: `pom_shapes`) | 0 | not reached by graphify-go (only the `xmlElem` shape is decoded): UnmarshalFeed, UnmarshalPaths, UnmarshalBadPaths, UnmarshalWithoutNameType, UnmarshalAttr, UnmarshalNS, MarshalNS, UnmarshalNSAttr, MarshalNSAttr, Unmarshaler, UnmarshalIntoInterface, InvalidInnerXMLType, UnmarshalEmptyValues, UnmarshalWhitespaceValues, UnmarshalWhitespaceAttrs, UnmarshalXMLRawToken; UnmarshalIntoNil (no Rust equivalent) |
+| `encoding/xml/marshal_test.go` (go1.27.4) | 18 | 1 (TestMarshal: 24 rows incl. the escaping rows) (+1 added: `escape_rules`) | 0 | not reached by graphify-go or no Encoder/writer API: MarshalErrors, Unmarshal (decodes marshalTests into typed structs), MarshalIndent (its only row is `,innerxml`), MarshalWriteErrors, MarshalWriteIOErrors, MarshalFlush, StructPointerMarshal, EncodeToken, ProcInstEncodeToken, DecodeEncode, Race9796, IsValidDirective, SimpleUseOfEncodeToken, Issue16158 (`,attr` into a byte field), InvalidXMLName, MarshalZeroValue, Close |
 
 #### xtext
 
