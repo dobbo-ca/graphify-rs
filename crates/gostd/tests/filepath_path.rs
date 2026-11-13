@@ -350,7 +350,7 @@ fn test_walk_file_error() {
     touch(&d.join("baz"));
     let noaccess = d.join("noaccess");
     fs::create_dir(&noaccess).unwrap();
-    fs::set_permissions(&noaccess, fs::Permissions::from_mode(0)).unwrap();
+    fs::set_permissions(&noaccess, fs::Permissions::from_mode(0o000)).unwrap();
     if fs::read_dir(&noaccess).is_ok() {
         // root can read a mode 0 directory
         fs::set_permissions(&noaccess, fs::Permissions::from_mode(0o755)).unwrap();
