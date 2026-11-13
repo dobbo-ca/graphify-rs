@@ -158,8 +158,10 @@ explicit decision:
 | `sort.Slice` ties at query.go:159, :215, affected.go:140, okf.go:64, :118, :219 | pdqsort port, same comparator call order |
 | Two Unicode versions (17 in std, 15 in x/text) | both table sets, chosen per call site |
 | Node ID: casefold + NFKC to a fixpoint (max 6 loops); `normLabel` NFKD, drop Mn, ToLower | ported as-is in phase 2 |
-| JSON encode: `<` style escapes, U+2028/9, invalid UTF-8, floats, `MarshalIndent` | `gostd::json` with Go's encode test vectors |
-| JSON decode (v1): case-insensitive field match, last duplicate key wins, invalid UTF-8 to U+FFFD | `gostd::json` with Go's decode test vectors |
+| JSON encode: `\u003c` style escapes, U+2028/9, invalid UTF-8 (Go 1.27 writes the raw bytes EF BF BD, not `\ufffd`), floats, `MarshalIndent` | `gostd::json`, ported from the jsonv2-backed v1 files (see below), with Go's encode test vectors |
+| JSON decode (v1 API on the json/v2 engine): case-insensitive field match, last duplicate key wins, invalid UTF-8 to U+FFFD; syntax error texts and offsets from the jsontext walker; `UnmarshalTypeError` names the root type and a dotted JSON path (printed by graphify-go at query.go:114, validate.go:28, export.go:187, :248) | `gostd::json` with the active `v2_*_test.go` vectors |
+| Go 1.27.4 enables `GOEXPERIMENT=jsonv2` by default: `encoding/json` is the v1 API backed by json/v2, and `scanner.go`, `decode.go`, `encode.go` are excluded by `//go:build !goexperiment.jsonv2` | port the active files only; check the `//go:build` lines of every ported Go file at Go 1.27.4 defaults (bead graphify-rs-aa6.20) |
+| GODEBUG defaults come from the main module's `go` line: graphify-go says `go 1.25.0` (for example `urlstrictcolons=0`, the lenient URL colon parse) | every Go oracle sets `godebug default=go1.25` in its go.mod |
 | RE2 semantics: leftmost-first, `\p{L}` | regexp port with Go's regexp tests |
 | `strconv.Quote` in hook scripts | `gostd::strconv` |
 | FMA on arm64 in ask.go (6 sites) | goldens are amd64, where Go does not fuse; Rust never fuses. `ask` scores on arm64 can differ from Go arm64 in the last bit (D-004) |
