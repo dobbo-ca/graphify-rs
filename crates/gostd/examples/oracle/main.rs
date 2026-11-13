@@ -23,15 +23,17 @@ type Op = (&'static str, Result<Vec<u8>, String>);
 /// A package's runner: case name and input bytes to its ops.
 type Run = fn(&str, &[u8]) -> Vec<Op>;
 
-/// The packages, by the directory name the Go oracle uses.
-const PKGS: &[(&str, Run)] = &[
-    ("echo", echo::run),
-    ("pcg", pcg::run),
-    ("regexp", regexp::run),
-    ("strconv", strconv::run),
-    ("strings", strings::run),
-    ("unicode17", unicode17::run),
-    ("xtext", xtext::run),
+/// The packages, by the directory name the Go oracle uses, with the fewest output files each may
+/// write (the same number as its `register` call in parity/go/oracle/<pkg>.go). `run_all` fails if
+/// a package writes fewer, so a package whose ops stop running cannot pass.
+const PKGS: &[(&str, usize, Run)] = &[
+    ("echo", 4, echo::run),
+    ("pcg", 11, pcg::run),
+    ("regexp", 22833, regexp::run),
+    ("strconv", 36, strconv::run),
+    ("strings", 8000, strings::run),
+    ("unicode17", 3, unicode17::run),
+    ("xtext", 20053, xtext::run),
 ];
 
 fn main() {
@@ -47,7 +49,7 @@ fn main() {
 }
 
 fn run_all(inputs: &Path, out: &Path) -> std::io::Result<()> {
-    for (pkg, run) in PKGS {
+    for &(pkg, min, run) in PKGS {
         let dir = inputs.join(pkg);
         let od = out.join(pkg);
         fs::create_dir_all(&od)?;
@@ -55,6 +57,7 @@ fn run_all(inputs: &Path, out: &Path) -> std::io::Result<()> {
             .map(|e| e.map(|e| e.file_name()))
             .collect::<Result<_, _>>()?;
         cases.sort();
+        let mut count = 0;
         for case in cases {
             let name = case.to_string_lossy();
             let data = fs::read(dir.join(&case))?;
@@ -63,7 +66,14 @@ fn run_all(inputs: &Path, out: &Path) -> std::io::Result<()> {
                     Ok(b) => fs::write(od.join(format!("{name}.{op}.out")), b)?,
                     Err(e) => fs::write(od.join(format!("{name}.{op}.err")), e + "\n")?,
                 }
+                count += 1;
             }
+        }
+        println!("{pkg}: {count} outputs (minimum {min})");
+        if count < min {
+            return Err(std::io::Error::other(format!(
+                "{pkg}: {count} outputs, want at least {min}"
+            )));
         }
     }
     Ok(())

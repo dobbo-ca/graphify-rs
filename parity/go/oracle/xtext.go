@@ -94,7 +94,7 @@ func xtextHex(s string) string {
 }
 
 func init() {
-	register("xtext", func(dir string) error {
+	register("xtext", 20053, func(dir string) error {
 		w := func(name, s string) error { return os.WriteFile(filepath.Join(dir, name), []byte(s), 0o644) }
 		fixed := []string{
 			"\U00010041́",

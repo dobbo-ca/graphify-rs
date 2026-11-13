@@ -385,7 +385,7 @@ func regexpQuoted(l []string) []string {
 }
 
 func init() {
-	register("regexp", regexpGenerate, func(name string, in []byte) []op {
+	register("regexp", 22833, regexpGenerate, func(name string, in []byte) []op {
 		recs := regexpUnframe(in)
 		if name == "quote_meta" {
 			var b strings.Builder

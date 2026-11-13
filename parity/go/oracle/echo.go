@@ -7,7 +7,7 @@ import (
 
 // echo proves the harness: the output is the input. It also exercises the generator.
 func init() {
-	register("echo", func(dir string) error {
+	register("echo", 4, func(dir string) error {
 		all := make([]byte, 256)
 		for i := range all {
 			all[i] = byte(i)

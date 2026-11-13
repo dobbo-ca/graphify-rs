@@ -13,7 +13,7 @@ import (
 // scalar value (no surrogates: a Rust char cannot hold one) through each predicate and mapping,
 // the member runs of every table, and the category aliases.
 func init() {
-	register("unicode17", func(dir string) error {
+	register("unicode17", 3, func(dir string) error {
 		return os.WriteFile(filepath.Join(dir, "sweep"), nil, 0o644)
 	}, func(_ string, _ []byte) []op {
 		return []op{
