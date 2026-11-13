@@ -2,8 +2,6 @@
 //! line (stdout; checks go to stderr). parity/go/oracle/bench.go times the same workloads on Go
 //! (`oracle -bench`); parity/bench.sh joins the two. Keep the two files in step. Each workload
 //! runs once. The workloads, the generated data and `<inputs>` are described in bench.go.
-//!
-//! `json_decode` is skipped: gostd json has no unmarshal until graphify-rs-aa6.10.
 
 use gostd::json::{self, Value};
 use gostd::regexp::Regexp;
@@ -179,12 +177,14 @@ fn main() {
         json::compact(&mut compact, &indented, false).expect("compact");
     });
     let valid = time("json_valid", || json::valid(&indented));
+    time("json_decode", || {
+        json::unmarshal::<Value>(&indented).expect("unmarshal")
+    });
     eprintln!(
         "json indented {} compact {} valid {valid}",
         indented.len(),
         compact.len()
     );
-    println!("json_decode skipped");
 
     let strs: Vec<String> = files(&inputs.join("xtext"), "")
         .into_iter()
