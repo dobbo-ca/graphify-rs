@@ -263,7 +263,7 @@ fn test_re2(file: &str) {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
+#[ignore = "slow: run by the ci stage with --release --ignored"]
 fn test_re2_exhaustive() {
     let dir = std::env::var("GOSTD_GOTEST").expect(
         "GOSTD_GOTEST is not set: the test stage bind-mounts the testinputs stage at /gotest",

@@ -375,7 +375,6 @@ fn test_submatch_indices(
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn test_find_string() {
     for test in &find_tests() {
         let Some(text) = test.text_str() else {
@@ -404,7 +403,6 @@ fn test_find_string() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn test_find_string_index() {
     for test in &find_tests() {
         let Some(text) = test.text_str() else {
@@ -417,7 +415,6 @@ fn test_find_string_index() {
 // Now come the simple All cases.
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn test_find_all_string() {
     for test in &find_tests() {
         let Some(text) = test.text_str() else {
@@ -454,7 +451,6 @@ fn test_find_all_string() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn test_find_all_string_index() {
     for test in &find_tests() {
         let Some(text) = test.text_str() else {
@@ -470,7 +466,6 @@ fn test_find_all_string_index() {
 // Now come the Submatch cases.
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn test_find_submatch() {
     for test in &find_tests() {
         let result = Regexp::must_compile(test.pat).find_submatch(test.text);
@@ -485,7 +480,6 @@ fn test_find_submatch() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn test_find_string_submatch() {
     for test in &find_tests() {
         let Some(text) = test.text_str() else {
@@ -503,7 +497,6 @@ fn test_find_string_submatch() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn test_find_submatch_index() {
     for test in &find_tests() {
         let result = Regexp::must_compile(test.pat).find_submatch_index(test.text);
@@ -520,7 +513,6 @@ fn test_find_submatch_index() {
 // Now come the monster AllSubmatch cases.
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn test_find_all_string_submatch() {
     for test in &find_tests() {
         let Some(text) = test.text_str() else {
@@ -556,7 +548,6 @@ fn test_find_all_string_submatch() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn test_find_all_submatch_index() {
     for test in &find_tests() {
         let result = Regexp::must_compile(test.pat).find_all_submatch_index(test.text, test.max);

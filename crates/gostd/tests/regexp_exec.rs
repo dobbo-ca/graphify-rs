@@ -260,7 +260,6 @@ fn test_re2(file: &str) {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn test_re2_search() {
     test_re2(concat!(
         env!("CARGO_MANIFEST_DIR"),
@@ -495,7 +494,6 @@ fn test_fowler_file(file: &str) {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.7"]
 fn test_fowler() {
     for name in ["basic.dat", "nullsubexpr.dat", "repetition.dat"] {
         test_fowler_file(&format!(

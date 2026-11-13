@@ -7,6 +7,7 @@
 
 mod echo;
 mod pcg;
+mod regexp;
 mod strconv;
 mod strings;
 mod unicode17;
@@ -26,6 +27,7 @@ type Run = fn(&str, &[u8]) -> Vec<Op>;
 const PKGS: &[(&str, Run)] = &[
     ("echo", echo::run),
     ("pcg", pcg::run),
+    ("regexp", regexp::run),
     ("strconv", strconv::run),
     ("strings", strings::run),
     ("unicode17", unicode17::run),
