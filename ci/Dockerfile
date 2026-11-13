@@ -41,24 +41,24 @@ RUN /out/oracle -gen /inputs && /out/oracle /inputs /go-out \
 # BuildKit cache hit.
 FROM src AS ci
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=/src/target \
+    --mount=type=cache,target=/src/target,sharing=locked \
     cargo fmt --all --check
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=/src/target \
-    cargo clippy --locked --workspace --all-targets -- -D warnings
+    --mount=type=cache,target=/src/target,sharing=locked \
+    sh ci/fresh.sh && cargo clippy --locked --workspace --all-targets -- -D warnings
 # aarch64-only code (NEON kernels, unsigned C char) is not compiled for x86_64, so lint it too.
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=/src/target \
-    cargo clippy --locked --workspace --all-targets --target aarch64-unknown-linux-gnu -- -D warnings
+    --mount=type=cache,target=/src/target,sharing=locked \
+    sh ci/fresh.sh && cargo clippy --locked --workspace --all-targets --target aarch64-unknown-linux-gnu -- -D warnings
 # No C in the build graph: the ban list in deny.toml.
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
     cargo deny --locked check
 # /gotest holds the large Go test inputs (see the testinputs stage); a test that needs it panics
 # if GOSTD_GOTEST is not set.
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=/src/target \
+    --mount=type=cache,target=/src/target,sharing=locked \
     --mount=type=bind,from=testinputs,source=/gotest,target=/gotest \
-    GOSTD_GOTEST=/gotest cargo test --locked --workspace
+    sh ci/fresh.sh && GOSTD_GOTEST=/gotest cargo test --locked --workspace
 
 # qemu-user and the aarch64 cross toolchain, for the arm64 stage.
 FROM toolchain AS qemu-tools
@@ -73,9 +73,9 @@ COPY . .
 # The full test suite for aarch64 under qemu-user.
 FROM qemu-arm64 AS arm64
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=/src/target \
+    --mount=type=cache,target=/src/target,sharing=locked \
     --mount=type=bind,from=testinputs,source=/gotest,target=/gotest \
-    GOSTD_GOTEST=/gotest cargo test --locked --workspace --target aarch64-unknown-linux-gnu
+    sh ci/fresh.sh && GOSTD_GOTEST=/gotest cargo test --locked --workspace --target aarch64-unknown-linux-gnu
 
 # gostd against the Go oracle: the two output trees must be equal. A difference is a Rust bug.
 # The Go trees are rw bind mounts from go-run (as in deflate-rs: keyed by go-run's cache key, not by
@@ -86,7 +86,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
     --mount=type=cache,target=/src/target,sharing=locked \
     --mount=type=bind,from=go-run,source=/inputs,target=/inputs,rw \
     --mount=type=bind,from=go-run,source=/go-out,target=/go-out,rw \
-    cargo run --locked --release -p gostd --example oracle -- /inputs /rust-out \
+    sh ci/fresh.sh && cargo run --locked --release -p gostd --example oracle -- /inputs /rust-out \
     && n=$(find /go-out -type f | wc -l) && echo "$n Go outputs" && [ "$n" -ge "$PARITY_MIN_OUTPUTS" ] \
     && { diff -r /go-out /rust-out >/tmp/diff.txt || { head -50 /tmp/diff.txt; wc -l /tmp/diff.txt; exit 1; }; } \
     && GOSTD_SIMD=scalar cargo run --locked --release -p gostd --example oracle -- /inputs /rust-out-scalar \
@@ -100,7 +100,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
     --mount=type=cache,target=/src/target,sharing=locked \
     --mount=type=bind,from=go-run,source=/inputs,target=/inputs,rw \
     --mount=type=bind,from=go-run,source=/go-out,target=/go-out,rw \
-    cargo run --locked --release -p gostd --target aarch64-unknown-linux-gnu --example oracle -- /inputs /arm-out \
+    sh ci/fresh.sh && cargo run --locked --release -p gostd --target aarch64-unknown-linux-gnu --example oracle -- /inputs /arm-out \
     && n=$(find /go-out -type f | wc -l) && echo "$n Go outputs" && [ "$n" -ge "$PARITY_MIN_OUTPUTS" ] \
     && { diff -r /go-out /arm-out >/tmp/diff.txt || { head -50 /tmp/diff.txt; wc -l /tmp/diff.txt; exit 1; }; } \
     && GOSTD_SIMD=scalar cargo run --locked --release -p gostd --target aarch64-unknown-linux-gnu --example oracle -- /inputs /arm-out-scalar \
