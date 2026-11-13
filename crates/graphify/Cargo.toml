@@ -12,6 +12,11 @@ name = "graphify"
 path = "src/main.rs"
 
 [dependencies]
+bedrock = { path = "../bedrock" }
+gostd = { path = "../gostd" }
+# gositter-rs (pure-Rust tree-sitter runtime and its 21 grammars), pinned by rev. Bump both together.
+gositter = { git = "https://github.com/dobbo-ca/gositter-rs", rev = "e584616a8d966f0b9881274070b08e64c8994679" }
+gositter-grammars = { git = "https://github.com/dobbo-ca/gositter-rs", rev = "e584616a8d966f0b9881274070b08e64c8994679" }
 
 [lints]
 workspace = true

@@ -1,1 +1,32 @@
-//! Code knowledge graph builder. Rust port of graphify-go v0.12.0.
+//! Code knowledge graph builder. Rust port of graphify-go v0.12.0 (35fcd9e).
+//!
+//! One module per Go package (`cmd/graphify` is [`cli`]); each Go file `x.go` is ported to
+//! `<module>/x.rs`, so the two read side by side. Plan: `docs/superpowers/plans/2026-11-13-p2-graphify.md`.
+
+pub mod analyze;
+pub mod cache;
+pub mod cli;
+pub mod cluster;
+pub mod detect;
+pub mod export;
+pub mod extract;
+pub mod fsutil;
+pub mod graph;
+pub mod idutil;
+pub mod langfamily;
+pub mod model;
+pub mod query;
+pub mod report;
+pub mod security;
+pub mod semantic;
+pub mod skills;
+pub mod ts;
+
+/// The stack of every thread that parses or walks trees or graphs (the extract workers, and the
+/// thread `cli::main` runs a command on). Go grows a goroutine stack to 1 GB; a Rust thread's is
+/// fixed, so graphify-go's recursive walks need room here. Reserved virtual memory, committed only
+/// when touched (plan hazard "Stack depth").
+pub const STACK_BYTES: usize = 256 << 20;
+
+#[cfg(test)]
+mod testutil;

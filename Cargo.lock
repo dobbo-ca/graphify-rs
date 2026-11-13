@@ -57,6 +57,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "gositter"
+version = "0.1.0"
+source = "git+https://github.com/dobbo-ca/gositter-rs?rev=e584616a8d966f0b9881274070b08e64c8994679#e584616a8d966f0b9881274070b08e64c8994679"
+
+[[package]]
+name = "gositter-grammars"
+version = "0.1.0"
+source = "git+https://github.com/dobbo-ca/gositter-rs?rev=e584616a8d966f0b9881274070b08e64c8994679#e584616a8d966f0b9881274070b08e64c8994679"
+dependencies = [
+ "gositter",
+]
+
+[[package]]
 name = "gostd"
 version = "0.1.0"
 dependencies = [
@@ -70,6 +83,12 @@ version = "0.1.0"
 [[package]]
 name = "graphify"
 version = "0.1.0"
+dependencies = [
+ "bedrock",
+ "gositter",
+ "gositter-grammars",
+ "gostd",
+]
 
 [[package]]
 name = "graviola"

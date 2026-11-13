@@ -250,3 +250,133 @@ bead id (graphify-rs-u2o.3 … .8) and lose the ignore in that bead's PR.
 | aws-sdk-go-v2 credentials v1.17.27 `processcreds` | 11 | 11 (`TestProviderWithAccountID` does not check the account id: not used) | 11 | 0 |
 | golang.org/x/net v0.55.0 `http/httpproxy/proxy_test.go` | 7 | 7 (`https://`/`socks5://` rows adapted to D-007) | 7 | 0 |
 | New (no source): SHA-256, HMAC, time, JSON, HTTP/TLS, proxy tunnel, retry rules, CLI fallback, Review Focus | 64 | — | 64 | — |
+
+## graphify against graphify-go (P2)
+
+`crates/graphify` must write the same `graphify-out/` bytes and the same command transcripts as graphify-go v0.12.0 (35fcd9e) built with Go 1.27.4 (`GOAMD64=v1`, `CGO_ENABLED=0`). Two checks prove it: the Go tests (and the upstream graphify v0.9.107 tests where Go has the behaviour) ported to `crates/graphify/src/<module>/tests/`, and the `graphify-parity` CI stage (plan Task 23). Plan: `docs/superpowers/plans/2026-11-13-p2-graphify.md`; per-file test map: `docs/superpowers/plans/2026-11-13-p2-graphify-testmap.md`.
+
+One block per module, in the plan's module order. A PR edits only its own module's block (the `extract` and `cli` blocks: only its own row). "Passing" counts tests that run (not ignored) and pass in the `test` job. Tests land ignored with the bead id of the PR that makes them pass.
+
+#### fsutil
+
+| Source | Source tests | Ported | Passing | Not ported (reason) |
+|---|---|---|---|---|
+| `fsutil` (`graphify-rs-ihc.3`) | - | - | - | not started |
+
+#### idutil
+
+| Source | Source tests | Ported | Passing | Not ported (reason) |
+|---|---|---|---|---|
+| `idutil` (`graphify-rs-ihc.4`) | - | - | - | not started |
+
+#### langfamily
+
+| Source | Source tests | Ported | Passing | Not ported (reason) |
+|---|---|---|---|---|
+| `langfamily` (`graphify-rs-ihc.5`) | - | - | - | not started |
+
+#### security
+
+| Source | Source tests | Ported | Passing | Not ported (reason) |
+|---|---|---|---|---|
+| `security` (`graphify-rs-ihc.6`) | - | - | - | not started |
+
+#### model
+
+| Source | Source tests | Ported | Passing | Not ported (reason) |
+|---|---|---|---|---|
+| `model` (`graphify-rs-ihc.7`) | - | - | - | not started |
+
+#### graph
+
+| Source | Source tests | Ported | Passing | Not ported (reason) |
+|---|---|---|---|---|
+| `graph` (`graphify-rs-ihc.8`) | - | - | - | not started |
+
+#### cluster
+
+| Source | Source tests | Ported | Passing | Not ported (reason) |
+|---|---|---|---|---|
+| `cluster` (`graphify-rs-ihc.9`) | - | - | - | not started |
+
+#### analyze
+
+| Source | Source tests | Ported | Passing | Not ported (reason) |
+|---|---|---|---|---|
+| `analyze` (`graphify-rs-ihc.10`) | - | - | - | not started |
+
+#### report
+
+| Source | Source tests | Ported | Passing | Not ported (reason) |
+|---|---|---|---|---|
+| `report` (`graphify-rs-ihc.11`) | - | - | - | not started |
+
+#### export
+
+| Source | Source tests | Ported | Passing | Not ported (reason) |
+|---|---|---|---|---|
+| `export` (`graphify-rs-ihc.12`) | - | - | - | not started |
+
+#### query
+
+| Source | Source tests | Ported | Passing | Not ported (reason) |
+|---|---|---|---|---|
+| `query` (`graphify-rs-ihc.13`) | - | - | - | not started |
+
+#### detect
+
+| Source | Source tests | Ported | Passing | Not ported (reason) |
+|---|---|---|---|---|
+| `detect` (`graphify-rs-ihc.14`) | - | - | - | not started |
+
+#### ts
+
+| Source | Source tests | Ported | Passing | Not ported (reason) |
+|---|---|---|---|---|
+| `ts` (`graphify-rs-ihc.15`) | - | - | - | not started |
+
+#### extract
+
+| Source | Source tests | Ported | Passing | Not ported (reason) |
+|---|---|---|---|---|
+| `extract-core` (`graphify-rs-ihc.16`) | - | - | - | not started |
+| `extract-nogrammar` (`graphify-rs-ihc.17`) | - | - | - | not started |
+| `extract-resolve` (`graphify-rs-ihc.18`) | - | - | - | not started |
+| `extract-golang` (`graphify-rs-ihc.24`) | - | - | - | not started |
+| `extract-python` (`graphify-rs-ihc.25`) | - | - | - | not started |
+| `extract-js` (`graphify-rs-ihc.26`) | - | - | - | not started |
+| `extract-java` (`graphify-rs-ihc.27`) | - | - | - | not started |
+| `extract-csharp` (`graphify-rs-ihc.28`) | - | - | - | not started |
+| `extract-c` (`graphify-rs-ihc.29`) | - | - | - | not started |
+| `extract-cpp` (`graphify-rs-ihc.30`) | - | - | - | not started |
+| `extract-hcl` (`graphify-rs-ihc.31`) | - | - | - | not started |
+| `extract-rust` (`graphify-rs-ihc.32`) | - | - | - | not started |
+| `extract-ruby` (`graphify-rs-ihc.33`) | - | - | - | not started |
+| `extract-php` (`graphify-rs-ihc.34`) | - | - | - | not started |
+| `extract-bash` (`graphify-rs-ihc.35`) | - | - | - | not started |
+| `extract-scala` (`graphify-rs-ihc.36`) | - | - | - | not started |
+| `extract-kotlin` (`graphify-rs-ihc.37`) | - | - | - | not started |
+| `extract-julia` (`graphify-rs-ihc.38`) | - | - | - | not started |
+| `extract-lua` (`graphify-rs-ihc.39`) | - | - | - | not started |
+| `extract-zig` (`graphify-rs-ihc.40`) | - | - | - | not started |
+| `extract-verilog` (`graphify-rs-ihc.41`) | - | - | - | not started |
+
+#### cache
+
+| Source | Source tests | Ported | Passing | Not ported (reason) |
+|---|---|---|---|---|
+| `cache` (`graphify-rs-ihc.19`) | - | - | - | not started |
+
+#### semantic
+
+| Source | Source tests | Ported | Passing | Not ported (reason) |
+|---|---|---|---|---|
+| `semantic` (`graphify-rs-ihc.1`) | - | - | - | not started |
+
+#### cli
+
+| Source | Source tests | Ported | Passing | Not ported (reason) |
+|---|---|---|---|---|
+| `cli-core` (`graphify-rs-ihc.20`) | - | - | - | not started |
+| `cli-maint` (`graphify-rs-ihc.21`) | - | - | - | not started |
+| `cli-serve` (`graphify-rs-ihc.22`) | - | - | - | not started |
