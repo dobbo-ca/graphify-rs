@@ -8,7 +8,6 @@ use gostd::pcg::Rand;
 const MOD_EDGE: u64 = 15;
 
 #[test]
-#[ignore = "graphify-rs-aa6.17"]
 fn test_uint64_modulo() {
     let mut m = 0u64;
     let mut src = move || {

@@ -6,6 +6,7 @@
 //! written only by the Go oracle (`oracle -gen`).
 
 mod echo;
+mod pcg;
 mod strings;
 mod unicode17;
 mod xtext;
@@ -23,6 +24,7 @@ type Run = fn(&str, &[u8]) -> Vec<Op>;
 /// The packages, by the directory name the Go oracle uses.
 const PKGS: &[(&str, Run)] = &[
     ("echo", echo::run),
+    ("pcg", pcg::run),
     ("strings", strings::run),
     ("unicode17", unicode17::run),
     ("xtext", xtext::run),

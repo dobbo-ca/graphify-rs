@@ -36,7 +36,6 @@ fn split(b: u128) -> (u64, u64) {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.17"]
 fn test_pcg_add() {
     for (i, (hi, lo)) in ARITH_TESTS.into_iter().enumerate() {
         let mut p = PcgSource::from_state(hi, lo);
@@ -47,7 +46,6 @@ fn test_pcg_add() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.17"]
 fn test_pcg_multiply() {
     for (i, (hi, lo)) in ARITH_TESTS.into_iter().enumerate() {
         let mut p = PcgSource::from_state(hi, lo);
@@ -58,7 +56,6 @@ fn test_pcg_multiply() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.17"]
 fn test_pcg_multiply_long() {
     let mut x = 0x9e3779b97f4a7c15u64;
     let mut next = || {
