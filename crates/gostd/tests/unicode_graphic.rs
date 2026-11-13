@@ -19,7 +19,7 @@ fn in_print_ranges(r: char) -> bool {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_is_letter_latin1() {
     for i in 0..=0xFFu32 {
         let c = char::from_u32(i).unwrap();
@@ -30,7 +30,7 @@ fn test_is_letter_latin1() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_is_upper_latin1() {
     for i in 0..=0xFFu32 {
         let c = char::from_u32(i).unwrap();
@@ -41,7 +41,7 @@ fn test_is_upper_latin1() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_number_latin1() {
     for i in 0..=0xFFu32 {
         let c = char::from_u32(i).unwrap();
@@ -52,7 +52,7 @@ fn test_number_latin1() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_is_print_latin1() {
     for i in 0..=0xFFu32 {
         let c = char::from_u32(i).unwrap();
@@ -66,7 +66,7 @@ fn test_is_print_latin1() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_is_space_latin1() {
     for i in 0..=0xFFu32 {
         let c = char::from_u32(i).unwrap();

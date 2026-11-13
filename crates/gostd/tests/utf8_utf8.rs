@@ -213,7 +213,7 @@ fn test_sequence(s: &[u8]) {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_decode_rune() {
     for &(want, b) in UTF8MAP {
         let (r, size) = decode_rune(b);
@@ -270,7 +270,7 @@ fn test_decode_rune() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_decode_surrogate_rune() {
     for &b in SURROGATE_MAP {
         let (r, size) = decode_rune(b);
@@ -285,7 +285,7 @@ fn test_decode_surrogate_rune() {
 
 // Check that DecodeRune and DecodeLastRune correspond to the equivalent range loop.
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_sequencing() {
     for &ts in TEST_STRINGS {
         for &(_, m) in UTF8MAP {
@@ -298,7 +298,7 @@ fn test_sequencing() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_decode_invalid_sequence() {
     for &s in INVALID_SEQUENCE_TESTS {
         let (r1, _) = decode_rune(s);
@@ -317,7 +317,7 @@ fn test_decode_invalid_sequence() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_rune_count() {
     for &(input, want) in RUNE_COUNT_TESTS {
         let out = rune_count(input);
@@ -326,7 +326,7 @@ fn test_rune_count() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn test_valid() {
     let mut tests: Vec<(Vec<u8>, bool)> = VALID_TESTS
         .iter()
@@ -348,7 +348,7 @@ fn test_valid() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.3"]
+
 fn decode_rune_per_byte() {
     assert_eq!(decode_rune(b"\xE2\x82"), ('\u{FFFD}', 1));
     assert_eq!(rune_count(b"\xE2\x82a"), 3);

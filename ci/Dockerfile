@@ -111,7 +111,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
 # The Go trees are rw bind mounts from go-run (as in deflate-rs: keyed by go-run's cache key, not by
 # a hash of their content). PARITY_MIN_OUTPUTS proves the ops ran; each module PR raises it.
 FROM src AS parity
-ARG PARITY_MIN_OUTPUTS=4
+ARG PARITY_MIN_OUTPUTS=10000
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
     --mount=type=cache,target=/src/target,sharing=locked \
     --mount=type=bind,from=go-run,source=/inputs,target=/inputs,rw \
@@ -125,7 +125,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
 
 # The same on aarch64 under qemu-user (the ARMv8 SHA-256 tier, unsigned char paths).
 FROM qemu-arm64 AS parity-arm64
-ARG PARITY_MIN_OUTPUTS=4
+ARG PARITY_MIN_OUTPUTS=10000
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
     --mount=type=cache,target=/src/target,sharing=locked \
     --mount=type=bind,from=go-run,source=/inputs,target=/inputs,rw \

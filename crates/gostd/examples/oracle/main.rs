@@ -6,6 +6,8 @@
 //! written only by the Go oracle (`oracle -gen`).
 
 mod echo;
+mod strings;
+mod unicode17;
 
 use std::fs;
 use std::path::Path;
@@ -18,7 +20,11 @@ type Op = (&'static str, Result<Vec<u8>, String>);
 type Run = fn(&str, &[u8]) -> Vec<Op>;
 
 /// The packages, by the directory name the Go oracle uses.
-const PKGS: &[(&str, Run)] = &[("echo", echo::run)];
+const PKGS: &[(&str, Run)] = &[
+    ("echo", echo::run),
+    ("strings", strings::run),
+    ("unicode17", unicode17::run),
+];
 
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
