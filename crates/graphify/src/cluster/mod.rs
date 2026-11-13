@@ -1,5 +1,4 @@
 //! Port of graphify-go `internal/cluster`. Filled by graphify-rs-ihc.9 (plan Task 8).
-#![allow(dead_code, unused_variables)]
 
 #[allow(clippy::module_inception)]
 mod cluster;

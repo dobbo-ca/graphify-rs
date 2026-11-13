@@ -164,7 +164,6 @@ fn clustered(g: &Graph) -> Vec<Vec<String>> {
 // The golden was recorded from gonum's community.Modularize before it was
 // replaced. The raw order matters too: splitOversized feeds it back in.
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_louvain_matches_gonum_golden() {
     let path = crate::testutil::testdata().join("cluster/louvain_gonum.golden");
     let data = std::fs::read_to_string(path).expect("read golden");
@@ -206,7 +205,6 @@ fn adjacency(n: usize, set: &BTreeSet<[usize; 2]>) -> Vec<Vec<i64>> {
 // louvain feeds modularize each node's neighbours in map order, so the result
 // must not depend on that order, group and member order included.
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_modularize_ignores_neighbour_order() {
     let mut rng = GoRand::new(7);
     for n in [2, 9, 60, 400, 3000] {
@@ -244,7 +242,6 @@ fn test_modularize_ignores_neighbour_order() {
 
 // The skip in localMove must give what looking at every node every sweep gives.
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn test_skip_matches_looking_at_all() {
     let mut rng = GoRand::new(11);
     for round in 0..400 {
@@ -280,7 +277,6 @@ fn test_skip_matches_looking_at_all() {
 /// (crates/gostd/examples/oracle/pcg.rs); gostd parity checks that op against Go for n = 2..=1000,
 /// so the reference is Go's order.
 #[test]
-#[ignore = "graphify-rs-ihc.9"]
 fn louvain_shuffle_uses_pcg_seed_42() {
     let n = 13usize;
     let mut r = gostd::pcg::Rand::new(gostd::pcg::PcgSource::new(42));
