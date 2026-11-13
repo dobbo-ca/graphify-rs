@@ -1,6 +1,6 @@
 # graphify-rs
 
-A pure-Rust port of [graphify-go](https://github.com/dobbo-ca/graphify-go) v0.12.0 (35fcd9e): a code knowledge graph builder. graphify-go is frozen at that commit and is the byte-parity oracle; after parity (tag `go-parity-v0.12.0`) this repo takes the upstream [graphify](https://github.com/safishamsi/graphify) 0.9.107 fixes as recorded divergences (`parity/DIVERGENCES.md`).
+A pure-Rust port of [graphify-go](https://github.com/dobbo-ca/graphify-go) v0.12.0 (35fcd9e): a code knowledge graph builder. graphify-go is frozen at that commit and is the byte-parity oracle; after parity (tag `go-parity-v0.12.0`) this repo takes the upstream [graphify](https://github.com/Graphify-Labs/graphify) 0.9.107 fixes as recorded divergences (`parity/DIVERGENCES.md`).
 
 Status: P0 (CI skeleton). Design: `docs/superpowers/specs/2026-11-12-graphify-rs-design.md`.
 
