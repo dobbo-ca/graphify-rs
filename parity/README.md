@@ -300,7 +300,12 @@ One block per module, in the plan's module order. A PR edits only its own module
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| `cluster` (`graphify-rs-ihc.9`) | - | - | - | not started |
+| graphify-go `internal/cluster/cluster_test.go` | 10 | 10 | 0 | - |
+| graphify-go `internal/cluster/louvain_test.go` | 3 | 3 (+1 added: `louvain_shuffle_uses_pcg_seed_42`) | 0 | - |
+| upstream `test_cluster.py` | 18 | 8 (the edge-orientation test without its node-shuffle half: Go's community ids follow node insertion order) | 0 | `test_cluster_returns_dict` (a type in Rust); `test_cluster_covers_all_nodes`, `test_cohesion_score_range`, `test_score_all_keys_match_communities` (need `fixtures/extraction.json` and `build_from_json`; Go's `TestClusterCoversEveryNodeOnce` and `TestNodeCommunityAndScores` assert the same); `test_cohesion_score_single_node` (`TestCohesion` has it); `test_cluster_does_not_write_to_stdout`, `test_cluster_does_not_write_to_stderr` (graspologic ANSI output; Go has no Leiden); `test_native_leiden_matches_graspologic_wrapper`, `test_native_leiden_returns_complete_partition`, `test_native_leiden_returns_none_when_binding_absent` (Leiden and graspologic_native; Go runs Louvain) |
+| upstream `test_cluster_ambiguous_scale.py` | 7 | 2 (`test_scale_zero_still_partitions`, `test_no_copy_when_no_ambiguous_edges`, both as "every node is in a community", without the scale argument) | 0 | `test_default_scale_demotes_ambiguous_weight` (asserts `1.0 * 0.5 < 1.0`); `test_scale_one_leaves_weights_intact`, `test_graph_input_not_mutated` (Go `Cluster` takes `&Graph` and has no scale); `test_env_override_parses_valid_float`, `test_env_override_ignored_when_malformed` (no `GRAPHIFY_AMBIGUOUS_SCALE` in graphify-go v0.12.0) |
+
+The Louvain tests draw their random graphs from Go `math/rand` (seeded source), which gostd does not have: `src/cluster/tests/gorand.rs` is a test-only port of it, with `go_rand_regress_intn` (Go's `regressGolden`, not ignored) as its check.
 
 #### analyze
 
