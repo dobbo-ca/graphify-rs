@@ -124,3 +124,42 @@ impl fmt::Display for File {
         f.write_str(self.as_str())
     }
 }
+
+/// Go `MarshalText`/`UnmarshalText` of the four code types: in JSON each is the string of its
+/// text (`as_str`, or `Loc`'s `Display`), and `omitempty` drops the value 0, as Go's
+/// `isEmptyValue` does for a `uint32` kind. `Loc`'s unmarshal keeps the flag bits already set
+/// (Go `code.go:179`: `type_only` may come first). Bodies with graphify-rs-ihc.7.
+macro_rules! text_json {
+    ($($t:ident => $go:literal),* $(,)?) => {$(
+        impl gostd::json::Marshal for $t {
+            fn marshal_json(
+                &self,
+                e: &mut gostd::json::EncodeState,
+            ) -> Result<(), gostd::json::Error> {
+                todo!("graphify-rs-ihc.7")
+            }
+
+            fn is_empty_value(&self) -> bool {
+                self.0 == 0
+            }
+        }
+
+        impl gostd::json::Unmarshal for $t {
+            const GO_TYPE: &'static str = $go;
+
+            fn unmarshal_json(
+                &mut self,
+                d: &mut gostd::json::DecodeState<'_>,
+            ) -> Result<(), gostd::json::Error> {
+                todo!("graphify-rs-ihc.7")
+            }
+        }
+    )*};
+}
+
+text_json! {
+    Relation => "model.Relation",
+    Confidence => "model.Confidence",
+    Loc => "model.Loc",
+    File => "model.File",
+}
