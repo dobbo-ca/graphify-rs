@@ -2,7 +2,6 @@ use super::*;
 
 // New: FIPS 180-4 example digests.
 #[test]
-#[ignore = "graphify-rs-u2o.3"]
 fn sha256_fips_vectors() {
     let million_a = vec![b'a'; 1_000_000];
     let cases: [(&str, &[u8], &str); 4] = [
@@ -34,7 +33,6 @@ fn sha256_fips_vectors() {
 
 // New: RFC 4231 section 4 HMAC-SHA-256 test cases 1 to 7.
 #[test]
-#[ignore = "graphify-rs-u2o.3"]
 fn hmac_rfc4231_cases_1_to_7() {
     let key4: Vec<u8> = (0x01..=0x19).collect();
     let cases: [(&str, Vec<u8>, Vec<u8>, &str); 7] = [
@@ -91,7 +89,6 @@ fn hmac_rfc4231_cases_1_to_7() {
 
 // New: lowercase hex encoding.
 #[test]
-#[ignore = "graphify-rs-u2o.3"]
 fn hex_lowercase() {
     assert_eq!(hex(&[]), "", "empty");
     assert_eq!(hex(&[0x00, 0x0f, 0xa5, 0xff]), "000fa5ff", "mixed bytes");
