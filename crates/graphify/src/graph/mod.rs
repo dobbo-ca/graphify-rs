@@ -1,5 +1,4 @@
 //! Port of graphify-go `internal/graph`: assembles extraction output into the graph.
-#![allow(dead_code, unused_variables)]
 
 mod build;
 

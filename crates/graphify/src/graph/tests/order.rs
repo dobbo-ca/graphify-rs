@@ -9,7 +9,6 @@ use crate::testutil::Rng;
 /// `edge_order` must reproduce a stable sort on (source, target, relation), including the
 /// relative order of equal keys.
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn test_edge_order_matches_stable_sort() {
     let mut rng = Rng::new(1);
     for n in [0usize, 1, 2, 3, 50, 1000, 200_000] {
@@ -48,7 +47,6 @@ fn test_edge_order_matches_stable_sort() {
 /// `build_parts` must leave the graph `build` leaves for the joined extraction, wherever the
 /// parts are cut.
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn test_build_parts_matches_build() {
     let mut rng = Rng::new(2);
     for round in 0..100 {

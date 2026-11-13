@@ -229,21 +229,18 @@ fn located_nodes() -> Vec<Node> {
 
 /// `test_build.py::test_build_from_json_node_count`
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn build_from_json_node_count() {
     assert_eq!(build(fixture()).num_nodes(), 4);
 }
 
 /// `test_build.py::test_build_from_json_edge_count`
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn build_from_json_edge_count() {
     assert_eq!(build(fixture()).num_edges(), 4);
 }
 
 /// `test_build.py::test_nodes_have_label`
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn nodes_have_label() {
     let g = build(fixture());
     assert_eq!(g.node("n_transformer").unwrap().label, "Transformer");
@@ -251,7 +248,6 @@ fn nodes_have_label() {
 
 /// `test_build.py::test_edges_have_confidence`
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn edges_have_confidence() {
     let g = build(fixture());
     assert!(find(&g, "n_attention", "n_concept_attn").confidence == Confidence::INFERRED);
@@ -259,7 +255,6 @@ fn edges_have_confidence() {
 
 /// `test_build.py::test_ambiguous_edge_preserved`
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn ambiguous_edge_preserved() {
     let g = build(fixture());
     assert!(find(&g, "n_layernorm", "n_concept_attn").confidence == Confidence::AMBIGUOUS);
@@ -268,7 +263,6 @@ fn ambiguous_edge_preserved() {
 /// `test_build.py::test_build_merges_multiple_extractions`: `build([ext1, ext2])` is
 /// `build_parts` with one part per extraction.
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn build_merges_multiple_extractions() {
     let g = build_parts(
         vec![
@@ -287,7 +281,6 @@ fn build_merges_multiple_extractions() {
 
 /// `test_build.py::test_ghost_merge_not_across_directories_same_basename`
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn ghost_merge_not_across_directories_same_basename() {
     let ext = Extraction {
         nodes: vec![
@@ -321,7 +314,6 @@ fn ghost_merge_not_across_directories_same_basename() {
 
 /// `test_build.py::test_ghost_merge_non_ast_different_files_both_survive`
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn ghost_merge_non_ast_different_files_both_survive() {
     let ext = Extraction {
         nodes: vec![
@@ -350,7 +342,6 @@ fn ghost_merge_non_ast_different_files_both_survive() {
 
 /// `test_build.py::test_ghost_merge_wrong_source_file_ambiguous_basename_left_alone`
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn ghost_merge_wrong_source_file_ambiguous_basename_left_alone() {
     let ext = Extraction {
         nodes: vec![
@@ -384,7 +375,6 @@ fn ghost_merge_wrong_source_file_ambiguous_basename_left_alone() {
 
 /// `test_build.py::test_cross_language_imports_references_are_dropped`
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn cross_language_imports_references_are_dropped() {
     let ext = Extraction {
         nodes: vec![
@@ -428,7 +418,6 @@ fn cross_language_imports_references_are_dropped() {
 
 /// `test_build.py::test_cross_family_reference_to_unknown_ext_is_kept`
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn cross_family_reference_to_unknown_ext_is_kept() {
     let ext = Extraction {
         nodes: vec![
@@ -450,7 +439,6 @@ fn cross_family_reference_to_unknown_ext_is_kept() {
 
 /// `test_build.py::test_doc_twin_merge_does_not_touch_code_symbols`
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn doc_twin_merge_does_not_touch_code_symbols() {
     let ext = Extraction {
         nodes: vec![
@@ -465,7 +453,6 @@ fn doc_twin_merge_does_not_touch_code_symbols() {
 
 /// `test_build.py::test_method_ghost_ambiguous_same_name_in_one_file_is_not_merged_3705`
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn method_ghost_ambiguous_same_name_in_one_file_is_not_merged_3705() {
     let ext = Extraction {
         nodes: vec![
@@ -495,7 +482,6 @@ fn method_ghost_ambiguous_same_name_in_one_file_is_not_merged_3705() {
 /// `test_build_located_semantic_identity.py::test_distinct_same_file_locations_preserve_ids_and_edges`
 /// (rows `reverse=False` and `reverse=True`)
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn distinct_same_file_locations_preserve_ids_and_edges() {
     for reverse in [false, true] {
         let mut nodes = located_nodes();
@@ -531,7 +517,6 @@ fn distinct_same_file_locations_preserve_ids_and_edges() {
 
 /// `test_build_located_semantic_identity.py::test_disabled_dedup_keeps_distinct_semantic_ids_at_identical_locations`
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn disabled_dedup_keeps_distinct_semantic_ids_at_identical_locations() {
     let nodes: Vec<Node> = [
         ("a_first", "L2"),
@@ -560,7 +545,6 @@ fn disabled_dedup_keeps_distinct_semantic_ids_at_identical_locations() {
 
 /// `test_build_located_semantic_identity.py::test_full_build_honors_disabled_semantic_dedup`
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn full_build_honors_disabled_semantic_dedup() {
     let nodes = located_nodes();
     let want = sorted(&nodes.iter().map(|n| n.id.as_str()).collect::<Vec<_>>());
@@ -583,7 +567,6 @@ fn pair_extraction(edges: Vec<Edge>) -> Extraction {
 
 /// `test_relation_collapse_precedence.py::test_a_lone_generic_edge_is_kept`
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn a_lone_generic_edge_is_kept() {
     let g = build(pair_extraction(vec![edge(
         "a",
@@ -598,7 +581,6 @@ fn a_lone_generic_edge_is_kept() {
 /// `test_relation_collapse_precedence.py::test_directed_graph_keeps_method_and_the_reverse_call`
 /// (Go always keeps both arcs; `is_directed()` is dropped)
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn directed_graph_keeps_method_and_the_reverse_call() {
     let mut method = edge("a", "b", rel("method"), Confidence::EXTRACTED);
     method.source_location = loc_of("L4");
@@ -616,7 +598,6 @@ fn directed_graph_keeps_method_and_the_reverse_call() {
 /// `test_external_stub_endpoints.py::test_non_import_dangling_edge_is_still_dropped`
 /// (`links` is `edges`)
 #[test]
-#[ignore = "graphify-rs-ihc.8"]
 fn non_import_dangling_edge_is_still_dropped() {
     let g = build(Extraction {
         nodes: vec![node("pkg_a", "a.py", "code", "pkg/a.py")],
