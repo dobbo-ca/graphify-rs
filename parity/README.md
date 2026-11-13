@@ -125,12 +125,12 @@ Oracle package: none yet.
 
 #### sort
 
-Oracle package: none yet.
+Oracle package `sort`: inputs 400 generated key lists (sizes 0 to 10,000; alphabets of 1, 2, 3, 1,000 keys, presorted, reversed, sawtooth, the TestAdversary pattern); ops `slice` (sort.Slice), `sort_func` (slices.SortFunc): output permutation and the less/cmp call trace; `stable` (sort.SliceStable vs std `sort_by`): permutation only.
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| `sort/sort_test.go` | 21 | 15 | 0 | TestSortFloat64Slice, TestSortFloat64sCompareSlicesSort, TestFloat64s (floats with NaN, graphify-go sorts no floats); TestReverseSortIntSlice (sort.Reverse, sort.Interface only); TestHeapsortBM (Heapsort called directly, reached only through pdqsort); TestStableBM (Swap bound of sort.Stable symMerge, std `sort_by` used); TestSortBM without its Swap budget; TestSortLarge_Random at the testing.Short() size |
-| `slices/sort_test.go` | 13 | 7 | 0 | TestSortFloat64Slice (floats, graphify-go sorts no floats); TestBinarySearchFloats (BinarySearch on floats with NaN, not called by graphify-go); TestMinMax, TestMinMaxNaNs, TestMinMaxPanics (slices.Min/Max not called); TestBinarySearchInts (same path as TestBinarySearch, graphify-go calls only BinarySearchFunc); TestSortLarge_Random at the testing.Short() size; TestSortIntSlice and TestSortStringSlice run through `sort_func`, not slices.Sort |
+| `sort/sort_test.go` | 21 | 15 | 15 | TestSortFloat64Slice, TestSortFloat64sCompareSlicesSort, TestFloat64s (floats with NaN, graphify-go sorts no floats); TestReverseSortIntSlice (sort.Reverse, sort.Interface only); TestHeapsortBM (Heapsort called directly, reached only through pdqsort); TestStableBM (Swap bound of sort.Stable symMerge, std `sort_by` used); TestSortBM without its Swap budget; TestSortLarge_Random at the testing.Short() size |
+| `slices/sort_test.go` | 13 | 7 | 7 | TestSortFloat64Slice (floats, graphify-go sorts no floats); TestBinarySearchFloats (BinarySearch on floats with NaN, not called by graphify-go); TestMinMax, TestMinMaxNaNs, TestMinMaxPanics (slices.Min/Max not called); TestBinarySearchInts (same path as TestBinarySearch, graphify-go calls only BinarySearchFunc); TestSortLarge_Random at the testing.Short() size; TestSortIntSlice and TestSortStringSlice run through `sort_func`, not slices.Sort |
 
 #### strconv
 

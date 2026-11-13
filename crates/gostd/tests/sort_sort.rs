@@ -64,7 +64,6 @@ fn lg(n: usize) -> usize {
 
 // sort_test.go:24
 #[test]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_sort_int_slice() {
     let mut data = INTS;
     sort::slice(&mut data, |a, b| a < b);
@@ -73,7 +72,6 @@ fn test_sort_int_slice() {
 
 // sort_test.go:58
 #[test]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_sort_string_slice() {
     let mut data = STRINGS_DATA;
     sort::slice(&mut data, |a, b| a < b);
@@ -82,7 +80,6 @@ fn test_sort_string_slice() {
 
 // sort_test.go:68
 #[test]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_ints() {
     let mut data = INTS;
     sort::slice(&mut data, |a, b| a < b);
@@ -91,7 +88,6 @@ fn test_ints() {
 
 // sort_test.go:86
 #[test]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_strings() {
     let mut data = STRINGS_DATA;
     sort::slice(&mut data, |a, b| a < b);
@@ -100,7 +96,6 @@ fn test_strings() {
 
 // sort_test.go:95
 #[test]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_slice() {
     let mut data = STRINGS_DATA;
     sort::slice(&mut data, |a, b| a < b);
@@ -109,7 +104,6 @@ fn test_slice() {
 
 // sort_test.go:106 (testing.Short() size)
 #[test]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_sort_large_random() {
     let n = 1_000_000 / 100;
     let mut rng = Rng(1);
@@ -121,7 +115,6 @@ fn test_sort_large_random() {
 
 // sort_test.go:141
 #[test]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_break_patterns() {
     // Special slice used to trigger breakPatterns.
     let mut data = [10i64; 30];
@@ -136,7 +129,6 @@ fn test_break_patterns() {
 
 // sort_test.go:153
 #[test]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_reverse_range() {
     let mut data: [i64; 7] = [1, 2, 3, 4, 5, 6, 7];
     let len = data.len();
@@ -156,7 +148,6 @@ fn test_reverse_range() {
 // sort_test.go:191. Go's Less/Swap panic on out-of-range indexes; `slice` hands out elements,
 // so this checks that sorting with a random `less` returns without panicking.
 #[test]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_non_deterministic_comparison() {
     let mut rng = Rng(0);
     for _ in 0..10 {
@@ -168,7 +159,6 @@ fn test_non_deterministic_comparison() {
 // sort_test.go:522, testBentleyMcIlroy at sort_test.go:426 (Go's non-short sizes)
 #[test]
 #[allow(clippy::needless_range_loop, clippy::manual_memcpy)]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_sort_bm() {
     const SAWTOOTH: usize = 0;
     const RAND: usize = 1;
@@ -273,7 +263,6 @@ fn test_sort_bm() {
 // `Cell`s so `less` can freeze them, and the position is recovered from the element's address
 // (the sort must pass references into the slice, as Go's index-based Less does).
 #[test]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_adversary() {
     const SIZE: usize = 10000; // large enough to distinguish between O(n^2) and O(n*log(n))
     let maxcmp = SIZE * lg(SIZE) * 4; // the factor 4 was found by trial and error
@@ -336,7 +325,6 @@ fn count_ops(name: &str, algo: impl Fn(&mut [usize], &Cell<usize>)) {
 
 // sort_test.go:715
 #[test]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_count_sort_ops() {
     count_ops("Sort  ", |data, ncmp| {
         sort::slice(data, |a, b| {
@@ -348,7 +336,6 @@ fn test_count_sort_ops() {
 
 // sort_test.go:714, against std sort_by
 #[test]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_count_stable_ops() {
     count_ops("Stable", |data, ncmp| {
         data.sort_by(|a, b| {
@@ -361,7 +348,6 @@ fn test_count_stable_ops() {
 // sort_test.go:601, against std sort_by
 #[test]
 #[allow(clippy::unnecessary_sort_by)]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_stable_ints() {
     let mut data = INTS;
     data.sort_by(|a, b| a.cmp(b));
@@ -407,7 +393,6 @@ fn in_order(d: &[IntPair]) -> bool {
 // is the same "no element yet" value.
 #[test]
 #[allow(clippy::unnecessary_sort_by)]
-#[ignore = "graphify-rs-aa6.16"]
 fn test_stability() {
     let (n, m) = (100000, 1000);
     let mut data = vec![IntPair::default(); n];
