@@ -384,7 +384,7 @@ The Rust tests read graph.json back with `gostd::json::unmarshal` into the priva
 | `extract-golang` (`graphify-rs-ihc.24`) | - | - | - | not started |
 | `extract-python` (`graphify-rs-ihc.25`) | - | - | - | not started |
 | `extract-js` (`graphify-rs-ihc.26`) | - | - | - | not started |
-| `extract-java` (`graphify-rs-ihc.27`) | - | - | - | not started |
+| graphify-go `internal/extract/java_test.go`, `java_chain_test.go` (`graphify-rs-ihc.27`) | 14 | 14 | 0 | upstream files (5, Go has it in part): PR A2 |
 | `extract-csharp` (`graphify-rs-ihc.28`) | - | - | - | not started |
 | graphify-go `internal/extract/c_test.go` (`graphify-rs-ihc.29`) | 1 | 1 | 0 | upstream `test_c_include_resolution.py` (13, Go has it): PR A2 |
 | `extract-cpp` (`graphify-rs-ihc.30`) | - | - | - | not started |
