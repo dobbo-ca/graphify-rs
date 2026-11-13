@@ -33,7 +33,7 @@ type Run = fn(&str, &[u8]) -> Vec<Op>;
 const PKGS: &[(&str, usize, Run)] = &[
     ("csv", 2000, csv::run),
     ("echo", 4, echo::run),
-    ("json", 83, json::run),
+    ("json", 87, json::run),
     ("pcg", 11, pcg::run),
     ("regexp", 22833, regexp::run),
     ("sha256", 631, sha256::run),
