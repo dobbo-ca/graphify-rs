@@ -181,11 +181,11 @@ Oracle package `unicode17`: inputs `sweep`; ops `props` (every scalar value: IsL
 
 #### url
 
-Oracle package: none yet.
+Oracle package `url`: inputs 113 URLs from the Go test tables (`urltests`, TestParseErrors, and the TestParseFailure, TestStarRequest, TestNilUser, TestInvalidUserPassword and TestRejectControlCharacters strings), `g0000`..`g2999` (3,000 generated: schemes, userinfo, IPv4, IPv6 with and without %25 zones, bad ports, CTL bytes, `?`, `#`, `//`, a colon in the first segment), `unescape-0000`..`unescape-1999` (2,000 %-strings); ops `parse` (`%q` of Scheme, Hostname() and Port(), or the error text), `path_unescape` (the bytes or the error text). 5,113 outputs.
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| `net/url/url_test.go` | 29 | 10 | 0 | 19 not reached by graphify-go (it calls `Parse` and `PathUnescape` only): TestParseRequestURI (`ParseRequestURI`), TestURLString and TestURLRedacted (`String`, `Redacted`), TestQueryEscape, TestPathEscape and TestShouldEscape (escaping), TestEncodeQuery, TestQueryValues, TestParseQuery and TestParseQueryLimits (`Values`, `ParseQuery`), TestResolvePath, TestResolveReference and TestJoinPath (resolve, join), TestRequestURI, TestURLClone and TestValuesClone, TestURLErrorImplementsNetError (`net.Error`), TestJSON and TestGob (marshalling); 1 of 62 `urltests` rows (empty `in`, skipped by Go); `OmitHost` not a `Url` field; TestParseFailure, TestStarRequest, TestNilUser and TestRejectControlCharacters adapted (no `ParseQuery`, `RequestURI`, nil `*Userinfo` or non-UTF-8 `&str`) |
+| `net/url/url_test.go` | 29 | 10 | 10 | 19 not reached by graphify-go (it calls `Parse` and `PathUnescape` only): TestParseRequestURI (`ParseRequestURI`), TestURLString and TestURLRedacted (`String`, `Redacted`), TestQueryEscape, TestPathEscape and TestShouldEscape (escaping), TestEncodeQuery, TestQueryValues, TestParseQuery and TestParseQueryLimits (`Values`, `ParseQuery`), TestResolvePath, TestResolveReference and TestJoinPath (resolve, join), TestRequestURI, TestURLClone and TestValuesClone, TestURLErrorImplementsNetError (`net.Error`), TestJSON and TestGob (marshalling); 1 of 62 `urltests` rows (empty `in`, skipped by Go); `OmitHost` not a `Url` field; TestParseFailure, TestStarRequest, TestNilUser and TestRejectControlCharacters adapted (no `ParseQuery`, `RequestURI`, nil `*Userinfo` or non-UTF-8 `&str`) |
 
 #### utf8
 
