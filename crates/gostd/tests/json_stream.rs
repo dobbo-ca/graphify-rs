@@ -8,9 +8,9 @@
 //! - TestEncoderIndent (stream_test.go:146): ported
 //! - TestEncoderSetEscapeHTML (stream_test.go:171): ported (5 of 6 rows; each phase uses a fresh `Encoder`
 //!   because the writer is borrowed, `set_escape_html(false)` is set before the second encode)
-//! - TestRawMessage (stream_test.go:308): ported, marshal half only (the Unmarshal half is Task 10,
-//!   "decode: graphify-rs-aa6.10"; `float32` Y is an `f64`, no `Marshal for f32`)
-//! - TestNullRawMessage (stream_test.go:332): ported, marshal half only (same reasons)
+//! - TestRawMessage (stream_test.go:308): ported (marshal half, then the Unmarshal half as `test_raw_message_decode`, ignored until
+//!   graphify-rs-aa6.10; `float32` Y is an `f64`, no `Marshal for f32`)
+//! - TestNullRawMessage (stream_test.go:332): ported (marshal half, then `test_null_raw_message_decode`, ignored until graphify-rs-aa6.10; same reasons)
 //! - TestDecoder (stream_test.go:240): not ported: `Decoder` is not used by graphify-go
 //! - TestDecoderBuffered (stream_test.go:272): not ported: `Decoder`/`Buffered` not used by graphify-go
 //! - TestBlocking (stream_test.go:359): not ported: `Decoder` over `net.Pipe`, not used by graphify-go
@@ -29,7 +29,7 @@
 //! is the field name `Invalid`; that is the key given to `json_fields!`.
 
 use gostd::json::{
-    EncodeState, Encoder, Error, Marshal, RawMessage, Value, marshal, marshal_indent,
+    EncodeState, Encoder, Error, Marshal, RawMessage, Value, marshal, marshal_indent, unmarshal,
 };
 use std::collections::BTreeMap;
 
@@ -284,4 +284,54 @@ fn marshal_indent_prefix() {
     assert_eq!(String::from_utf8(got).unwrap(), "{}");
     let got = marshal_indent(&Vec::<String>::new(), "      ", "  ").unwrap();
     assert_eq!(String::from_utf8(got).unwrap(), "[]");
+}
+
+#[derive(Default)]
+struct RawDecodeData {
+    x: f64,
+    id: RawMessage,
+    y: f64,
+}
+gostd::json_fields!(decode RawDecodeData, "struct", { x => "X", id => "Id", y => "Y" });
+
+#[test]
+#[ignore = "graphify-rs-aa6.10"]
+fn test_raw_message_decode() {
+    const RAW: &str = r#"["\u0056",null]"#;
+    const WANT: &str = r#"{"X":0.1,"Id":["\u0056",null],"Y":0.2}"#;
+    let data: RawDecodeData = unmarshal(WANT.as_bytes()).expect("Unmarshal error");
+    assert_eq!(
+        String::from_utf8(data.id.0.clone()).unwrap(),
+        RAW,
+        "Unmarshal Id"
+    );
+    let got = marshal(&data).expect("Marshal error");
+    assert_eq!(String::from_utf8(got).unwrap(), WANT, "Marshal");
+}
+
+#[derive(Default)]
+struct NullRawDecodeData {
+    x: f64,
+    id: RawMessage,
+    id_ptr: Option<RawMessage>,
+    y: f64,
+}
+gostd::json_fields!(decode NullRawDecodeData, "struct", { x => "X", id => "Id", id_ptr => "IdPtr", y => "Y" });
+
+#[test]
+#[ignore = "graphify-rs-aa6.10"]
+fn test_null_raw_message_decode() {
+    const WANT: &str = r#"{"X":0.1,"Id":null,"IdPtr":null,"Y":0.2}"#;
+    let data: NullRawDecodeData = unmarshal(WANT.as_bytes()).expect("Unmarshal error");
+    assert_eq!(
+        String::from_utf8(data.id.0.clone()).unwrap(),
+        "null",
+        "Unmarshal Id"
+    );
+    assert!(
+        data.id_ptr.is_none(),
+        "pointer mismatch: got non-nil, want nil"
+    );
+    let got = marshal(&data).expect("Marshal error");
+    assert_eq!(String::from_utf8(got).unwrap(), WANT, "Marshal");
 }

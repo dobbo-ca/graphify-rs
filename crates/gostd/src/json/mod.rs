@@ -1,7 +1,8 @@
 //! Go 1.27.4 `encoding/json`, encode half. Go 1.27.4 builds it with GOEXPERIMENT=jsonv2 on, so
 //! the active code is the `v2_*.go` files over `encoding/json/jsontext` and
 //! `internal/jsonwire` (`v2_encode.go`, `v2_indent.go`, `v2_scanner.go`, `v2_stream.go`,
-//! `tags.go`). The decode half arrives with graphify-rs-aa6.10.
+//! `tags.go`). The decode half is API stubs until graphify-rs-aa6.10.
+mod decode;
 mod encode;
 mod indent;
 mod jsontext;
@@ -10,6 +11,7 @@ mod value;
 
 use std::fmt;
 
+pub use decode::{DecodeState, Unmarshal, touch_field, unmarshal, unmarshal_into};
 pub use encode::{
     EncodeState, Encoder, Marshal, append_float, append_string, marshal, marshal_indent,
     write_field,
@@ -19,7 +21,6 @@ pub use scanner::valid;
 pub use value::{RawMessage, Value};
 
 /// The encode-side errors of Go `encoding/json`; `Display` is Go's `Error()` text.
-/// Decode variants (`UnmarshalTypeError` etc.) arrive with graphify-rs-aa6.10.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Error {
     /// Go `SyntaxError` (`v2_scanner.go:47`); `Error()` is `msg`. `offset` is Go's legacy
@@ -36,6 +37,17 @@ pub enum Error {
         source_func: &'static str,
         err: String,
     },
+    /// Go `UnmarshalTypeError` (`decode.go:128`). `value` is Go's `Value` (`"bool"`, `"number -5"`),
+    /// `go_type` is `Type.String()`, `offset` is bytes read, `struct_name` and `field` (the dotted
+    /// path from the root) are empty outside a struct. Go `InvalidUnmarshalError`
+    /// (`decode.go:159`) cannot occur in Rust and has no variant.
+    UnmarshalType {
+        value: String,
+        go_type: String,
+        offset: i64,
+        struct_name: String,
+        field: String,
+    },
     /// A write error from the `io.Writer` of an [`Encoder`]; holds the error's text.
     Io(String),
 }
@@ -43,7 +55,8 @@ pub enum Error {
 impl fmt::Display for Error {
     /// Go `SyntaxError.Error` (`v2_scanner.go:52`), `UnsupportedValueError.Error`
     /// (`v2_encode.go:225`), `UnsupportedTypeError.Error` (`v2_encode.go:214`),
-    /// `MarshalerError.Error` (`v2_encode.go:251`).
+    /// `MarshalerError.Error` (`v2_encode.go:251`), `UnmarshalTypeError.Error` (`decode.go:136`; re-cited to
+    /// `v2_decode.go` by graphify-rs-aa6.20).
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Error::Syntax { msg, .. } => f.write_str(msg),
@@ -61,6 +74,25 @@ impl fmt::Display for Error {
                 };
                 write!(f, "json: error calling {src} for type {go_type}: {err}")
             }
+            Error::UnmarshalType {
+                value,
+                go_type,
+                struct_name,
+                field,
+                ..
+            } => {
+                if !struct_name.is_empty() || !field.is_empty() {
+                    write!(
+                        f,
+                        "json: cannot unmarshal {value} into Go struct field {struct_name}.{field} of type {go_type}"
+                    )
+                } else {
+                    write!(
+                        f,
+                        "json: cannot unmarshal {value} into Go value of type {go_type}"
+                    )
+                }
+            }
             Error::Io(s) => f.write_str(s),
         }
     }
@@ -71,14 +103,20 @@ impl std::error::Error for Error {}
 /// Implements [`Marshal`] for a struct as Go's `structEncoder` (`encode.go:716`) does for a
 /// struct with `json` tags: fields in declaration order, key from the tag, `omitempty`
 /// (`isEmptyValue`, `encode.go:351`, here [`Marshal::is_empty_value`]) skips empty fields, and
-/// the key `"-"` skips the field. Task 10 extends this macro with `Unmarshal`.
+/// the key `"-"` skips the field.
 ///
 /// Syntax: `json_fields!(Type, "go.Type", { field => "key" [omitempty], ... })`. The second
 /// argument is the Go type name used in error text.
 ///
+/// With the leading keyword `decode`, `json_fields!(decode Type, "go.Type", { ... })` also
+/// implements [`Unmarshal`] (Go's `d.object` into a struct, `decode.go:588`; the key `"-"` is not
+/// decoded) and requires every field type to implement [`Unmarshal`]. The keyword is opt-in
+/// because many structs have fields that are `Marshal` only (a hand-written `MarshalJSON`
+/// stand-in), and an unconditional `Unmarshal` impl would stop them compiling.
+///
 /// ```ignore
 /// struct Node { id: String, community: Option<i64>, path: String }
-/// gostd::json_fields!(Node, "model.Node", {
+/// gostd::json_fields!(decode Node, "model.Node", {
 ///     id => "id",
 ///     community => "community" omitempty,
 ///     path => "-",
@@ -91,6 +129,22 @@ macro_rules! json_fields {
     };
     (@skip $v:expr,) => {
         false
+    };
+    (decode $ty:ty, $go_type:literal, { $($field:ident => $key:literal $($oe:ident)?),* $(,)? }) => {
+        $crate::json_fields!($ty, $go_type, { $($field => $key $($oe)?),* });
+        impl $crate::json::Unmarshal for $ty {
+            const GO_TYPE: &'static str = $go_type;
+            /// Go `d.object` into a struct (`decode.go:588`). Every field is touched, key `"-"`
+            /// included, so the caller's crate gets no dead_code warning.
+            fn unmarshal_json(
+                &mut self,
+                d: &mut $crate::json::DecodeState<'_>,
+            ) -> ::core::result::Result<(), $crate::json::Error> {
+                let _ = &d;
+                $( $crate::json::touch_field(&mut self.$field); )*
+                todo!("graphify-rs-aa6.10")
+            }
+        }
     };
     ($ty:ty, $go_type:literal, { $($field:ident => $key:literal $($oe:ident)?),* $(,)? }) => {
         impl $crate::json::Marshal for $ty {

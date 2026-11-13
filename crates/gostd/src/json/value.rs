@@ -3,8 +3,9 @@
 use std::collections::BTreeMap;
 
 /// Go `any` holding decoded JSON (`map[string]any` keys sort bytewise, as `BTreeMap` does).
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub enum Value {
+    #[default]
     Null,
     Bool(bool),
     Number(f64),

@@ -93,8 +93,9 @@ Oracle package `json` (encode side; the Value-tree ops come with graphify-rs-aa6
 | `encoding/json/v2_encode_test.go` (+ TestMarshal, TestMarshalInvalidUTF8 from v2_decode_test.go) | 34 + 2 | 15 + 2 (+2 added: invalid_utf8_per_byte, float_format) | 19 | omitzero, `,string`, embedded/anonymous fields, `[]byte` base64, non-string map keys, pointer cycles, Number, reflect-only and synctest tests; 18 TestMarshalRawMessageValue rows for an empty non-nil RawMessage (graphify-go gets RawMessage only from decoding) |
 | `encoding/json/v2_scanner_test.go` (+ v2_decode_test.go:480-496 syntax rows, jsontext/encode_test.go:393) | 6 | 6 (+4 added: indent_close_after_top_level_value, compact_and_indent_errors, max_depth, indent_placeholder_patch; +2 unit tests in src/json/scanner.rs: check_valid_errors, check_valid_truncated_number) | 12 | - (TestCompactBig/TestIndentBig use a fixed-seed port of Go's generator) |
 | `encoding/json/tagkey_test.go`, `tags_test.go` | 1 + 1 | 1 (11 of 16 rows) | 1 | 5 rows test Go's tag-parse fallback to the field name; TestTagParsing tests the internal parseTag |
-| `encoding/json/v2_stream_test.go` | 14 | 6 (+1 added: marshal_indent_prefix) | 7 | Decoder, Token, Buffered, InputOffset, MaxBytesError, blocking and HTTP tests (Decoder not used by graphify-go); the decode halves of TestRawMessage/TestNullRawMessage go with graphify-rs-aa6.10 |
-| `encoding/json/decode_test.go` (decode side) | 33 | 0 | 0 | graphify-rs-aa6.10 |
+| `encoding/json/v2_stream_test.go` | 14 | 6 (+1 added: marshal_indent_prefix) | 7 | Decoder, Token, Buffered, InputOffset, MaxBytesError, blocking and HTTP tests (Decoder not used by graphify-go); the decode halves of TestRawMessage/TestNullRawMessage are ported as test_raw_message_decode / test_null_raw_message_decode (ignored until graphify-rs-aa6.10) |
+| `encoding/json/decode_test.go` (decode side) | 33 | 16 (+1 added: v1_rules) | 0 | Number/UseNumber, `,string`, embedded and unexported fields, `[]byte` base64, non-string map keys, pointer cycles and `**T` targets, method-set and InvalidUnmarshal tests; TestUnmarshal keeps 100 of 178 rows (78 left out by class, listed in the file header) |
+| `encoding/json/fold_test.go` (FuzzEqualFold seeds) | 1 | 1 (25 of 25 seeds, as a field-matching test) | 0 | - |
 
 #### pcg
 
