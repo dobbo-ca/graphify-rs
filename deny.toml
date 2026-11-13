@@ -8,6 +8,8 @@ version = 2
 [licenses]
 version = 2
 allow = ["MIT", "Apache-2.0", "ISC", "BSD-3-Clause", "Unicode-3.0", "MPL-2.0"]
+# webpki-roots (allowed by the spec, section 4) ships the Mozilla root store data under CDLA-Permissive-2.0.
+exceptions = [{ crate = "webpki-roots", allow = ["CDLA-Permissive-2.0"] }]
 
 [bans]
 multiple-versions = "allow"
