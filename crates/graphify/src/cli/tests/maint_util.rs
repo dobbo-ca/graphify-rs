@@ -4,7 +4,7 @@ use std::ffi::OsString;
 use std::path::Path;
 use std::process::Command;
 
-use crate::cli::{Error, run};
+use crate::cli::Error;
 
 /// The `OsString` argument list of a command.
 pub(crate) fn args(a: &[&str]) -> Vec<OsString> {
@@ -77,19 +77,6 @@ pub(crate) fn names(dir: &Path) -> std::io::Result<Vec<String>> {
     }
     v.sort();
     Ok(v)
-}
-
-/// Go `cmdBuild`, `cmdUpdate` and the like: runs `graphify <sub> <root>` through `cli::run`; the
-/// exit code and stderr.
-pub(crate) fn run_cmd(sub: &str, root: &Path) -> (i32, String) {
-    let (mut out, mut err) = (Vec::<u8>::new(), Vec::<u8>::new());
-    let argv = vec![
-        OsString::from("graphify"),
-        OsString::from(sub),
-        root.as_os_str().to_owned(),
-    ];
-    let code = run(&argv, &mut out, &mut err);
-    (code, text(err))
 }
 
 /// Whether any execute bit of `path` is set (Go `fi.Mode()&0o111 != 0`).
