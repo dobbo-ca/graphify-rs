@@ -445,7 +445,6 @@ The Rust tests read graph.json back with `gostd::json::unmarshal` into the priva
 | upstream `test_kotlin_object_literal.py` | 5 | 1 (`test_named_object_and_plain_class_unchanged`: `contains`, upstream `method`, B28) | 0 | 4: Go reads no `object_literal` (no owner node, member or call) |
 | upstream `test_kotlin_typealias_declarations.py` | 1 | 0 | 0 | 1: Go has no `type_alias` node, so the references land on a sourceless stub (B36) |
 | `extract-julia` (`graphify-rs-ihc.38`) | - | - | - | not started |
-| `extract-lua` (`graphify-rs-ihc.39`) | - | - | - | not started |
 | graphify-go `internal/extract/zig_test.go` (`graphify-rs-ihc.40`) | 1 | 1 | 0 (+2 added, passing) | - (no upstream file); `TestExtractZig` needs resolve: ignored on ihc.18 |
 | graphify-go `internal/extract/lua_test.go` (`graphify-rs-ihc.39`) | 1 | 1 | 0 | - (no test of shared code: nothing moved) |
 | upstream `test_lua_import.py` | 8 | 7 (each asserts Go's value: a dotted `require("config.lazy")` is an `imports` edge to an external node `config.lazy`, not an edge to the `config.lazy.lua` file node: 6 tests; `foo.require("mod")` and `bar:require("mod")` are imports in Go: 1 test) | 0 | 1: `test_lua_non_require_call_still_recurses_into_its_callback` needs a node for a `local function` inside a callback; Go reads only chunk-level function declarations |
