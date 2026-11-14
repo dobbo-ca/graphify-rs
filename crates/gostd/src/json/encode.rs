@@ -58,8 +58,15 @@ impl EncodeState {
         }
     }
 
-    /// Appends `b` verbatim; the caller guarantees it is valid JSON.
+    /// Appends `b` verbatim; the caller guarantees it is valid JSON. A lone `}` ends an object
+    /// that [`write_field`] opened: a hand-written `Marshal` impl writes its fields with
+    /// `write_field` and then `write_raw(b"}")`, so that `}` also leaves the depth level the
+    /// first field entered (else each such object would leak a level toward the 10000 limit).
     pub fn write_raw(&mut self, b: &[u8]) {
+        if b == b"}" && self.depth > 0 {
+            self.close(b'}');
+            return;
+        }
         self.buf.extend_from_slice(b);
     }
 
