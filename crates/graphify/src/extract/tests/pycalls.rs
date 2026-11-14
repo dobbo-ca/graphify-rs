@@ -6,7 +6,6 @@ use crate::idutil::make_id;
 // pyCalls resolves receivers from one walk of the function: types and bound
 // names come from the whole function, calls only from the body.
 #[test]
-#[ignore = "graphify-rs-ihc.25"]
 fn test_py_calls_one_walk() {
     crate::extract::kinds::register_kinds();
     let src = concat!(
