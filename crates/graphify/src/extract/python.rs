@@ -26,3 +26,9 @@ mod python_tests;
 #[cfg(test)]
 #[path = "tests/python_type_only.rs"]
 mod python_type_only_tests;
+
+/// Go `set` (`python.go:901`): a lookup set of `names` (Go's `map[string]bool` of trues), shared
+/// by golang.go and javascript.go.
+pub(crate) fn set(names: &[&'static str]) -> std::collections::HashSet<&'static str> {
+    names.iter().copied().collect()
+}
