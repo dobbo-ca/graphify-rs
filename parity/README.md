@@ -382,7 +382,7 @@ The Rust tests read graph.json back with `gostd::json::unmarshal` into the priva
 | `extract-nogrammar` (`graphify-rs-ihc.17`) | - | - | - | not started |
 | `extract-resolve` (`graphify-rs-ihc.18`) | - | - | - | not started |
 | graphify-go `internal/extract/gocalls_test.go` (`graphify-rs-ihc.24`) | 2 | 2 | 0 | `gotargets_test.go` (1) tests `resolve.go`: ported with extract-resolve (ihc.18); upstream files (14, Go has them in part): PR A2 |
-| graphify-go `internal/extract/{pycalls,python_import_guided,python_imports,python_nested,python}_test.go` (`graphify-rs-ihc.25`) | 15 | 15 | 0 | - ; upstream files: PR A2 |
+| graphify-go `internal/extract/{pycalls,python_nested,python}_test.go` (`graphify-rs-ihc.25`) | 15 | 10 | 0 | `python_import_guided_test.go` (4, `resolveImportGuided`, `resolve.go:1441`) and `python_imports_test.go` (1, `resolvePyModule`, `resolve.go:1827`) moved to extract-resolve (ihc.18); upstream files: PR A2 |
 | `extract-js` (`graphify-rs-ihc.26`) | - | - | - | not started |
 | graphify-go `internal/extract/java_test.go`, `java_chain_test.go` (`graphify-rs-ihc.27`) | 14 | 14 | 0 | upstream files (5, Go has it in part): PR A2 |
 | `extract-csharp` (`graphify-rs-ihc.28`) | - | - | - | not started |

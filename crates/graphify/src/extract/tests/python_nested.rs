@@ -3,9 +3,22 @@
 
 use std::collections::{HashMap, HashSet};
 
-use super::python_import_guided_tests::resolve_py;
+use crate::extract::{file_from_bytes, resolve};
 use crate::idutil::make_id;
-use crate::model::{Confidence, Relation};
+use crate::model::{Confidence, Extraction, Relation};
+
+/// Go `resolvePy` (`python_import_guided_test.go:10`): extracts each in-memory Python file and
+/// stitches them with `resolve`.
+fn resolve_py(srcs: &[(&str, &str)]) -> Extraction {
+    crate::extract::kinds::register_kinds();
+    let results: Vec<_> = srcs
+        .iter()
+        .map(|(f, s)| file_from_bytes(f, s.as_bytes()))
+        .collect();
+    let files: Vec<String> = srcs.iter().map(|(f, _)| (*f).to_string()).collect();
+    let workers = std::thread::available_parallelism().map_or(1, |n| n.get());
+    resolve(&results, &files, workers)
+}
 
 // pyEdges resolves the sources and returns the edges of the given relations
 // as sorted "source label -relation-> target label" lines. A file node shows

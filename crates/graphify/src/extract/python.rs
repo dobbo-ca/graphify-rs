@@ -16,14 +16,6 @@ pub(super) fn register_kinds() {}
 mod pycalls_tests;
 
 #[cfg(test)]
-#[path = "tests/python_import_guided.rs"]
-mod python_import_guided_tests;
-
-#[cfg(test)]
-#[path = "tests/python_imports.rs"]
-mod python_imports_tests;
-
-#[cfg(test)]
 #[path = "tests/python_nested.rs"]
 mod python_nested_tests;
 
