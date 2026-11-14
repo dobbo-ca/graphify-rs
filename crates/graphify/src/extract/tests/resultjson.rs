@@ -205,7 +205,6 @@ fn text(b: &[u8]) -> String {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_result_append_json_matches_marshal() {
     let odd = "<\u{e9}&> \"q\\\u{0}\u{7f}\u{fffd}\u{2028}\u{65e5}\u{672c}";
     let mut type_only = Edge {

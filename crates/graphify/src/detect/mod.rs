@@ -7,4 +7,4 @@
 #[allow(clippy::module_inception)]
 mod detect;
 
-pub use detect::{go_lossy, is_sensitive};
+pub use detect::{go_lossy, is_sensitive, shebang_ext};
