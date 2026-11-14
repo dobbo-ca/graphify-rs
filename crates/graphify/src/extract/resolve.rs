@@ -57,13 +57,50 @@ pub(crate) fn type_defs(
 
 /// Go `importTargets` (`resolve.go:1686`): the corpus files `im` imports, in order, without the
 /// importing file and without repeats. Go passes nil maps where a caller has no Go data; pass
-/// empty ones (`&Default::default()`).
+/// empty ones (`&Default::default()`). `go_targets` is Go's `goTargets`, a cache the call fills
+/// (`resolve.go:1707`), so it is `&mut`.
 pub(crate) fn import_targets(
     im: &Imp,
     corpus: &Corpus,
     go_pkgs: &HashMap<String, Vec<String>>,
     go_mods: &BTreeMap<String, String>,
-    go_targets: &HashMap<[String; 2], Vec<String>>,
+    go_targets: &mut HashMap<[String; 2], Vec<String>>,
 ) -> Vec<String> {
+    todo!("graphify-rs-ihc.18")
+}
+
+/// Go `impPart` (`resolve.go:1048`): how many import edges [`resolve_parts`] puts in one part.
+pub(crate) const IMP_PART: usize = 4096;
+
+/// Go `recvTail` (`resolve.go:1198`): the last identifier of a receiver (`a.b` is `b`); a
+/// receiver ending in anything else (`f()`, `a[0]`) has none. Go scans bytes and reads an invalid
+/// UTF-8 byte as U+FFFD, which is no letter or number; a `&str` has none to read.
+pub(crate) fn recv_tail(s: &str) -> &str {
+    todo!("graphify-rs-ihc.18")
+}
+
+/// Go `selfTarget` (`resolve.go:1269`): binds a self/this call made from a method of type `cls`:
+/// the method of that name on `cls`, else on the nearest ancestor reached over resolved inherits
+/// edges. A super call starts at the parents. It returns "" on a tie or when the chain passes a
+/// base outside the corpus. `methods` is keyed `class + "\0" + name`.
+pub(crate) fn self_target(
+    cls: &str,
+    name: &str,
+    super_call: bool,
+    methods: &HashMap<String, Vec<String>>,
+    supers: &HashMap<String, Vec<String>>,
+    open_super: &HashSet<String>,
+) -> String {
+    todo!("graphify-rs-ihc.18")
+}
+
+/// Go `goModDir` (`resolve.go:1667`): the directory of the nearest go.mod above file `f`, or "".
+pub(crate) fn go_mod_dir(go_mods: &BTreeMap<String, String>, f: &str) -> String {
+    todo!("graphify-rs-ihc.18")
+}
+
+/// Go `resolveModulePath` (`resolve.go:1877`): the corpus file a JS/TS module path names (the
+/// path itself, then the extensions, then a directory index), or "" when nothing matches.
+pub(crate) fn resolve_module_path(base: &str, corpus: &Corpus) -> String {
     todo!("graphify-rs-ihc.18")
 }
