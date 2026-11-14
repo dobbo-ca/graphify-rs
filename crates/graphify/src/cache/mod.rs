@@ -1,5 +1,4 @@
 //! Port of graphify-go `internal/cache`. Filled by graphify-rs-ihc.19 (plan Task 18).
-#![allow(dead_code, unused_variables)]
 
 #[allow(clippy::module_inception)]
 mod cache;

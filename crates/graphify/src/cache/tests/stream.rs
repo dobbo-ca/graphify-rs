@@ -51,7 +51,6 @@ fn key_needle(k: &str) -> Vec<u8> {
 /// reads: head, entries in sorted key order, the same bytes when draining, and what a whole
 /// decode reads back is what was written.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_write_cache_matches_marshal() {
     let entry_of = |i: usize| Entry {
         hash: format!("h{i}"),
@@ -182,7 +181,6 @@ impl Write for FailWriter {
 /// Go `TestWriteCacheWriteError`: a write error part way through is returned: head, 50
 /// entries, tail.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_write_cache_write_error() {
     let c: Cache = (0..50).map(|i| (format!("f{i}.go"), entry("h"))).collect();
     for n in [0, 1, 7, 51] {
@@ -196,7 +194,6 @@ fn test_write_cache_write_error() {
 /// Go `TestLoadSplitMatchesWholeDecode`: load in pieces must return what one decode of the
 /// whole file returns.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_load_split_matches_whole_decode() {
     let mut c = Cache::new();
     for i in 0..20000 {
@@ -327,7 +324,6 @@ fn test_load_split_matches_whole_decode() {
 /// Go `TestLoadDropsBadCalls`: an entry whose calls number a text it does not hold is not
 /// loaded, by either decoder, so the file is parsed again.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_load_drops_bad_calls() {
     let with_callee = |callee: u32| Entry {
         hash: "h".to_string(),
