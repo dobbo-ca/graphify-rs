@@ -2,3 +2,7 @@
 //!
 //! Helpers only. The functions `resolve.rs` calls are shared API: their signatures are
 //! stubbed by the extractors-and-CLI stream with the resolve tests PR (graphify-rs-ihc.18).
+
+#[cfg(test)]
+#[path = "tests/nulllabel.rs"]
+mod nulllabel_tests;
