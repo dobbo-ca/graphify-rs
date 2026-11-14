@@ -20,7 +20,7 @@ fn extract_proj(proj: &str, files: &[&str]) -> Extraction {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.41"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_extract_verilog() {
     let ext = extract_proj("verilogproj", &["rtl/alu.sv"]);
 
@@ -68,5 +68,43 @@ fn test_extract_verilog() {
     assert!(
         has("alu.sv", "imports", "defs.svh"),
         "expected alu.sv --imports--> defs.svh"
+    );
+}
+
+/// What `extractVerilog` records for `alu.sv` before `Resolve`: nodes, the class `contains` edge
+/// and the `include` import (calls and import edges are resolved later).
+#[test]
+fn test_extract_verilog_unresolved() {
+    kinds::register_kinds();
+    let src = std::fs::read(testdata().join("extract/verilogproj/rtl/alu.sv")).unwrap();
+    let res = super::extract_verilog("rtl/alu.sv", &src).expect("parse budget");
+
+    let labels: BTreeSet<&str> = res.nodes.iter().map(|n| n.label.as_str()).collect();
+    for want in [
+        "alu.sv",
+        "add()",
+        "compute()",
+        "Counter",
+        "Counter.step()",
+        "alu",
+    ] {
+        assert!(labels.contains(want), "missing node label {want:?}");
+    }
+    let id2label: BTreeMap<&str, &str> = res
+        .nodes
+        .iter()
+        .map(|n| (n.id.as_str(), n.label.as_str()))
+        .collect();
+    assert!(
+        res.edges.iter().any(|e| {
+            e.relation.as_str() == "contains"
+                && id2label.get(e.source.as_str()) == Some(&"Counter")
+                && id2label.get(e.target.as_str()) == Some(&"Counter.step()")
+        }),
+        "expected Counter --contains--> Counter.step()"
+    );
+    assert!(
+        res.imps.iter().any(|i| i.spec == "defs.svh"),
+        "expected an import of defs.svh"
     );
 }
