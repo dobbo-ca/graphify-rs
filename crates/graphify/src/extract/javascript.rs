@@ -30,3 +30,7 @@ mod jscalls_tests;
 #[cfg(test)]
 #[path = "tests/jsts_imports.rs"]
 mod jsts_imports_tests;
+
+#[cfg(test)]
+#[path = "tests/js_type_only.rs"]
+mod js_type_only_tests;

@@ -612,54 +612,6 @@ fn test_js_new_file_closure() {
     );
 }
 
-// A file-level import() replaces the static edge's line, either order.
-#[test]
-#[ignore = "graphify-rs-ihc.26"]
-fn test_js_deferred_merge_takes_import_site() {
-    crate::extract::kinds::register_kinds();
-    let mut srcs: Vec<(String, String)> = vec![
-        (
-            "s1.ts".to_string(),
-            "import {y1} from './y1';\nsetup(() => import('./y1'));\n".to_string(),
-        ),
-        (
-            "s2.ts".to_string(),
-            "setup(() => import('./y2'));\nimport {y2} from './y2';\n".to_string(),
-        ),
-        (
-            "s3.ts".to_string(),
-            "import type {y3} from './y3';\nsetup(() => import('./y3'));\n".to_string(),
-        ),
-        (
-            "s4.ts".to_string(),
-            "setup(() => import('./y4'));\nimport type {y4} from './y4';\n".to_string(),
-        ),
-    ];
-    for y in ["y1", "y2", "y3", "y4"] {
-        srcs.push((format!("{y}.ts"), "export const y = 1;\n".to_string()));
-    }
-    let line = [
-        ("s1.ts", "L2"),
-        ("s2.ts", "L1"),
-        ("s3.ts", "L2"),
-        ("s4.ts", "L1"),
-    ];
-    let mut n = 0;
-    for e in &resolve_srcs(&srcs).edges {
-        if e.relation.as_str() == "imports_from" && e.deferred() {
-            let f = e.source_file.as_str();
-            let want = line.iter().find(|(k, _)| *k == f).map_or("", |(_, v)| *v);
-            assert_eq!(
-                e.source_location.to_string(),
-                want,
-                "{f}: location, want {want}"
-            );
-            n += 1;
-        }
-    }
-    assert_eq!(n, 4, "got {n} deferred edges, want 4");
-}
-
 // import(' ./d ') trims spaces inside the quotes.
 #[test]
 #[ignore = "graphify-rs-ihc.26"]
@@ -697,58 +649,6 @@ fn test_js_dynamic_import_external_behind_static() {
             "a.ts:f() imports_from :react deferred",
         ],
         &[],
-    );
-}
-
-// A file-level deferred import marks the static one of the pair, whatever the order.
-#[test]
-#[ignore = "graphify-rs-ihc.26"]
-fn test_js_deferred_beats_static_either_order() {
-    crate::extract::kinds::register_kinds();
-    let b = ("b.js", "const a = require('./a');\n");
-    for a in [
-        "describe('x', () => { import('./b'); });\nconst b = require('./b');\n",
-        "const b = require('./b');\ndescribe('x', () => { import('./b'); });\n",
-        "import './b';\ndescribe('x', () => { import('./b'); });\n",
-    ] {
-        let got = edge_set(&[("a.js", a), b], &["imports_from"]);
-        check_edges(
-            &got,
-            &["a.js:a.js imports_from b.js:b.js deferred"],
-            &["a.js:a.js imports_from b.js:b.js"],
-        );
-    }
-}
-
-// A static import of the target hides the file's dynamic_import.
-#[test]
-#[ignore = "graphify-rs-ihc.26"]
-fn test_js_dynamic_import_behind_static_import() {
-    crate::extract::kinds::register_kinds();
-    let got = edge_set(
-        &[
-            ("a.ts", "export const a = 1;\n"),
-            (
-                "s.ts",
-                "import './a';\nexport function g() { return import('./a'); }\n",
-            ),
-            (
-                "late.ts",
-                "export function g() { return import('./a'); }\nimport './a';\n",
-            ),
-        ],
-        &["imports_from", "dynamic_import"],
-    );
-    check_edges(
-        &got,
-        &[
-            "s.ts:g() imports_from a.ts:a.ts deferred",
-            "late.ts:late.ts imports_from a.ts:a.ts",
-        ],
-        &[
-            "s.ts:s.ts dynamic_import a.ts:a.ts",
-            "late.ts:late.ts dynamic_import a.ts:a.ts",
-        ],
     );
 }
 
