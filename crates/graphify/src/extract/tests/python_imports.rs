@@ -164,7 +164,7 @@ const CASES: &[Case] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-ihc.25"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_python_imports_resolve_to_files() {
     for (name, srcs, want) in CASES {
         let (got, ids) = py_resolve(srcs);

@@ -223,7 +223,7 @@ fn test_unresolved_base_without_stub_drops() {
 // return annotations and decorators give references; a plain unresolved base
 // and an unresolved name give a sourceless stub.
 #[test]
-#[ignore = "graphify-rs-ihc.25"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_python_references() {
     let (nodes, edges) = resolve_src(&[
         (
@@ -330,7 +330,7 @@ class Real(Base):
 
 // Upstream fixture r3o: the import statement of an alias names its module.
 #[test]
-#[ignore = "graphify-rs-ihc.25"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_python_alias_binds_its_own_module() {
     let (_, edges) = resolve_src(&[
         ("a/models.py", "class User:\n    pass\n"),
@@ -355,7 +355,7 @@ fn test_python_alias_binds_its_own_module() {
 // leaves the plain import in force; two imports on one line keep their own
 // module; `from . import Name as N` is an alias too.
 #[test]
-#[ignore = "graphify-rs-ihc.25"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_python_alias_import_order() {
     let (_, edges) = resolve_src(&[
         ("pkg/__init__.py", "class Name:\n    pass\n"),
@@ -395,7 +395,7 @@ class K(Foo):
 // Upstream fixtures r6g, r6e: a plain import binds in its own module although
 // another module has the name; a qualified name is not the file's alias.
 #[test]
-#[ignore = "graphify-rs-ihc.25"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_python_plain_import_and_qualified_name() {
     let (_, edges) = resolve_src(&[
         ("p1.py", "class Config:\n    pass\n"),

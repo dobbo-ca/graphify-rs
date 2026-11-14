@@ -49,7 +49,7 @@ fn count_calls(ext: &Extraction) -> usize {
 // (module_stem, N) definition with EXTRACTED confidence — a case the generic
 // name pass cannot resolve (the name N is defined in two files).
 #[test]
-#[ignore = "graphify-rs-ihc.25"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_import_guided_resolves_ambiguous_alias() {
     let ext = resolve_py(&[
         ("helper.py", "def transform(x):\n    return x\n"),
@@ -79,7 +79,7 @@ fn test_import_guided_resolves_ambiguous_alias() {
 // TestImportGuidedSkipsMemberCall checks that a member call obj.tx() never
 // resolves via import evidence even though tx is an imported alias.
 #[test]
-#[ignore = "graphify-rs-ihc.25"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_import_guided_skips_member_call() {
     let ext = resolve_py(&[
         ("helper.py", "def transform(x):\n    return x\n"),
@@ -98,7 +98,7 @@ fn test_import_guided_skips_member_call() {
 // TestImportGuidedSkipsSelfEdge checks that import evidence never emits a
 // self-edge when the imported symbol resolves back to the caller.
 #[test]
-#[ignore = "graphify-rs-ihc.25"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_import_guided_skips_self_edge() {
     // run imports itself by name from its own module; the unique (main, run)
     // def is run itself, so no edge may be emitted.
@@ -119,7 +119,7 @@ fn test_import_guided_skips_self_edge() {
 // TestImportGuidedNonAliased checks the plain `from M import N` form (local name
 // equals imported name) resolves with EXTRACTED confidence.
 #[test]
-#[ignore = "graphify-rs-ihc.25"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_import_guided_non_aliased() {
     let ext = resolve_py(&[
         ("helper.py", "def transform(x):\n    return x\n"),
