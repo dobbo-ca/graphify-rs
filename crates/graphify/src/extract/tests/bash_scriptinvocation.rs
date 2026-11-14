@@ -149,7 +149,7 @@ const RUNNER_CASES: [(&str, bool); 5] = [
 ];
 
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // also parses python and js files: needs those extractors
+#[ignore = "graphify-rs-ihc.26"] // bash test (ihc.35, bash_scriptinvocation_test.go): also parses python and js files; js is the last of the two to land
 fn test_bash_runner_non_shell_targets() {
     for (cmd, want_edge) in RUNNER_CASES {
         let root = TempDir::new();
@@ -166,7 +166,7 @@ fn test_bash_runner_non_shell_targets() {
 
 // `python3 -m app.main` names a module, not a file; it must not hit app_main.
 #[test]
-#[ignore = "graphify-rs-ihc.25"] // also parses a python file: needs the python extractor
+#[ignore = "graphify-rs-ihc.25"] // bash test (ihc.35, bash_scriptinvocation_test.go): also parses a python file
 fn test_bash_runner_module_flag_no_edge() {
     let root = TempDir::new();
     write_script(&root, "app.py", "def main():\n    pass\n");
@@ -198,7 +198,7 @@ fn test_bash_shell_errexit_keeps_edge() {
 
 // php's code flag is -r; `php -e s.php` still runs s.php.
 #[test]
-#[ignore = "graphify-rs-ihc.34"] // also parses a php file: needs the php extractor
+#[ignore = "graphify-rs-ihc.34"] // bash test (ihc.35, bash_scriptinvocation_test.go): also parses a php file
 fn test_bash_php_dash_e_keeps_edge() {
     let root = TempDir::new();
     write_script(&root, "s.php", "<?php\n");
