@@ -410,7 +410,7 @@ The Rust tests read graph.json back with `gostd::json::unmarshal` into the priva
 | upstream `tests/test_dotnet.py` | 48 | 0 | 0 | 48: Go lacks it (no `.sln`, `.slnx`, `.csproj`, `.xaml` or `.razor` extraction, and `.cs` is the only .NET extension dispatched: 4 sln, 5 slnx, 6 csproj, 18 xaml, 11 razor, `test_dispatch_table`, `test_code_extensions`; and `test_csharp_members_in_preprocessor_blocks_are_extracted_and_resolved`: members behind `#if` are not direct members of the type body); python internals (1: `test_xaml_codebehind_resolution_does_not_depend_on_directory_order` mocks `Path.iterdir`) |
 | upstream `tests/test_indirect_dispatch.py` | 28 | 0 | 0 | 28: other language (18 Python, 10 JS/TS: no C# case); Go has no `indirect_call` edge either |
 | upstream `tests/test_indirect_dispatch_assign_return.py` | 7 | 0 | 0 | 7: other language (Python only); Go has no `indirect_call` edge |
-| graphify-go `internal/extract/c_test.go` (`graphify-rs-ihc.29`) | 1 | 1 | 0 | upstream `test_c_include_resolution.py` (13, Go has it): PR A2 |
+| graphify-go `internal/extract/c_test.go` (`graphify-rs-ihc.29`) | 1 | 1 | 0 (+1 added, passing) | `TestExtractC` needs resolve: ignored on ihc.18; upstream `test_c_include_resolution.py` (13, Go has it): PR A2 |
 | graphify-go `internal/extract/cpp_test.go`, `preproc_test.go` (`graphify-rs-ihc.30`) | 10 | 9 | 0 | `TestCppHeaderRoutesToCppExtractor` moved to extract-core (ihc.16): it tests `isCppHeader`, `extract.go:316`; upstream files: PR A2 |
 | `extract-hcl` (`graphify-rs-ihc.31`) | - | - | - | not started |
 | graphify-go `internal/extract/rust_test.go` (`graphify-rs-ihc.32`) | 1 | 1 | 0 | - (no test of shared code: nothing moved) |

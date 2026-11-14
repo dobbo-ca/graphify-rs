@@ -512,7 +512,7 @@ func F[U any](l *Local, u U, vs ...Inner) (n int, err error) { return }
 // parameter type gives references; `struct S` and primitive types give
 // nothing. Not copied: upstream has no struct node, so its target is a stub.
 #[test]
-#[ignore = "graphify-rs-ihc.29"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_c_references() {
     let (nodes, edges) = resolve_src(&[
         (

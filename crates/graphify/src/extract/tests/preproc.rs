@@ -127,7 +127,7 @@ fn test_cpp_items_inside_conditionals() {
 // A signature split by a conditional is a parse error; the definitions under
 // the ERROR node are still extracted.
 #[test]
-#[ignore = "graphify-rs-ihc.29"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_c_items_under_parse_error() {
     let src = "#ifdef A\nint split(int a) {\n#else\nint split(long a) {\n#endif\n  return after();\n}\nint after(void) { return 0; }\n";
     let (nodes, _) = resolve_src(&[("e.c", src)]);
@@ -139,7 +139,7 @@ fn test_c_items_under_parse_error() {
 
 // A function defined in both branches of a conditional is one call target.
 #[test]
-#[ignore = "graphify-rs-ihc.29"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_call_to_function_defined_in_both_branches() {
     let a = "int x1(void) { return 0; }\n#ifdef A\nint dup(void) { return x1(); }\n#else\nint dup(void) { return x1(); }\n#endif\n";
     let (_, edges) = resolve_src(&[("a.c", a), ("b.c", "int user(void) { return dup(); }\n")]);
