@@ -1,0 +1,112 @@
+# Gate command list. One command per line: <n> <corpus> <args...> [< <stdin file>]
+#   <n>      unique transcript number (t/<n>.stdout, .stderr, .exit)
+#   <corpus> a name under /corpus, /work/<kind> (made by run.sh from the built graph.json files;
+#            keep these lines after the builds of ggo and ggo-testdata) or /hookrepo
+#   args     parsed by sh (quote anything with shell characters); stdin file path is relative to
+#            parity/graphify
+# `build` comes first for each corpus: later lines read its graphify-out/graph.json.
+# Not run: watch (D-003), install, save-result, --semantic (see parity/README.md).
+#
+# Every `# TODO(P2 args)` marks a draft value (label, file, relation, pair) that was not checked
+# against the filtered corpus. While groups.txt holds only json and nogrammar, the filtered ggo
+# corpus keeps only its Markdown and JSON files, so labels must come from those; the P2 stream
+# corrects them in review. A draft that fails in Go is fine (its transcript records the error),
+# but every line must be a real graphify-go invocation.
+
+# ---- ggo -------------------------------------------------------------------------------------
+001 ggo build
+002 ggo update
+# TODO(P2 args): common label (query.go:159 ties); pick a label many nodes share
+003 ggo query rules
+# TODO(P2 args): anchored pattern
+004 ggo query '^Quick'
+005 ggo query '('
+# TODO(P2 args): ambiguous label (Markdown headings repeat across files)
+006 ggo explain Rules
+# TODO(P2 args): path-qualified label <file>::<label>
+007 ggo explain 'AGENTS.md::Rules'
+# TODO(P2 args): hub node (query.go:215 ties); pick the top god-node label
+008 ggo explain README.md
+# TODO(P2 args): connected pair, and a pair with no path
+009 ggo path README.md AGENTS.md
+010 ggo path --undirected README.md AGENTS.md
+011 ggo path README.md GOALS.md
+012 ggo god-nodes
+013 ggo god-nodes --top 25 --json
+# TODO(P2 args): 3 files that define nodes
+014 ggo affected AGENTS.md CLAUDE.md README.md
+# TODO(P2 args): a relation that exists in the graph
+015 ggo affected --depth 1 --relation contains README.md
+016 ggo affected - < stdin/affected.txt
+017 ggo validate
+# TODO(P2 args): one file per enabled group; add a line here with each group in groups.txt
+018 ggo extract .beads/metadata.json
+019 ggo extract README.md
+# TODO(P2 args): 3 questions; --context takes a relation name (ask.go), not a directory
+020 ggo ask 'how are the project rules organised'
+021 ggo ask 'what does the build command do'
+022 ggo ask 'which documents describe the graph format'
+023 ggo ask 'how are the project rules organised' --dfs
+024 ggo ask 'how are the project rules organised' --budget 500
+025 ggo ask 'how are the project rules organised' --context contains
+026 ggo serve < stdin/serve.jsonl
+# export writes into graphify-out, so it comes after every other read of ggo
+027 ggo export graphml
+028 ggo export dot
+029 ggo export csv
+030 ggo export okf
+
+# ---- ggo-testdata ----------------------------------------------------------------------------
+031 ggo-testdata build
+032 ggo-testdata update
+033 ggo-testdata god-nodes
+# TODO(P2 args): a pattern that matches in this corpus
+034 ggo-testdata query '('
+035 ggo-testdata validate
+
+# ---- gositter --------------------------------------------------------------------------------
+036 gositter build
+037 gositter update
+038 gositter god-nodes
+039 gositter query '('
+040 gositter validate
+
+# ---- upstream --------------------------------------------------------------------------------
+041 upstream build
+042 upstream update
+043 upstream god-nodes
+044 upstream query '('
+045 upstream validate
+
+# ---- curl ------------------------------------------------------------------------------------
+046 curl build
+047 curl update
+048 curl god-nodes
+049 curl query '('
+050 curl validate
+
+# ---- redis -----------------------------------------------------------------------------------
+051 redis build
+052 redis update
+053 redis god-nodes
+054 redis query '('
+055 redis validate
+
+# ---- nonutf8 (D-008: graph.json only is compared) ---------------------------------------------
+056 nonutf8 build
+
+# ---- two corpora's graph.json (run.sh copies them to /work/diff/graphify-out/{a,b}.json) -------
+057 /work/diff diff graphify-out/a.json graphify-out/b.json
+058 /work/diff diff graphify-out/a.json graphify-out/b.json --json
+
+# ---- damaged copies of ggo's graph.json (validate.go:28 texts) --------------------------------
+059 /work/bom validate
+060 /work/truncated validate
+061 /work/dupid validate
+
+# ---- merge-driver on 3 graph files (writes cur.json; run.sh copies /work into the output) -----
+062 /work/merge merge-driver graphify-out/base.json graphify-out/cur.json graphify-out/other.json
+
+# ---- git hooks in a fresh repo (run.sh copies the hook files and git config) ------------------
+063 /hookrepo hook install
+064 /hookrepo hook status

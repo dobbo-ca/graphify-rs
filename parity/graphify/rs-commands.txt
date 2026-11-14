@@ -1,0 +1,4 @@
+# Subcommands the Rust binary implements, one per line (first argument of a commands.txt line).
+# EMPTY while cli-core (graphify-rs-ihc.20) is not on main: the ci.yml graphify-parity job then
+# skips the Rust side. Add a line in the PR that makes the subcommand byte-equal to graphify-go.
+# `build` also turns on the graphify-out comparison (see README.md).

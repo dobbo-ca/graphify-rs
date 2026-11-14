@@ -1,0 +1,11 @@
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"gate","version":"0"}}}
+{"jsonrpc":"2.0","method":"notifications/initialized"}
+{"jsonrpc":"2.0","id":2,"method":"tools/list"}
+{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"query_graph","arguments":{"question":"project rules","depth":2,"token_budget":500}}}
+{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"get_node","arguments":{"label":"README.md"}}}
+{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"get_neighbors","arguments":{"label":"README.md"}}}
+{"jsonrpc":"2.0","id":6,"method":"tools/call","params":{"name":"get_community","arguments":{"community_id":0}}}
+{"jsonrpc":"2.0","id":7,"method":"tools/call","params":{"name":"god_nodes","arguments":{"top_n":5}}}
+{"jsonrpc":"2.0","id":8,"method":"tools/call","params":{"name":"surprising_connections","arguments":{"top_n":3}}}
+{"jsonrpc":"2.0","id":9,"method":"tools/call","params":{"name":"graph_stats","arguments":{}}}
+{"jsonrpc":"2.0","id":10,"method":"tools/call","params":{"name":"shortest_path","arguments":{"source":"README.md","target":"AGENTS.md"}}}
