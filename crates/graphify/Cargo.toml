@@ -15,8 +15,8 @@ path = "src/main.rs"
 bedrock = { path = "../bedrock" }
 gostd = { path = "../gostd" }
 # gositter-rs (pure-Rust tree-sitter runtime and its 21 grammars), pinned by rev. Bump both together.
-gositter = { git = "https://github.com/dobbo-ca/gositter-rs", rev = "79d1c98779e6f91bc6b18f6194293076e6015615" }
-gositter-grammars = { git = "https://github.com/dobbo-ca/gositter-rs", rev = "79d1c98779e6f91bc6b18f6194293076e6015615" }
+gositter = { git = "https://github.com/dobbo-ca/gositter-rs", rev = "1443bcddf7e9e1edecdcfd6a5bba7581dc0c6dac" }
+gositter-grammars = { git = "https://github.com/dobbo-ca/gositter-rs", rev = "1443bcddf7e9e1edecdcfd6a5bba7581dc0c6dac" }
 
 [lints]
 workspace = true
