@@ -6,7 +6,10 @@ use super::extract::Result;
 /// Go `extract.IsMCPConfigPath`: `.mcp.json`, `claude_desktop_config.json`, `mcp.json` or
 /// `mcp_servers.json`, matched case-sensitively on the basename.
 pub fn is_mcp_config_path(name: &str) -> bool {
-    todo!("graphify-rs-ihc.17")
+    matches!(
+        gostd::filepath::base(name).as_str(),
+        ".mcp.json" | "claude_desktop_config.json" | "mcp.json" | "mcp_servers.json"
+    )
 }
 
 /// Go `extractMCPConfig`.
