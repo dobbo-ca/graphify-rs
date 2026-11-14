@@ -33,7 +33,6 @@ fn test_over_budget_keeps_file_node() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.24"]
 fn test_budget_setting() {
     // The if with an init clause takes three steps at one byte.
     let src = b"package p\n\nfunc A(m map[string]int) {\n\tif v, ok := m[\"a\"]; ok {\n\t\tB(v)\n\t}\n}\n\nfunc B(int) {}\n";
