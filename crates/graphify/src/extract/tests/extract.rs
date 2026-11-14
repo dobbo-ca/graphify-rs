@@ -72,7 +72,6 @@ fn test_extract_and_resolve() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.25"]
 fn test_file_from_bytes_non_utf8() {
     let mut utf16 = vec![0xFF, 0xFE];
     for r in "def hello():\n    pass\n".chars() {
@@ -136,7 +135,6 @@ fn to_utf8_cases() {
 /// `b"\xff.py"` gives a file node whose `source_file` is written as `EF BF BD` `.py`, the bytes
 /// Go 1.27 writes for the bad byte.
 #[test]
-#[ignore = "graphify-rs-ihc.25"]
 fn non_utf8_file_name() {
     let res = extract_bytes("\u{fffd}.py", b"def f():\n    pass\n");
     let node = res
