@@ -2,23 +2,62 @@
 //! (`v2_encode.go`) and the `Encoder` (`v2_stream.go`); the reflection encoders still cite v1
 //! `encode.go`.
 
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, HashMap, btree_map};
 
 use super::indent::indent as append_indent;
-use super::jsontext::{Opts, append_format};
+use super::jsontext::{MAX_NESTING_DEPTH, Opts, append_format};
 use super::{Error, RawMessage, Value};
 use crate::utf8::{RUNE_ERROR, decode_rune};
 
 const HEX: &[u8; 16] = b"0123456789abcdef";
 
-/// Go `encodeState` (`encode.go:~300`): the output buffer and the HTML-escape option.
+/// Go `encodeState` (`encode.go:~300`): the output buffer and the HTML-escape option. `depth`
+/// is the number of open arrays and objects, Go's `len(Tokens.Stack)`.
 #[derive(Debug, Clone, Default)]
 pub struct EncodeState {
     pub buf: Vec<u8>,
     pub escape_html: bool,
+    depth: usize,
 }
 
 impl EncodeState {
+    /// Writes `[` or `{` and enters it. Go's `pushArray`/`pushObject` (jsontext/state.go:308,343)
+    /// refuse the 10001st open container with `errMaxDepth`; `WriteToken`
+    /// (jsontext/encode.go:356,393-424) wraps it at the offset before the delimiter,
+    /// `wrapSyntacticError` (jsontext/errors.go:102-115) adds one, and `transformMarshalError`
+    /// (v2_inject.go:66) makes it a legacy `SyntaxError` (v2_scanner.go:67-71). An empty array or
+    /// object skips `WriteToken` (v2/arshal_any.go:118-131,234-247, v2/arshal_default.go:824-836,
+    /// 1504-1516), so callers write `[]` and `{}` without this check. graphify-go's values are
+    /// trees, so Go's cycle check past depth 1000 (`startDetectingCyclesAfter`,
+    /// v2/arshal_default.go:50) never fires and has no counterpart.
+    fn open(&mut self, c: u8) -> Result<(), Error> {
+        if self.depth == MAX_NESTING_DEPTH {
+            return Err(Error::Syntax {
+                msg: "exceeded max depth".to_string(),
+                offset: self.buf.len() as i64 + 1,
+            });
+        }
+        self.buf.push(c);
+        self.depth += 1;
+        Ok(())
+    }
+
+    /// Writes `]` or `}` and leaves the container [`open`](Self::open) entered.
+    fn close(&mut self, c: u8) {
+        self.buf.push(c);
+        self.depth -= 1;
+    }
+
+    /// Ends a map or `json_fields!` struct: `{}` if nothing was written (`first`), else `}`.
+    #[doc(hidden)]
+    pub fn end_object(&mut self, first: bool) {
+        if first {
+            self.write_raw(b"{}");
+        } else {
+            self.close(b'}');
+        }
+    }
+
     /// Appends `b` verbatim; the caller guarantees it is valid JSON.
     pub fn write_raw(&mut self, b: &[u8]) {
         self.buf.extend_from_slice(b);
@@ -208,14 +247,18 @@ impl<T: Marshal> Marshal for Vec<T> {
 impl<T: Marshal> Marshal for [T] {
     /// Go `sliceEncoder.encode` (`encode.go:842`) and `arrayEncoder.encode` (`encode.go:882`).
     fn marshal_json(&self, e: &mut EncodeState) -> Result<(), Error> {
-        e.write_raw(b"[");
+        if self.is_empty() {
+            e.write_raw(b"[]");
+            return Ok(());
+        }
+        e.open(b'[')?;
         for (i, v) in self.iter().enumerate() {
             if i > 0 {
                 e.write_raw(b",");
             }
             v.marshal_json(e)?;
         }
-        e.write_raw(b"]");
+        e.close(b']');
         Ok(())
     }
     fn is_empty_value(&self) -> bool {
@@ -242,16 +285,19 @@ fn write_map<'a, T: Marshal + 'a>(
     e: &mut EncodeState,
     entries: impl Iterator<Item = (&'a String, &'a T)>,
 ) -> Result<(), Error> {
-    e.write_raw(b"{");
-    for (i, (k, v)) in entries.enumerate() {
-        if i > 0 {
+    let mut first = true;
+    for (k, v) in entries {
+        if first {
+            e.open(b'{')?;
+        } else {
             e.write_raw(b",");
         }
+        first = false;
         e.write_string(k.as_bytes());
         e.write_raw(b":");
         v.marshal_json(e)?;
     }
-    e.write_raw(b"}");
+    e.end_object(first);
     Ok(())
 }
 
@@ -281,22 +327,66 @@ impl<T: Marshal> Marshal for HashMap<String, T> {
         self.is_empty()
     }
 }
+/// An open array or object of a [`Value`] walk and whether its next element is the first.
+pub(super) enum Frame<'a> {
+    Array(std::slice::Iter<'a, Value>, bool),
+    Object(btree_map::Iter<'a, String, Value>, bool),
+}
+
 /// A Go `any` holding decoded JSON; `Null` is the nil interface.
 impl Marshal for Value {
+    /// Go `marshalValueAny` (v2/arshal_any.go:32-58) with an explicit stack instead of one call
+    /// per level: a decoded `Value` can be 10000 levels deep and must encode on any thread.
     fn marshal_json(&self, e: &mut EncodeState) -> Result<(), Error> {
-        match self {
-            Value::Null => {
-                e.write_null();
-                Ok(())
+        let mut stack = Vec::new();
+        let mut next = Some(self);
+        loop {
+            match next.take() {
+                Some(Value::Array(a)) if !a.is_empty() => {
+                    e.open(b'[')?;
+                    stack.push(Frame::Array(a.iter(), true));
+                }
+                Some(Value::Object(m)) if !m.is_empty() => {
+                    e.open(b'{')?;
+                    stack.push(Frame::Object(m.iter(), true));
+                }
+                Some(Value::Array(_)) => e.write_raw(b"[]"),
+                Some(Value::Object(_)) => e.write_raw(b"{}"),
+                Some(Value::Null) => e.write_null(),
+                Some(Value::Bool(b)) => e.write_bool(*b),
+                Some(Value::Number(f)) => e.write_float(*f)?,
+                Some(Value::String(s)) => e.write_string(s.as_bytes()),
+                None => {}
             }
-            Value::Bool(b) => {
-                e.write_bool(*b);
-                Ok(())
+            match stack.last_mut() {
+                None => return Ok(()),
+                Some(Frame::Array(it, first)) => match it.next() {
+                    Some(v) => {
+                        if !std::mem::take(first) {
+                            e.write_raw(b",");
+                        }
+                        next = Some(v);
+                    }
+                    None => {
+                        e.close(b']');
+                        stack.pop();
+                    }
+                },
+                Some(Frame::Object(it, first)) => match it.next() {
+                    Some((k, v)) => {
+                        if !std::mem::take(first) {
+                            e.write_raw(b",");
+                        }
+                        e.write_string(k.as_bytes());
+                        e.write_raw(b":");
+                        next = Some(v);
+                    }
+                    None => {
+                        e.close(b'}');
+                        stack.pop();
+                    }
+                },
             }
-            Value::Number(f) => e.write_float(*f),
-            Value::String(s) => s.marshal_json(e),
-            Value::Array(a) => a.marshal_json(e),
-            Value::Object(m) => m.marshal_json(e),
         }
     }
     fn is_empty_value(&self) -> bool {
@@ -304,13 +394,15 @@ impl Marshal for Value {
     }
 }
 /// Go `RawMessage.MarshalJSON` (`jsontext/value.go:234`) through `WriteValue`. An empty
-/// `RawMessage` is Go's nil one, `null`.
+/// `RawMessage` is Go's nil one, `null`. Invalid JSON is a `MarshalerError` whose type is
+/// `reflect.TypeOf(va.Addr().Interface())` (v2/arshal_methods.go:248-251, v2_inject.go:25-27):
+/// `RawMessage` is an alias of `jsontext.Value` (v2_stream.go:190), so `*jsontext.Value`.
 impl Marshal for RawMessage {
     fn marshal_json(&self, e: &mut EncodeState) -> Result<(), Error> {
         if self.0.is_empty() {
-            return e.write_marshaler_output("json.RawMessage", b"null");
+            return e.write_marshaler_output("*jsontext.Value", b"null");
         }
-        e.write_marshaler_output("json.RawMessage", &self.0)
+        e.write_marshaler_output("*jsontext.Value", &self.0)
     }
     fn is_empty_value(&self) -> bool {
         self.0.is_empty()
@@ -331,7 +423,11 @@ pub fn write_field<T: Marshal + ?Sized>(
     if skip || key == "-" {
         return Ok(());
     }
-    e.write_raw(if *first { b"{" } else { b"," });
+    if *first {
+        e.open(b'{')?;
+    } else {
+        e.write_raw(b",");
+    }
     *first = false;
     e.write_string(key.as_bytes());
     e.write_raw(b":");
@@ -343,6 +439,7 @@ pub fn marshal<T: Marshal + ?Sized>(v: &T) -> Result<Vec<u8>, Error> {
     let mut e = EncodeState {
         buf: Vec::new(),
         escape_html: true,
+        depth: 0,
     };
     v.marshal_json(&mut e)?;
     Ok(e.buf)
@@ -494,6 +591,7 @@ impl<W: std::io::Write> Encoder<W> {
         let mut e = EncodeState {
             buf: Vec::new(),
             escape_html: self.escape_html,
+            depth: 0,
         };
         v.marshal_json(&mut e)?;
         let mut b = if self.prefix.is_empty() && self.indent.is_empty() {
