@@ -1081,6 +1081,7 @@ fn consumer(body: &str) -> Calls {
 const RUN: &str = "Consumer.Run()[Consumer.cs]";
 const SPIN: &str = "Widget.Spin()[Lib.cs]";
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_ambiguous_overload_no_edge() {
@@ -1088,6 +1089,7 @@ fn test_ambiguous_overload_no_edge() {
     refute_call(&c, RUN, SPIN);
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_missing_declaration_no_edge() {
@@ -1097,6 +1099,7 @@ fn test_missing_declaration_no_edge() {
     refute_call(&c, RUN, SPIN);
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_inferred_generic_no_edge() {
@@ -1104,6 +1107,7 @@ fn test_inferred_generic_no_edge() {
     refute_call(&c, RUN, SPIN);
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_class_type_parameter_return_no_edge() {

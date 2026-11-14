@@ -255,6 +255,7 @@ fn test_the_enum_type_node_is_kept() {
     assert!(contained, "enum type is not contained by its file");
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_an_empty_enum_emits_no_members() {
@@ -562,6 +563,7 @@ fn test_csharp_qualified_out_of_scope_alias_falls_through_to_namespace() {
     assert!(has_edge(&ext, "Use", "inherits", "T"));
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_csharp_nested_type_not_importable_via_using() {
@@ -637,6 +639,7 @@ fn test_csharp_using_flows_into_nested_block() {
     );
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_csharp_same_file_enum_member_does_not_preempt_class_inheritance() {
@@ -659,6 +662,7 @@ fn test_csharp_same_file_enum_member_does_not_preempt_class_inheritance() {
     );
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_csharp_enum_member_cannot_steal_external_parameter_type() {
@@ -691,6 +695,7 @@ fn test_csharp_enum_member_cannot_steal_external_parameter_type() {
     assert!(defs(&ext, "Vector2").is_empty());
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_csharp_property_cannot_steal_external_parameter_type() {
@@ -729,6 +734,7 @@ fn test_csharp_property_cannot_steal_external_parameter_type() {
     assert!(defs(&ext, "Type").is_empty());
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_csharp_cross_file_collision_resolved_by_kind_not_filename_order() {
@@ -931,6 +937,7 @@ fn test_csharp_enclosing_namespace_regression_controls() {
     assert!(!ref_missing.is_empty() && ref_missing.iter().all(|r| r.source_file.is_empty()));
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_csharp_unimported_nested_type_dangles() {
@@ -955,6 +962,7 @@ fn test_csharp_unimported_nested_type_dangles() {
     );
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_csharp_ambiguous_static_imports_dangle() {

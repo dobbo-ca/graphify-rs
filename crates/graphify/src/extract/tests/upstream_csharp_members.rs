@@ -79,6 +79,7 @@ fn test_cross_half_unqualified_in_class_call_resolves() {
     );
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_same_name_different_namespace_not_merged() {
@@ -99,6 +100,7 @@ fn test_same_name_different_namespace_not_merged() {
     );
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_non_partial_same_name_not_merged() {
@@ -170,6 +172,7 @@ fn test_receiver_qualified_calls_are_not_rebound_to_the_own_type() {
 // them, no `defines` edge, and records no call made inside them).
 // ---------------------------------------------------------------------------
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_a_field_alone_makes_no_member_node_but_keeps_its_type_reference() {
@@ -187,6 +190,7 @@ public class Worker { }
     assert!(has_edge(&ext, "Runner", "references", "Worker"));
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3 B21
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_property_sharing_a_methods_id_does_not_lend_it_its_calls() {

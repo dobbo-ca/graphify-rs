@@ -589,6 +589,7 @@ fn binds_call(b: &Bindings, call: &str) -> bool {
     b.bound.iter().any(|(m, _)| m == call)
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3 B20
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_production_never_emits_a_forbidden_edge() {
@@ -609,6 +610,7 @@ fn test_production_never_emits_a_forbidden_edge() {
     }
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3 B20
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_production_invents_no_call_site() {
@@ -618,6 +620,7 @@ fn test_production_invents_no_call_site() {
     }
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3 B20
 /// `Cache.GetValue()` is nominal; the extension of the same name must not win.
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
@@ -627,6 +630,7 @@ fn test_instance_member_wins_over_a_same_named_extension() {
     assert!(!bound(&b, "// E1", "Cache.cs", "// D2"));
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3 B20
 /// `Conv.ToInt32(x)` names its type in source and is bound by the nominal pass.
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
@@ -636,6 +640,7 @@ fn test_static_form_is_never_rebound_to_the_extension() {
     assert!(!bound(&b, "// B1", "E.cs", "// D2"));
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3 B20
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_ambiguity_binds_nothing() {
@@ -643,6 +648,7 @@ fn test_ambiguity_binds_nothing() {
     assert!(!binds_call(&b, "// E1"));
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3 B20
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_out_of_scope_extension_binds_nothing() {
@@ -650,6 +656,7 @@ fn test_out_of_scope_extension_binds_nothing() {
     assert!(!binds_call(&b, "// E1"));
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3 B20
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_unresolved_base_poisons_the_lookup() {
@@ -657,6 +664,7 @@ fn test_unresolved_base_poisons_the_lookup() {
     assert!(!binds_call(&b, "// E1"));
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3 B20
 /// `PropertyInfo.GetValue(obj)` is an instance call; the corpus cannot prove otherwise, so the
 /// same-named extension is refused.
 #[test]
@@ -666,6 +674,7 @@ fn test_bcl_member_name_on_an_undeclared_type_is_not_bound() {
     assert!(!binds_call(&b, "// E1"));
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3 B20
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_untyped_rung_refuses_a_name_a_regular_method_uses() {
@@ -673,6 +682,7 @@ fn test_untyped_rung_refuses_a_name_a_regular_method_uses() {
     assert!(!binds_call(&b, "// F1"));
 }
 
+// pins Go v0.12.0; upstream 0.9.107 differs -> P3 B20
 /// `Conv.ToInt32(x)` names a type; the extension must not be considered.
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
