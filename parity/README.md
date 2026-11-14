@@ -444,8 +444,6 @@ The Rust tests read graph.json back with `gostd::json::unmarshal` into the priva
 | upstream `test_kotlin_generic_type_params.py` | 2 | 2 | 0 | - |
 | upstream `test_kotlin_object_literal.py` | 5 | 1 (`test_named_object_and_plain_class_unchanged`: `contains`, upstream `method`, B28) | 0 | 4: Go reads no `object_literal` (no owner node, member or call) |
 | upstream `test_kotlin_typealias_declarations.py` | 1 | 0 | 0 | 1: Go has no `type_alias` node, so the references land on a sourceless stub (B36) |
-| `extract-julia` (`graphify-rs-ihc.38`) | - | - | - | not started |
-| `extract-kotlin` (`graphify-rs-ihc.37`) | - | - | - | not started |
 | graphify-go `internal/extract/julia_test.go` (`graphify-rs-ihc.38`) | 1 | 1 | 0 | - (no upstream file; no test of shared code: nothing moved) |
 | `extract-lua` (`graphify-rs-ihc.39`) | - | - | - | not started |
 | graphify-go `internal/extract/zig_test.go` (`graphify-rs-ihc.40`) | 1 | 1 | 0 (+2 added, passing) | - (no upstream file); `TestExtractZig` needs resolve: ignored on ihc.18 |
