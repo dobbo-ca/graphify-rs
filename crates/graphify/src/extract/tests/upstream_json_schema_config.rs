@@ -90,7 +90,6 @@ fn is_skipped(r: &Result) -> bool {
 // --- the schema side: these must stop being walked -------------------------
 
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_schema_with_defs_is_skipped_not_walked() {
     let r = extract_json("events-v1.json", SCHEMA_WITH_DEFS);
     assert!(is_skipped(&r), "{r:?}");
@@ -98,7 +97,6 @@ fn test_schema_with_defs_is_skipped_not_walked() {
 
 /// draft-07 schemas spell the same thing `definitions`.
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_schema_with_legacy_definitions_is_skipped() {
     let r = extract_json("legacy.json", SCHEMA_WITH_LEGACY_DEFS);
     assert!(is_skipped(&r), "{r:?}");
@@ -107,7 +105,6 @@ fn test_schema_with_legacy_definitions_is_skipped() {
 /// The reporter's file lived at contracts/events-v1.json, i.e. the filename branch could never
 /// have matched it -- only the probe could.
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_schema_with_defs_in_subdirectory_is_skipped() {
     let r = extract_json("contracts/events-v1.json", SCHEMA_WITH_DEFS);
     assert!(is_skipped(&r), "{r:?}");
@@ -115,7 +112,6 @@ fn test_schema_with_defs_in_subdirectory_is_skipped() {
 
 /// The actual symptom: bare schema keywords became graph nodes.
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_schema_produces_no_keyword_nodes() {
     let r = extract_json("events-v1.json", SCHEMA_WITH_DEFS);
     let got = labels(&r);
@@ -138,7 +134,6 @@ fn test_schema_produces_no_keyword_nodes() {
 /// biome.json points `$schema` at biome's schema, not at the meta-schema. It is filename-matched,
 /// so it never depended on the probe.
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_biome_json_with_its_own_schema_key_is_still_extracted() {
     let r = extract_json("biome.json", BIOME);
     assert!(!is_skipped(&r), "{r:?}");
@@ -146,7 +141,6 @@ fn test_biome_json_with_its_own_schema_key_is_still_extracted() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_renovate_json_with_schema_and_extends_is_still_extracted() {
     let r = extract_json("renovate.json", RENOVATE);
     assert!(!is_skipped(&r), "{r:?}");
@@ -154,7 +148,6 @@ fn test_renovate_json_with_schema_and_extends_is_still_extracted() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_package_json_is_still_extracted() {
     let r = extract_json(
         "package.json",
@@ -166,7 +159,6 @@ fn test_package_json_is_still_extracted() {
 
 /// `extends` stays in the probe.
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_probe_still_recognises_extends_by_arbitrary_filename() {
     let r = extract_json("custom.config.json", PROBE_EXTENDS);
     assert!(!is_skipped(&r), "{r:?}");
@@ -174,7 +166,6 @@ fn test_probe_still_recognises_extends_by_arbitrary_filename() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_probe_still_recognises_compileroptions_by_arbitrary_filename() {
     let r = extract_json("weird.json", PROBE_COMPILER);
     assert!(!is_skipped(&r), "{r:?}");
@@ -182,7 +173,6 @@ fn test_probe_still_recognises_compileroptions_by_arbitrary_filename() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_compound_suffix_match_is_unaffected() {
     let r = extract_json("api.tsconfig.json", SUFFIX_TSCONFIG);
     assert!(!is_skipped(&r), "{r:?}");
@@ -190,7 +180,6 @@ fn test_compound_suffix_match_is_unaffected() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_dev_dependencies_probe_still_works() {
     let r = extract_json("deps.json", PROBE_COMPILER);
     assert!(!is_skipped(&r), "{r:?}");
@@ -201,7 +190,6 @@ fn test_dev_dependencies_probe_still_works() {
 /// A hand-written schema carrying only `$schema` + `properties` is still walked: it has none of
 /// `$defs`, `$id`, `definitions`, and `$schema` is in Go's `configJSONKeys`.
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_minimal_schema_without_defs_or_id_is_still_walked() {
     let body = r#"{"$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object", "properties": {"a": {"type": "string"}}}"#;
     let r = extract_json("minimal.schema.json", body);
@@ -213,7 +201,6 @@ fn test_minimal_schema_without_defs_or_id_is_still_walked() {
 
 /// Extraction must not depend on ordering or ambient state (CONTRIBUTING #3).
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_classification_is_deterministic_across_repeated_calls() {
     let first: Vec<String> = labels(&extract_json("events-v1.json", SCHEMA_WITH_DEFS))
         .into_iter()
