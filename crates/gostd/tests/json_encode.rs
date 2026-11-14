@@ -1333,6 +1333,29 @@ fn deep_value_on_default_stack() {
         .unwrap_or_else(|e| std::panic::resume_unwind(e));
 }
 
+/// A hand-written impl in graphify's shape (`model.rs` `Edge`): fields through `write_field`,
+/// then `write_raw(b"}")`.
+struct HandObject(u32);
+
+impl Marshal for HandObject {
+    fn marshal_json(&self, e: &mut EncodeState) -> Result<(), Error> {
+        let mut first = true;
+        gostd::json::write_field(e, &mut first, "n", &i64::from(self.0), false)?;
+        e.write_raw(b"}");
+        Ok(())
+    }
+}
+
+#[test]
+fn hand_written_objects_do_not_leak_depth() {
+    // 20,000 such objects in one array are only two levels deep; before the fix each `}` from
+    // write_raw left its level open and the 10,000th object failed with "exceeded max depth".
+    let v: Vec<HandObject> = (0..20_000).map(HandObject).collect();
+    let got = marshal(&v).expect("Marshal of 20,000 hand-written objects");
+    assert!(got.starts_with(br#"[{"n":0},{"n":1},"#));
+    assert!(got.ends_with(br#",{"n":19999}]"#));
+}
+
 #[test]
 fn marshal_max_depth() {
     // Traced, no Go row: the encoder's state machine refuses the 10,001st open array or object
