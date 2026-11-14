@@ -1,10 +1,9 @@
 //! graphify-go `internal/ts/ts_test.go`, and the plan's Task 14 tests.
 
 use crate::ts::ts::limit_with;
-use crate::ts::{budget, limit, parse};
+use crate::ts::{budget, limit, parse, with_budget};
 
 #[test]
-#[ignore = "graphify-rs-ihc.15"]
 fn test_limit() {
     const CASES: [(usize, u32); 7] = [
         (0, 65536),
@@ -29,7 +28,6 @@ fn test_limit() {
 /// `limit` and `budget` as the extractors call them: 1x at 4 KiB, 4x at 16 KiB, back to 1x
 /// at 64 KiB; the default budget is 65,536 when `GRAPHIFY_PARSE_BUDGET` is not set.
 #[test]
-#[ignore = "graphify-rs-ihc.15"]
 fn limit_scaling() {
     let b = budget();
     if std::env::var_os("GRAPHIFY_PARSE_BUDGET").is_none() {
@@ -45,7 +43,6 @@ fn limit_scaling() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.15"]
 fn parse_json_root_kind() {
     let kind = parse(b"{}", gositter_grammars::json::language(), |root| {
         root.kind()
@@ -56,7 +53,6 @@ fn parse_json_root_kind() {
 /// One thread's pooled parser across languages: `set_language` runs before every parse
 /// (`ts.go:113`), so the second language's tree is its own.
 #[test]
-#[ignore = "graphify-rs-ihc.15"]
 fn parse_reuses_the_parser_across_languages() {
     let json = gositter_grammars::json::language();
     let golang = gositter_grammars::golang::language();
@@ -69,4 +65,29 @@ fn parse_reuses_the_parser_across_languages() {
         parse(b"[1]", json, |r| r.to_sexp()),
         Some("(document (array (number)))".to_string())
     );
+}
+
+/// `with_budget` replaces the budget for this thread, nests, and `limit` scales it.
+#[test]
+fn with_budget_nests_and_scales() {
+    let outer = budget();
+    with_budget(100, || {
+        assert_eq!(budget(), 100, "inside with_budget(100)");
+        assert_eq!(limit(16384), 400, "limit(16384) scales the override");
+        with_budget(0, || {
+            assert_eq!(budget(), 0, "nested with_budget(0)");
+            assert_eq!(limit(16384), 0, "no limit inside with_budget(0)");
+        });
+        assert_eq!(budget(), 100, "after the nested call");
+    });
+    assert_eq!(budget(), outer, "after with_budget");
+}
+
+/// The previous budget comes back when `f` panics.
+#[test]
+fn with_budget_restores_after_a_panic() {
+    let outer = budget();
+    let r = std::panic::catch_unwind(|| with_budget(7, || -> u32 { panic!("boom") }));
+    assert!(r.is_err(), "the panic reaches the caller");
+    assert_eq!(budget(), outer, "budget after the panic");
 }
