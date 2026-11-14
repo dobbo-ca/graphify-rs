@@ -77,7 +77,6 @@ fn seed(dirs: &mut Vec<TempDir>, nodes: &[&Node]) -> PathBuf {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_to_json_anti_shrink() {
     let comm = BTreeMap::new();
     let dir = TempDir::new();
@@ -109,7 +108,6 @@ fn test_to_json_anti_shrink() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_check_shrink() {
     let n_a = node("a", "pkg/a.go");
     let n_b = node("b", "pkg/b.go");
@@ -229,7 +227,6 @@ fn test_check_shrink() {
 // normal refactor and must be allowed even when the source file exists on disk:
 // the currentSources carve-out must short-circuit before the on-disk check.
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_check_shrink_allows_rebuild_in_place() {
     let a1 = node("a1", "pkg/a.go");
     let a2 = node("a2", "pkg/a.go");
@@ -247,7 +244,6 @@ fn test_check_shrink_allows_rebuild_in_place() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_to_json_empty_and_absent_target_writes() {
     let comm = BTreeMap::new();
 
@@ -265,7 +261,6 @@ fn test_to_json_empty_and_absent_target_writes() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_to_json_unparseable_existing_refused() {
     let comm = BTreeMap::new();
     let dir = TempDir::new();
@@ -287,7 +282,6 @@ fn test_to_json_unparseable_existing_refused() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_to_json() {
     let mut g = Graph::new();
     g.add_node(Node {
@@ -382,7 +376,6 @@ fn test_to_json() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_to_json_edge_weight() {
     let mut g = Graph::new();
     g.add_node(node("a", "pkg/a.go"));
@@ -457,7 +450,6 @@ fn raw_links(data: &[u8]) -> Vec<BTreeMap<String, Value>> {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_to_json_computed_name() {
     let mut g = Graph::new();
     g.add_node(Node {
@@ -489,7 +481,6 @@ fn test_to_json_computed_name() {
 // computed name (e.g. a null-label module with a huge literal namespace) is
 // capped and stripped on the way into graph.json.
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_to_json_sanitizes_computed_name() {
     let mut g = Graph::new();
     g.add_node(Node {
@@ -555,7 +546,6 @@ fn upstream_graph() -> (Graph, BTreeMap<i64, Vec<String>>) {
 
 // test_export.py::test_to_json_creates_file
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_to_json_creates_file() {
     let (g, communities) = upstream_graph();
     let dir = TempDir::new();
@@ -566,7 +556,6 @@ fn test_to_json_creates_file() {
 
 // test_export.py::test_to_json_valid_json
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_to_json_valid_json() {
     let (g, communities) = upstream_graph();
     let dir = TempDir::new();
@@ -583,7 +572,6 @@ fn test_to_json_valid_json() {
 // test_export.py::test_to_json_nodes_have_community. Go writes `"community": null` for a node
 // in no community, so the key is always there.
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_to_json_nodes_have_community() {
     let (g, communities) = upstream_graph();
     let dir = TempDir::new();
@@ -607,7 +595,6 @@ fn test_to_json_nodes_have_community() {
 
 // test_export.py::test_to_json_refuses_shrink
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_to_json_refuses_shrink() {
     let dir = TempDir::new();
     let nodes: Vec<String> = (0..5).map(|i| format!(r#"{{"id": "n{i}"}}"#)).collect();
@@ -628,7 +615,6 @@ fn test_to_json_refuses_shrink() {
 
 // test_export.py::test_to_json_fails_safe_on_corrupt_existing
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_to_json_fails_safe_on_corrupt_existing() {
     let dir = TempDir::new();
     let p = dir.write("graph.json", b"{ this has content but is not valid json");
@@ -643,7 +629,6 @@ fn test_to_json_fails_safe_on_corrupt_existing() {
 
 // test_export.py::test_to_json_proceeds_on_empty_existing
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_to_json_proceeds_on_empty_existing() {
     let dir = TempDir::new();
     let p = dir.write("graph.json", b"");
@@ -654,7 +639,6 @@ fn test_to_json_proceeds_on_empty_existing() {
 // test_export.py::test_existing_graph_node_count. Go has no counting helper: each state is
 // seen through what `to_json` does with it (a 1-node graph written over it, force false).
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_existing_graph_node_state() {
     let g = graph_of_size(1);
     let comm = BTreeMap::new();
@@ -691,7 +675,6 @@ fn test_existing_graph_node_state() {
 // test_hypergraph.py::test_to_json_hyperedges_empty_when_none. Go has no hyperedges: the key is
 // always an empty array.
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_to_json_hyperedges_empty_when_none() {
     let (g, communities) = upstream_graph();
     let dir = TempDir::new();
@@ -711,9 +694,8 @@ fn test_to_json_hyperedges_empty_when_none() {
 
 // ---- Added tests ----
 
-// The texts of the two guard errors (plan R6; they reach stderr through cli::path_error).
+// The texts of the two guard errors (plan R6; they reach stderr as Go prints them).
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn shrink_error_texts() {
     let comm = BTreeMap::new();
     let dir = TempDir::new();
@@ -781,7 +763,6 @@ fn shrink_error_texts() {
 //   U+302E HANGUL SINGLE DOT TONE MARK     Mc, ccc 224   (not dropped)
 //   U+1D165 MUSICAL SYMBOL COMBINING STEM  Mc, ccc 216   (not dropped)
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn norm_label_cgj_run() {
     // 1. "e" + 31 x U+0301. NFKD gives "e" + 30 x U+0301 + U+034F + U+0301; every mark is Mn
     //    (U+034F too), so only "e" is left. The CGJ does not change this result: this case
@@ -814,7 +795,6 @@ fn norm_label_cgj_run() {
 // Go `toJSONLink` (export.go:315) writes `e.Loc()`, the location without the type-only and
 // deferred flag bits (bits 30 and 29), never the raw `e.SourceLocation`.
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn link_source_location_strips_flag_bits() {
     let mut e = Edge {
         source: "a".to_string(),

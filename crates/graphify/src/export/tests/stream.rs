@@ -119,7 +119,6 @@ fn stream_graph(n: usize, m: usize) -> (Graph, BTreeMap<i64, Vec<String>>) {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.12"]
 fn test_write_json_matches_marshal_indent() {
     // Go forces chunk boundaries with `jsonChunk = 8` and runs on GOMAXPROCS workers; here both
     // are arguments, and the worker counts below cover one worker and a batch of several.

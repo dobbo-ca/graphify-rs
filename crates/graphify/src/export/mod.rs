@@ -1,5 +1,4 @@
 //! Port of graphify-go `internal/export`. Filled by graphify-rs-ihc.12 (plan Task 11).
-#![allow(dead_code, unused_variables)]
 
 #[allow(clippy::module_inception)]
 mod export;
