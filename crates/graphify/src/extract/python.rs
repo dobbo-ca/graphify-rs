@@ -22,3 +22,7 @@ mod python_nested_tests;
 #[cfg(test)]
 #[path = "tests/python.rs"]
 mod python_tests;
+
+#[cfg(test)]
+#[path = "tests/python_type_only.rs"]
+mod python_type_only_tests;
