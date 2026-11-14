@@ -95,7 +95,7 @@ struct Py<'t> {
     py_type_vars: HashSet<String>,
     py_own: HashSet<String>,
     py_bodies: Vec<PyBody<'t>>,
-    /// Go `jsLinked`: the `calls` edges of `py_nested_call` already made.
+    /// Go `jsLinked`: the `calls` edges of `javascript::js_nested_call` already made.
     js_linked: HashSet<(String, String)>,
 }
 
@@ -503,7 +503,13 @@ impl<'t> Py<'t> {
                 // A def of an enclosing function hides every other of its name.
                 for s in py_chain(&parent, &c.caller) {
                     if let Some(id) = nested.get(&(s.to_string(), c.callee.clone())) {
-                        py_nested_call(&mut self.b, &mut self.js_linked, &c.caller, id, c.loc);
+                        super::javascript::js_nested_call(
+                            &mut self.b,
+                            &mut self.js_linked,
+                            &c.caller,
+                            id,
+                            c.loc,
+                        );
                         continue 'sites;
                     }
                 }
@@ -1103,29 +1109,6 @@ fn py_in_func_alias(b: &mut Builder, local: &str, val: &str, loc: Loc) {
             ..ImportAlias::default()
         });
     }
-}
-
-/// Go `jsNestedCall` (`javascript.go:1401`): a `calls` edge from caller to the nested def id,
-/// once. `linked` is Go's `jsLinked`, per file.
-fn py_nested_call(
-    b: &mut Builder,
-    linked: &mut HashSet<(String, String)>,
-    caller_id: &str,
-    id: &str,
-    loc: Loc,
-) {
-    if caller_id == id || !linked.insert((caller_id.to_string(), id.to_string())) {
-        return;
-    }
-    b.res.edges.push(Edge {
-        source: caller_id.to_string(),
-        target: id.to_string(),
-        relation: Relation::CALLS,
-        confidence: Confidence::EXTRACTED,
-        source_file: b.src,
-        source_location: loc,
-        ..Edge::default()
-    });
 }
 
 /// Go's `for s, ok := start, true; ok; s, ok = parent[s]` walk up the enclosing functions.
