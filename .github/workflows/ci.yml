@@ -11,9 +11,9 @@ permissions:
   contents: read
 concurrency:
   # One group per ref for push and PR runs (a PR's newer run cancels its older one; main pushes
-  # never cancel). Scheduled runs have their own group, so a push never replaces a pending
-  # scheduled run. A bead closes on a green scheduled or dispatched main run at or after its commit.
-  group: ${{ github.workflow }}-${{ github.event_name == 'schedule' && 'scheduled' || github.ref }}
+  # never cancel). Scheduled and dispatched runs share their own group, so a push never replaces a
+  # pending one. A bead closes on a green scheduled or dispatched main run at or after its commit.
+  group: ${{ github.workflow }}-${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'heavy' || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   # The checks run inside ci/Dockerfile on the in-cluster BuildKit (pattern from dobbo-ca/deflate-rs).
