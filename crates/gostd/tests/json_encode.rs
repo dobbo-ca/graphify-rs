@@ -1356,6 +1356,60 @@ fn hand_written_objects_do_not_leak_depth() {
     assert!(got.ends_with(br#",{"n":19999}]"#));
 }
 
+/// The documented way: fields through `write_field`, then `end_object(first)`.
+struct EndObject(u32);
+
+impl Marshal for EndObject {
+    fn marshal_json(&self, e: &mut EncodeState) -> Result<(), Error> {
+        let mut first = true;
+        gostd::json::write_field(e, &mut first, "n", &i64::from(self.0), false)?;
+        e.end_object(first);
+        Ok(())
+    }
+}
+
+/// An object written with a raw `{` and a raw `}`: no depth level is entered or left.
+struct RawObject;
+
+impl Marshal for RawObject {
+    fn marshal_json(&self, e: &mut EncodeState) -> Result<(), Error> {
+        e.write_raw(b"{");
+        e.write_raw(b"\"r\":1");
+        e.write_raw(b"}");
+        Ok(())
+    }
+}
+
+#[test]
+fn end_object_and_raw_braces_keep_depth() {
+    // end_object leaves the level the first field entered: 20,000 objects in one array.
+    let v: Vec<EndObject> = (0..20_000).map(EndObject).collect();
+    let got = marshal(&v).expect("Marshal of 20,000 end_object objects");
+    assert!(got.ends_with(br#",{"n":19999}]"#));
+    // A raw `}` that does not close a write_field object leaves the depth alone: 20,000 raw
+    // objects inside one array. If a raw `}` closed the array's level, the array's `]` would
+    // leave a level that is not open (a usize underflow, a panic in this debug test).
+    let v: Vec<RawObject> = (0..20_000).map(|_| RawObject).collect();
+    let got = marshal(&v).expect("Marshal of 20,000 raw objects");
+    assert!(got.starts_with(br#"[{"r":1},{"r":1},"#));
+    assert!(got.ends_with(br#",{"r":1}]"#));
+    // A raw object inside a hand-written object: the inner raw `}` is not the write_field
+    // object's, so only the outer `}` closes the outer level.
+    struct Outer;
+    impl Marshal for Outer {
+        fn marshal_json(&self, e: &mut EncodeState) -> Result<(), Error> {
+            let mut first = true;
+            gostd::json::write_field(e, &mut first, "a", &RawObject, false)?;
+            gostd::json::write_field(e, &mut first, "b", &EndObject(2), false)?;
+            e.write_raw(b"}");
+            Ok(())
+        }
+    }
+    let v: Vec<Outer> = (0..20_000).map(|_| Outer).collect();
+    let got = marshal(&v).expect("Marshal of 20,000 nested objects");
+    assert!(got.ends_with(br#",{"a":{"r":1},"b":{"n":2}}]"#));
+}
+
 #[test]
 fn marshal_max_depth() {
     // Traced, no Go row: the encoder's state machine refuses the 10,001st open array or object
