@@ -15,7 +15,7 @@ use crate::extract::tests::util::want_edges;
 
 // An exact-case import still resolves (the same shape as `TestImportGuidedNonAliased`).
 #[test]
-#[ignore = "graphify-rs-ihc.25"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_exact_case_cross_file_still_resolves() {
     register_kinds();
     want_edges(

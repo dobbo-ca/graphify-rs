@@ -244,7 +244,7 @@ fn test_two_file_cycle_is_reported() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.25"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_a_one_way_import_is_not_a_cycle() {
     let cycles = cycles_of(&[
         ("a.py", "from b import B\n\nclass A:\n    b: B = None\n"),
@@ -254,7 +254,7 @@ fn test_a_one_way_import_is_not_a_cycle() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.25"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_longer_cycles_are_still_reported_beside_a_two_file_one() {
     let cycles = cycles_of(&[
         ("a.py", "from b import B\nclass A: pass\n"),
@@ -307,7 +307,7 @@ fn test_a_type_only_reverse_import_closes_no_cycle() {
 
 /// The shape in the issue: a two-file cycle that closes only through a runtime import.
 #[test]
-#[ignore = "graphify-rs-ihc.25"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_python_two_file_cycle_closes_only_through_a_runtime_import() {
     const CASES: [(&str, &str, &[[&str; 2]]); 2] = [
         (
@@ -339,7 +339,7 @@ fn test_python_two_file_cycle_closes_only_through_a_runtime_import() {
 
 /// The reporter's shape: a three-file ring that closes only through a runtime import.
 #[test]
-#[ignore = "graphify-rs-ihc.25"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_python_three_file_ring_closes_only_through_a_runtime_import() {
     const CASES: [(&str, &str, &[[&str; 3]]); 2] = [
         (
@@ -376,7 +376,7 @@ fn test_python_three_file_ring_closes_only_through_a_runtime_import() {
 
 /// A runtime import and a guarded one for the same pair: the cycle stays.
 #[test]
-#[ignore = "graphify-rs-ihc.25"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_python_runtime_and_guarded_import_of_one_module_keep_the_cycle() {
     const CASES: [(&str, &str); 2] = [
         (
@@ -409,7 +409,7 @@ fn test_python_runtime_and_guarded_import_of_one_module_keep_the_cycle() {
 /// pkg.b` does not hide the ring a -> c -> b -> a. (Upstream's undirected build folds the pair
 /// into one edge; Go keeps both directed edges, the assertion is the same.)
 #[test]
-#[ignore = "graphify-rs-ihc.25"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_python_guard_in_one_direction_keeps_the_runtime_import_in_the_other() {
     let cycles = cycles_of(&[
         ("pkg/__init__.py", ""),

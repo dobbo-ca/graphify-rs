@@ -44,7 +44,7 @@ fn stamped_lines(stamped: &BTreeMap<u32, bool>) -> Vec<u32> {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.25"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_python_imports_under_type_checking_are_stamped() {
     let ext = extract_py(&[
         ("pkg/__init__.py", ""),
@@ -73,7 +73,7 @@ fn test_python_imports_under_type_checking_are_stamped() {
 
 /// The `else:` of the guard and `if not TYPE_CHECKING:` run at import time.
 #[test]
-#[ignore = "graphify-rs-ihc.25"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_python_imports_that_run_are_not_stamped() {
     let ext = extract_py(&[
         ("models.py", "class Item: ...\n"),
