@@ -146,6 +146,54 @@ fn sourceless_labels(ext: &Extraction) -> BTreeSet<&str> {
         .collect()
 }
 
+// ---- test_scala_abstract_methods.py ----
+
+// pins Go v0.12.0 (contains); upstream 0.9.107 emits method -> P3 (B28)
+#[test]
+#[ignore = "graphify-rs-ihc.36"]
+fn test_deferred_method_without_parens_is_a_node() {
+    let ext = run(&[("s.scala", "trait Shape {\n  def area: Double\n}\n")]);
+    assert!(has_edge(&ext, "Shape", "contains", "Shape.area()"));
+}
+
+// pins Go v0.12.0 (contains); upstream 0.9.107 emits method -> P3 (B28)
+#[test]
+#[ignore = "graphify-rs-ihc.36"]
+fn test_deferred_method_with_params_is_a_node() {
+    let ext = run(&[(
+        "s.scala",
+        "trait Shape {\n  def scale(f: Double): Shape\n}\n",
+    )]);
+    assert!(has_edge(&ext, "Shape", "contains", "Shape.scale()"));
+}
+
+// pins Go v0.12.0 (contains); upstream 0.9.107 emits method -> P3 (B28)
+#[test]
+#[ignore = "graphify-rs-ihc.36"]
+fn test_pure_interface_trait_keeps_every_contract_method() {
+    let ext = run(&[(
+        "s.scala",
+        "trait Shape {\n  def area: Double\n  def name(): String\n  def describe: String = name()\n}\n",
+    )]);
+    for m in ["Shape.area()", "Shape.name()", "Shape.describe()"] {
+        assert!(has_edge(&ext, "Shape", "contains", m), "{m}");
+    }
+    // The concrete method's call has a target to resolve to.
+    assert!(has_edge(&ext, "Shape.describe()", "calls", "Shape.name()"));
+}
+
+// pins Go v0.12.0 (contains); upstream 0.9.107 emits method -> P3 (B28)
+#[test]
+#[ignore = "graphify-rs-ihc.36"]
+fn test_abstract_class_deferred_method_is_a_node() {
+    let ext = run(&[(
+        "s.scala",
+        "abstract class Base {\n  def compute(x: Int): Int\n  def run(): Int = compute(1)\n}\n",
+    )]);
+    assert!(has_edge(&ext, "Base", "contains", "Base.compute()"));
+    assert!(has_edge(&ext, "Base.run()", "calls", "Base.compute()"));
+}
+
 // ---- test_scala_context_bounds.py ----
 
 const BOUNDS_SRC: &str = r#"trait Ordering
@@ -359,6 +407,22 @@ fn test_given_members_do_not_leak_to_file_scope() {
         !ext.nodes.iter().any(|n| n.label == "helper()"),
         "given member leaked to file scope"
     );
+}
+
+// pins Go v0.12.0 (contains); upstream 0.9.107 emits method -> P3 (B28)
+#[test]
+#[ignore = "graphify-rs-ihc.36"]
+fn test_trait_method_is_untouched_by_the_given() {
+    // Go reads no `given_definition`, so the given steals nothing; the trait keeps its method.
+    let ext = run(&[(
+        "given.scala",
+        "trait Show[A]:\n  def show(a: A): String\n\ngiven intShow: Show[Int] with\n  def show(a: Int): String = helper(a)\n  def helper(a: Int): String = a.toString\n\ngiven Show[String] with\n  def show(a: String): String = a\n",
+    )]);
+    assert!(
+        has_edge(&ext, "Show", "contains", "Show.show()"),
+        "trait lost its own method"
+    );
+    assert!(targets_from(&ext, "Show", "calls").is_empty());
 }
 
 // ---- test_scala_self_type.py ----
