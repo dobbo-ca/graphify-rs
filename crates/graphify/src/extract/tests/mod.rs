@@ -2,6 +2,7 @@
 
 mod budget;
 mod builder;
+mod cpp_header_routing;
 mod degenerate;
 mod dispatch;
 mod extract;

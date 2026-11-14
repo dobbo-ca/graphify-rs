@@ -199,3 +199,8 @@ pub fn file_from_bytes(rel: &str, src: &[u8]) -> Result {
 pub(crate) fn to_utf8(src: &[u8]) -> Cow<'_, [u8]> {
     todo!("graphify-rs-ihc.16")
 }
+
+/// Go `isCppHeader` (`extract.go:316`): a `.h` whose first 256 KiB hold a C++ token.
+pub(crate) fn is_cpp_header(src: &[u8]) -> bool {
+    todo!("graphify-rs-ihc.16")
+}
