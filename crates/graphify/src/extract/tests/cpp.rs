@@ -1,5 +1,5 @@
 //! graphify-go `internal/extract/cpp_test.go`. Not ported here: `TestCppHeaderRoutesToCppExtractor`
-//! (it tests `isCppHeader`, `extract.go:316`, which belongs to extract-core).
+//! moved to the extract-core tests (ihc.16): it tests `isCppHeader`, `extract.go:316`.
 
 use std::collections::{BTreeMap, BTreeSet};
 
