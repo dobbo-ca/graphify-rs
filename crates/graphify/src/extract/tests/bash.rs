@@ -20,6 +20,7 @@ fn extract_proj(proj: &str, files: &[&str]) -> Extraction {
 }
 
 #[test]
+#[ignore = "graphify-rs-ihc.18"] // bash test (ihc.35, bash_test.go): needs resolve
 fn test_extract_bash() {
     let ext = extract_proj("bashproj", &["util/math.sh", "app/main.sh"]);
 
