@@ -213,8 +213,8 @@ public class Run : IRun {
 // ---------------------------------------------------------------------------
 // upstream `test_csharp_method_owner_labels.py` (12 tests).
 // Left out: everything that goes through Python's watch, build, analyze or cache code, the
-// `.Name()` bare-label tests (Go labels `Type.Name()` only), the Java and Swift label test, and
-// the id/edge comparison test.
+// bare-label test of the extraction (ported below asserting Go's `Type.Name()`), the Java and
+// Swift label test, and the id/edge comparison test.
 // ---------------------------------------------------------------------------
 
 #[test]
@@ -245,6 +245,41 @@ public class Exporter {
     ] {
         assert!(labels.contains(want), "missing node label {want:?}");
     }
+}
+
+// pins Go v0.12.0 (labels `CsvReport.Build()`, `Exporter.Run()`, ..., no constructor node);
+// upstream 0.9.107 emits the bare `.Build()`, `.Run()` and `.Exporter()` -> P3
+#[test]
+#[ignore = "graphify-rs-ihc.28"]
+fn test_extraction_keeps_the_bare_resolver_label() {
+    let ext = run(&[(
+        "Report.cs",
+        r#"public interface IReport { string Build(); }
+public class PdfReport : IReport { public string Build() { return "pdf"; } }
+public class CsvReport : IReport { public string Build() { return "csv"; } }
+public class Exporter {
+  private readonly IReport _report;
+  public Exporter(IReport report) { _report = report; }
+  public string Run() { return _report.Build(); }
+}
+"#,
+    )]);
+    let mut methods: Vec<&str> = ext
+        .nodes
+        .iter()
+        .filter(|n| n.label.ends_with("()"))
+        .map(|n| n.label.as_str())
+        .collect();
+    methods.sort();
+    assert_eq!(
+        methods,
+        [
+            "CsvReport.Build()",
+            "Exporter.Run()",
+            "IReport.Build()",
+            "PdfReport.Build()"
+        ]
+    );
 }
 
 // ---------------------------------------------------------------------------

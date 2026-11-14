@@ -6,7 +6,8 @@
 //!
 //! Go binds a base or a type position by name alone (the file's own definition, else the one
 //! definition of the corpus, else a stub per file); it has no namespace-aware binding, no node
-//! for a nested type, an enum member or a delegate, and node ids carry no namespace.
+//! for a nested type, an enum member or a delegate, and node ids carry no namespace. The cases of
+//! namespace-aware or alias binding are ported at the end, asserting where Go's edge ends.
 
 use std::collections::BTreeMap;
 
@@ -297,13 +298,13 @@ fn test_element_access_member_call_still_binds_to_the_real_method_not_an_enum_ca
 // `$@"a""{e}"""` literal and need the members after it; Go lacks the byte-length-preserving mask
 // that makes the grammar accept the literal, so they are not ported.
 
-// ---- upstream `test_csharp_type_resolution.py` (24 of 60 ported) ----
+// ---- upstream `test_csharp_type_resolution.py` (38 of 60 ported, 14 of them at the end of the
+// file asserting Go's value) ----
 // Not ported: node metadata (namespace, scope_chain, using_kind, ref_token, qualified,
 // is_nested_type) and namespace nodes (Go lacks them); node ids that carry the namespace or the
 // arity (Go ids are file + name, so `A.T` and `B.T` or `Effect` and `Effect<T>` are one node);
-// namespace-aware binding of a type ref (Go binds by name: the file's own definition, else the
-// unique one of the corpus, else a stub per file); `using` alias and `using static` binding of
-// type refs; nested type nodes; one shared external stub; `CsharpNameResolver`.
+// nested type nodes (the five `using static` tests need the nested definition);
+// `CsharpNameResolver`.
 
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
@@ -998,5 +999,262 @@ fn test_csharp_ambiguous_static_imports_dangle() {
     assert!(
         resolved.is_empty(),
         "ambiguous static imports must fail closed and remain unresolved"
+    );
+}
+
+// ---- Go's value where upstream binds a type ref by namespace or alias ----
+// Go has neither: a ref binds to the file's own definition, else to the one definition of the
+// corpus, else (two definitions in one directory, or none) to a sourceless stub per file. A `using`
+// binds nothing for a type ref. Each case below is ported asserting where Go's edge ends.
+
+/// (label, is a definition) of each node the `relation` edges from a node labelled `src` end on.
+fn ends(ext: &Extraction, relation: &str, src: &str) -> Vec<(String, bool)> {
+    targets_from(ext, relation, src)
+        .into_iter()
+        .map(|n| (n.label.clone(), !n.source_file.is_empty()))
+        .collect()
+}
+
+// pins Go v0.12.0 (Holder references a sourceless stub WeaponData: two definitions in one
+// directory); upstream 0.9.107 emits Holder -> Game.Core.WeaponData, no stub -> P3
+#[test]
+#[ignore = "graphify-rs-ihc.28"]
+fn test_csharp_collision_disambiguated_by_using() {
+    let ext = run(&[
+        (
+            "core.cs",
+            "namespace Game.Core { public class WeaponData { public int Number; } }\n",
+        ),
+        (
+            "ui.cs",
+            "namespace Game.UI { public class WeaponData { public int Width; } }\n",
+        ),
+        (
+            "combat.cs",
+            "using Game.Core;\nnamespace Game.Combat { public class Holder { public WeaponData data; } }\n",
+        ),
+    ]);
+    assert_eq!(
+        ends(&ext, "references", "Holder"),
+        [("WeaponData".to_string(), false)]
+    );
+}
+
+// pins Go v0.12.0 (Use inherits the definition T of namespace C: Go binds by name); upstream
+// 0.9.107 emits no resolved edge -> P3
+#[test]
+#[ignore = "graphify-rs-ihc.28"]
+fn test_csharp_cross_namespace_ref_not_misbound() {
+    let ext = run(&[(
+        "x.cs",
+        "namespace B { class Use : T {} } namespace C { class T {} }\n",
+    )]);
+    assert_eq!(ends(&ext, "inherits", "Use"), [("T".to_string(), true)]);
+}
+
+// pins Go v0.12.0 (Use inherits the definition T of namespace B); upstream 0.9.107 emits no
+// resolved edge -> P3
+#[test]
+#[ignore = "graphify-rs-ihc.28"]
+fn test_csharp_same_file_cross_namespace_ref_not_misbound() {
+    let ext = run(&[(
+        "x.cs",
+        "namespace B { class T {} } namespace C { class Use : T {} }\n",
+    )]);
+    assert_eq!(ends(&ext, "inherits", "Use"), [("T".to_string(), true)]);
+}
+
+// pins Go v0.12.0 (Go has no namespace node: Use inherits a sourceless stub Game); upstream
+// 0.9.107 emits no inherits edge to the namespace node -> P3
+#[test]
+#[ignore = "graphify-rs-ihc.28"]
+fn test_csharp_inherits_does_not_bind_namespace_node() {
+    let ext = run(&[(
+        "y.cs",
+        "namespace Game { class Damage {} class Use : Game {} }\n",
+    )]);
+    assert_eq!(ends(&ext, "inherits", "Use"), [("Game".to_string(), false)]);
+}
+
+// pins Go v0.12.0 (Use inherits the definition T of namespace A: Go drops the qualifier B);
+// upstream 0.9.107 emits no resolved edge -> P3
+#[test]
+#[ignore = "graphify-rs-ihc.28"]
+fn test_csharp_qualified_ref_unknown_qualifier_dangles() {
+    let ext = run(&[("a.cs", "namespace A { class T {} class Use : B.T {} }\n")]);
+    assert_eq!(ends(&ext, "inherits", "Use"), [("T".to_string(), true)]);
+}
+
+// pins Go v0.12.0 (Good inherits a sourceless stub T: two definitions in one directory, and no
+// alias binding); upstream 0.9.107 emits Good -> X.Y.T -> P3
+#[test]
+#[ignore = "graphify-rs-ihc.28"]
+fn test_csharp_qualified_in_scope_alias_shadows_namespace() {
+    let ext = run(&[
+        ("xy.cs", "namespace X.Y { class T {} }\n"),
+        ("b.cs", "namespace B { class T {} }\n"),
+        (
+            "use.cs",
+            "namespace A { using B = X.Y; class Good : B.T {} }\nnamespace C { using B = Z.Q; }\n",
+        ),
+    ]);
+    assert_eq!(ends(&ext, "inherits", "Good"), [("T".to_string(), false)]);
+}
+
+// pins Go v0.12.0 (Good and Bad both inherit N.T: the one definition of T); upstream 0.9.107 emits
+// only Good -> N.T -> P3
+#[test]
+#[ignore = "graphify-rs-ihc.28"]
+fn test_csharp_namespace_scoped_using_isolated_to_sibling_block() {
+    let ext = run(&[
+        ("n.cs", "namespace N { class T {} }\n"),
+        (
+            "u.cs",
+            "namespace A { using N; class Good : T {} }\nnamespace A { class Bad : T {} }\n",
+        ),
+    ]);
+    assert_eq!(ends(&ext, "inherits", "Good"), [("T".to_string(), true)]);
+    assert_eq!(ends(&ext, "inherits", "Bad"), [("T".to_string(), true)]);
+}
+
+// pins Go v0.12.0 (Consumer references a sourceless stub Widget: two definitions in one
+// directory); upstream 0.9.107 emits Consumer -> Demo.Inner.Widget -> P3
+#[test]
+#[ignore = "graphify-rs-ihc.28"]
+fn test_csharp_enclosing_namespace_multilevel_shadowing() {
+    let ext = run(&[
+        (
+            "outer.cs",
+            "namespace Demo {\n    public class Widget { public int Level = 1; }\n}\n",
+        ),
+        (
+            "inner.cs",
+            "namespace Demo.Inner {\n    public class Widget { public int Level = 2; }\n}\n",
+        ),
+        (
+            "deep.cs",
+            "namespace Demo.Inner.Deep {\n    public class Consumer {\n        public Widget Item;\n    }\n}\n",
+        ),
+    ]);
+    assert_eq!(
+        ends(&ext, "references", "Consumer"),
+        [("Widget".to_string(), false)]
+    );
+}
+
+// pins Go v0.12.0 (Service references Other.Record, the one top-level Record: the nested Record
+// has no node and `using static` binds nothing); upstream 0.9.107 emits no resolved edge -> P3
+#[test]
+#[ignore = "graphify-rs-ihc.28"]
+fn test_csharp_static_import_vs_namespace_conflict_dangles() {
+    let ext = run(&[
+        (
+            "other.cs",
+            "namespace Other\n{\n    public class Record {}\n}\n",
+        ),
+        (
+            "layer.cs",
+            "namespace Demo\n{\n    public class Layer\n    {\n        public class Record {}\n    }\n}\n",
+        ),
+        (
+            "consumer.cs",
+            "using Other;\nusing static Demo.Layer;\nnamespace Consumer\n{\n    public class Service\n    {\n        public Record value;\n    }\n}\n",
+        ),
+    ]);
+    assert_eq!(
+        ends(&ext, "references", "Service"),
+        [("Record".to_string(), true)]
+    );
+    assert_eq!(
+        targets_from(&ext, "references", "Service")[0].source_file,
+        "other.cs"
+    );
+}
+
+// pins Go v0.12.0 (one sourceless List stub per file, two in all); upstream 0.9.107 emits one
+// shared stub -> P3
+#[test]
+#[ignore = "graphify-rs-ihc.28"]
+fn test_csharp_external_type_shares_one_placeholder_across_files() {
+    let ext = run(&[
+        (
+            "A.cs",
+            "using System.Collections.Generic;\nnamespace Demo { public class A { public List<int> Items; } }\n",
+        ),
+        (
+            "B.cs",
+            "using System.Collections.Generic;\nnamespace Demo { public class B { public List<string> Names; } }\n",
+        ),
+    ]);
+    assert_eq!(stubs(&ext, "List").len(), 2);
+    assert_eq!(ends(&ext, "references", "A"), [("List".to_string(), false)]);
+    assert_eq!(ends(&ext, "references", "B"), [("List".to_string(), false)]);
+}
+
+// pins Go v0.12.0 (Weapon inherits a sourceless stub Dmg: Go binds no `using` alias); upstream
+// 0.9.107 emits Weapon -> Game.Core.Damage -> P3
+#[test]
+#[ignore = "graphify-rs-ihc.28"]
+fn test_csharp_using_alias_resolves_to_aliased_type() {
+    let ext = run(&[
+        (
+            "core.cs",
+            "namespace Game.Core { public class Damage {} }\n",
+        ),
+        (
+            "combat.cs",
+            "using Dmg = Game.Core.Damage;\nnamespace Game.Combat { public class Weapon : Dmg {} }\n",
+        ),
+    ]);
+    assert_eq!(
+        ends(&ext, "inherits", "Weapon"),
+        [("Dmg".to_string(), false)]
+    );
+    assert!(targets(&ext, "inherits", "Damage").is_empty());
+}
+
+// pins Go v0.12.0 (Use inherits a sourceless stub Bx: Go binds no `using` alias); upstream 0.9.107
+// emits Use -> N.Box -> P3
+#[test]
+#[ignore = "graphify-rs-ihc.28"]
+fn test_csharp_generic_alias_resolves_to_base_type() {
+    let ext = run(&[
+        ("core.cs", "namespace N { class Box {} }\n"),
+        ("use.cs", "using Bx = N.Box<int>;\nclass Use : Bx {}\n"),
+    ]);
+    assert_eq!(ends(&ext, "inherits", "Use"), [("Bx".to_string(), false)]);
+}
+
+// pins Go v0.12.0 (Use inherits a sourceless stub B: Go binds no `using` alias); upstream 0.9.107
+// emits Use -> N.Box -> P3
+#[test]
+#[ignore = "graphify-rs-ihc.28"]
+fn test_csharp_alias_matching_file_stem_resolves_via_token() {
+    let ext = run(&[
+        ("core.cs", "namespace N { class Box {} }\n"),
+        ("b.cs", "using B = N.Box;\nclass Use : B {}\n"),
+    ]);
+    assert_eq!(ends(&ext, "inherits", "Use"), [("B".to_string(), false)]);
+}
+
+// pins Go v0.12.0 (Good and Bad both inherit a sourceless stub AliasT: Go binds no `using` alias);
+// upstream 0.9.107 emits only Good -> N.T -> P3
+#[test]
+#[ignore = "graphify-rs-ihc.28"]
+fn test_csharp_alias_using_scoped_to_its_block() {
+    let ext = run(&[
+        ("n.cs", "namespace N { class T {} }\n"),
+        (
+            "u.cs",
+            "namespace A { using AliasT = N.T; class Good : AliasT {} }\nnamespace A { class Bad : AliasT {} }\n",
+        ),
+    ]);
+    assert_eq!(
+        ends(&ext, "inherits", "Good"),
+        [("AliasT".to_string(), false)]
+    );
+    assert_eq!(
+        ends(&ext, "inherits", "Bad"),
+        [("AliasT".to_string(), false)]
     );
 }

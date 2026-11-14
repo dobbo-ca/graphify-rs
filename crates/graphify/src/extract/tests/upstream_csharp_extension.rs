@@ -743,8 +743,8 @@ fn node_id<'a>(ext: &'a Extraction, label: &str) -> &'a str {
         .as_str()
 }
 
-/// Upstream asserts confidence 0.85 as well; Go's `dispatches_to` edge carries no score, so only
-/// the INFERRED confidence is kept.
+// pins Go v0.12.0 (INFERRED, confidence_score 0.0, which is not written); upstream 0.9.107 emits
+// INFERRED with confidence_score 0.85 -> P3
 #[test]
 #[ignore = "graphify-rs-ihc.28"]
 fn test_single_implementer_links_the_interface_method() {
@@ -761,6 +761,7 @@ fn test_single_implementer_links_the_interface_method() {
         .filter(|e| e.relation.as_str() == "dispatches_to")
     {
         assert_eq!(e.confidence.as_str(), "INFERRED");
+        assert_eq!(e.confidence_score, 0.0);
     }
 }
 
