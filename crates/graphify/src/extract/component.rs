@@ -6,3 +6,7 @@ use super::extract::Result;
 pub(crate) fn extract_component(rel: &str, src: &[u8], is_astro: bool) -> Option<Result> {
     todo!("graphify-rs-ihc.26")
 }
+
+#[cfg(test)]
+#[path = "tests/component.rs"]
+mod component_tests;
