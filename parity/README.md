@@ -387,7 +387,7 @@ The Rust tests read graph.json back with `gostd::json::unmarshal` into the priva
 | graphify-go `internal/extract/java_test.go`, `java_chain_test.go` (`graphify-rs-ihc.27`) | 14 | 14 | 0 | upstream files (5, Go has it in part): PR A2 |
 | `extract-csharp` (`graphify-rs-ihc.28`) | - | - | - | not started |
 | graphify-go `internal/extract/c_test.go` (`graphify-rs-ihc.29`) | 1 | 1 | 0 | upstream `test_c_include_resolution.py` (13, Go has it): PR A2 |
-| `extract-cpp` (`graphify-rs-ihc.30`) | - | - | - | not started |
+| graphify-go `internal/extract/cpp_test.go`, `preproc_test.go` (`graphify-rs-ihc.30`) | 10 | 9 | 0 | `TestCppHeaderRoutesToCppExtractor` moved to extract-core (ihc.16): it tests `isCppHeader`, `extract.go:316`; upstream files: PR A2 |
 | `extract-hcl` (`graphify-rs-ihc.31`) | - | - | - | not started |
 | graphify-go `internal/extract/rust_test.go` (`graphify-rs-ihc.32`) | 1 | 1 | 0 | - (no test of shared code: nothing moved) |
 | upstream `test_rust_anonymous_const.py` | 1 | 1 (without the `WIDTH` and `READY` labels: Go extracts no `const` or `static` item) | 0 | - |
