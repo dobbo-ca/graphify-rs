@@ -320,6 +320,7 @@ Upstream (port only the cases whose assertion holds for graphify-go v0.12.0):
 | Go file | Test | Fuzz | t.Run | Grammars named | Needs | Rust file |
 |---|---|---|---|---|---|---|
 | `internal/extract/gaps_test.go` | 9 | 0 | 0 | csharp, js, ruby, scala | - | `crates/graphify/src/extract/tests/gaps.rs` |
+| `internal/extract/gotargets_test.go` | 1 | 0 | 0 | golang | - | `crates/graphify/src/extract/tests/gotargets.rs` |
 | `internal/extract/inherits_test.go` | 6 | 0 | 0 | csharp, java, python | - | `crates/graphify/src/extract/tests/inherits.rs` |
 | `internal/extract/local_imports_test.go` | 1 | 0 | 1 | c, c/cpp, cpp, golang, ruby, rust | - | `crates/graphify/src/extract/tests/local_imports.rs` |
 | `internal/extract/recvtail_test.go` | 1 | 1 | 0 | - | - | `crates/graphify/src/extract/tests/recvtail.rs` |
@@ -521,7 +522,6 @@ Upstream (port only the cases whose assertion holds for graphify-go v0.12.0):
 | Go file | Test | Fuzz | t.Run | Grammars named | Needs | Rust file |
 |---|---|---|---|---|---|---|
 | `internal/extract/gocalls_test.go` | 2 | 0 | 0 | golang | - | `crates/graphify/src/extract/tests/gocalls.rs` |
-| `internal/extract/gotargets_test.go` | 1 | 0 | 0 | golang | - | `crates/graphify/src/extract/tests/gotargets.rs` |
 
 Upstream (port only the cases whose assertion holds for graphify-go v0.12.0):
 
