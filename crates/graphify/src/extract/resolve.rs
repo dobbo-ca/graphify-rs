@@ -25,3 +25,7 @@ pub fn resolve_parts(
 pub fn join(nodes: Vec<Vec<Node>>, edges: Vec<Vec<Edge>>) -> Extraction {
     todo!("graphify-rs-ihc.18")
 }
+
+#[cfg(test)]
+#[path = "tests/csharp_dispatch.rs"]
+mod csharp_dispatch_tests;
