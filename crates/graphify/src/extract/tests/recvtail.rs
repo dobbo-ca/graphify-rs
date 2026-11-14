@@ -1,9 +1,9 @@
 //! graphify-go `internal/extract/recvtail_test.go`: `TestRecvTailMatchesRegexp` and the seeds of
 //! `FuzzRecvTail` as one table (plan Port rules). Go compares `recvTail` with
-//! `regexp.MustCompile("[\p{L}\p{N}_]+$").FindString`; std has no `\p{L}`, so the table holds
-//! what the expression gives for each seed. An invalid UTF-8 seed goes through
-//! `String::from_utf8_lossy`: an invalid byte is U+FFFD, which is no letter or number, as in
-//! Go's scan and regexp.
+//! `regexp.MustCompile("[\p{L}\p{N}_]+$").FindString`; here the same expression through
+//! `gostd::regexp` (Go's RE2, Unicode 17), and each row's expected value is also checked. An
+//! invalid UTF-8 seed goes through `detect::go_lossy` (one U+FFFD per bad byte, as Go's scan and
+//! regexp read it).
 
 use crate::extract::resolve::recv_tail;
 
@@ -57,8 +57,14 @@ fn recv_tail_matches_regexp_seeds() {
         (b"\xef\xbf\xbdb", "b"),
     ];
     for (seed, want) in seeds {
-        let s = String::from_utf8_lossy(seed);
+        let s = crate::detect::go_lossy(seed);
         let got = recv_tail(&s);
+        let re = gostd::regexp::Regexp::must_compile(r"[\p{L}\p{N}_]+$");
+        let by_re = re.find_string_index(&s).map_or("", |(a, b)| &s[a..b]);
+        assert_eq!(
+            got, by_re,
+            "recv_tail({seed:?}) = {got:?}, regexp gives {by_re:?}"
+        );
         assert_eq!(
             got, *want,
             "recv_tail({seed:?}) = {got:?}, regexp gives {want:?}"
