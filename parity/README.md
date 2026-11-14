@@ -387,7 +387,7 @@ The Rust tests read graph.json back with `gostd::json::unmarshal` into the priva
 | graphify-go `internal/extract/java_test.go`, `java_chain_test.go` (`graphify-rs-ihc.27`) | 14 | 14 | 0 | upstream files (5, Go has it in part): PR A2 |
 | `extract-csharp` (`graphify-rs-ihc.28`) | - | - | - | not started |
 | graphify-go `internal/extract/c_test.go` (`graphify-rs-ihc.29`) | 1 | 1 | 0 | upstream `test_c_include_resolution.py` (13, Go has it): PR A2 |
-| `extract-cpp` (`graphify-rs-ihc.30`) | - | - | - | not started |
+| graphify-go `internal/extract/cpp_test.go`, `preproc_test.go` (`graphify-rs-ihc.30`) | 10 | 8 | 0 | `TestCppHeaderRoutesToCppExtractor` tests `isCppHeader` (`extract.go:316`, not in Rust); `TestCppExportMacroScanMatchesRegexp` needs a regex and a seeded rand crate; upstream files: PR A2 |
 | `extract-hcl` (`graphify-rs-ihc.31`) | - | - | - | not started |
 | `extract-rust` (`graphify-rs-ihc.32`) | - | - | - | not started |
 | `extract-ruby` (`graphify-rs-ihc.33`) | - | - | - | not started |
