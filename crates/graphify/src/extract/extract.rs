@@ -448,8 +448,7 @@ pub(crate) fn is_cpp_header(src: &[u8]) -> bool {
 
 /// Go `toUTF8`: valid UTF-8 is kept; UTF-16 with a byte-order mark is decoded (an unpaired
 /// surrogate becomes U+FFFD, an odd last byte is dropped); anything else is read as latin-1.
-pub(crate) fn to_utf8(src: &[u8]) -> std::borrow::Cow<'_, [u8]> {
-    use std::borrow::Cow;
+pub(crate) fn to_utf8(src: &[u8]) -> Cow<'_, [u8]> {
     if std::str::from_utf8(src).is_ok() {
         return Cow::Borrowed(src);
     }
@@ -474,19 +473,3 @@ pub(crate) fn to_utf8(src: &[u8]) -> std::borrow::Cow<'_, [u8]> {
             .into_bytes(),
     )
 }
-
-/// Go `toUTF8` (`extract.go:625`): valid UTF-8 is kept (borrowed); UTF-16 with a BOM is decoded
-/// (an unpaired surrogate becomes U+FFFD, an odd last byte is dropped); anything else is latin-1.
-pub(crate) fn to_utf8(src: &[u8]) -> Cow<'_, [u8]> {
-    todo!("graphify-rs-ihc.16")
-}
-
-/// Go `isCppHeader` (`extract.go:316`): a `.h` whose first 256 KiB hold a C++ token.
-pub(crate) fn is_cpp_header(src: &[u8]) -> bool {
-    todo!("graphify-rs-ihc.16")
-}
-
-/// Go `Imp.Dyn` values (`extract.go:553-556`): a file's dynamic import, a function's deferred
-/// import.
-pub(crate) const DYN_IMPORT: u8 = 1;
-pub(crate) const DYN_DEFERRED: u8 = 2;

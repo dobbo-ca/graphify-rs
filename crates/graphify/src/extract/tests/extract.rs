@@ -95,7 +95,6 @@ fn test_file_from_bytes_non_utf8() {
 /// `toUTF8` (`extract.go:625`): valid UTF-8 kept; UTF-16 with a BOM decoded (an unpaired
 /// surrogate is U+FFFD, an odd trailing byte is dropped); anything else is latin-1.
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn to_utf8_cases() {
     const CASES: [(&str, &[u8], &str); 6] = [
         (

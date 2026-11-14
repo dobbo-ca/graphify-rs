@@ -24,16 +24,20 @@ const SOURCES: &[(&str, &str)] = &[
     ("java", include_str!("../java.rs")),
     ("javascript", include_str!("../javascript.rs")),
     ("jsmodules", include_str!("../jsmodules.rs")),
+    ("json", include_str!("../json.rs")),
     ("julia", include_str!("../julia.rs")),
     ("kinds", include_str!("../kinds.rs")),
     ("kotlin", include_str!("../kotlin.rs")),
     ("lua", include_str!("../lua.rs")),
+    ("markdown", include_str!("../markdown.rs")),
+    ("mcpconfig", include_str!("../mcpconfig.rs")),
     ("mod", include_str!("../mod.rs")),
     ("nulllabel", include_str!("../nulllabel.rs")),
     ("nulllabel_resolve", include_str!("../nulllabel_resolve.rs")),
     ("php", include_str!("../php.rs")),
     ("python", include_str!("../python.rs")),
     ("resolve", include_str!("../resolve.rs")),
+    ("resultjson", include_str!("../resultjson.rs")),
     ("ruby", include_str!("../ruby.rs")),
     ("rust", include_str!("../rust.rs")),
     ("scala", include_str!("../scala.rs")),
@@ -74,7 +78,6 @@ fn code_lines(src: &str) -> impl Iterator<Item = &str> {
 /// is passed to `walk_kinds` or `preorder_mask`, which take a mask registered at startup. The
 /// scan is by line: a call split over lines is not seen.
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn kinds_registered_at_startup() {
     // SOURCES is every module `mod.rs` declares.
     let declared: BTreeSet<&str> = code_lines(include_str!("../mod.rs"))
@@ -138,7 +141,6 @@ fn kinds_registered_at_startup() {
 /// its own. (The order of the names inside one language is pinned by the grammar PR that adds
 /// them, against the `kinds()` masks.)
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn kind_bits_match_go_order() {
     let order: Vec<&str> = code_lines(include_str!("../kinds.rs"))
         .filter_map(|l| {
