@@ -11,6 +11,12 @@ pub(crate) fn extract_python(rel: &str, src: &[u8]) -> Option<Result> {
 /// until graphify-rs-ihc.25.
 pub(super) fn register_kinds() {}
 
+/// Go `set` (`python.go:901`): a lookup set of `names` (Go's `map[string]bool` of trues), shared
+/// by golang.go and javascript.go.
+pub(crate) fn set(names: &[&'static str]) -> std::collections::HashSet<&'static str> {
+    names.iter().copied().collect()
+}
+
 #[cfg(test)]
 #[path = "tests/pycalls.rs"]
 mod pycalls_tests;
