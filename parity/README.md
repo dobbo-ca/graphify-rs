@@ -467,10 +467,10 @@ The upstream cases all use the single-file API (`save`, `load`, `hash_file`); no
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| graphify-go `internal/semantic/bedrock_test.go` | 4 | 4 | 0 | - |
-| graphify-go `internal/semantic/semantic_test.go` | 9 | 9 (+1 added: `test_enrich_no_backend_error_text`) | 0 | the `var _ = cache.HashBytes` compile-time line (not a test) |
+| graphify-go `internal/semantic/bedrock_test.go` | 4 | 4 | 4 | - |
+| graphify-go `internal/semantic/semantic_test.go` | 9 | 9 (+1 added: `test_enrich_no_backend_error_text`) | 10 | the `var _ = cache.HashBytes` compile-time line (not a test) |
 | upstream `test_llm_parser.py` | 10 | 0 | 0 | 10: `_parse_llm_json` (fences, prose, refusal: Go reads a tool call, not free text) and `_call_claude_cli` argv (no Claude CLI backend in Go) |
-| upstream `test_chunking.py` | 33 | 1 (`test_corpus_parallel_continues_after_chunk_failure` as `test_enrich_continues_after_note_failure`, without the stderr text) | 0 | 32: token-aware packing, tiktoken, parallel chunks, checkpoints, adaptive retry, out-of-scope and omitted-document reconciliation (Go sends one note per call, no chunks) |
+| upstream `test_chunking.py` | 33 | 1 (`test_corpus_parallel_continues_after_chunk_failure` as `test_enrich_continues_after_note_failure`, without the stderr text) | 1 | 32: token-aware packing, tiktoken, parallel chunks, checkpoints, adaptive retry, out-of-scope and omitted-document reconciliation (Go sends one note per call, no chunks) |
 | upstream `test_semantic_cache_basename_recovery.py` | 4 | 0 | 0 | 4: `save_semantic_cache` basename recovery of a drifted `source_file` (Go's cache is keyed by note id) |
 | upstream `test_semantic_cleanup.py` | 26 | 0 | 0 | 26: `validate_semantic_fragment` and the rationale-node sanitiser (Go has no fragment validation; its `sanitize` keeps rationale nodes, which the Python tests drop) |
 | upstream `test_semantic_fragment_sanitize.py` | 5 | 0 | 0 | 5: non-dict entries in a JSON fragment (Go's backend returns typed `Node` and `Edge`) |
