@@ -1769,6 +1769,133 @@ const SMOKE_SRCS: &[(&str, &str)] = &[
         "src/user.rs",
         "use crate::types::Callback;\npub struct Button {\n    cb: Callback,\n}\n",
     ),
+    ("ids.rs", "pub struct ClientId(pub u32);\n"),
+    (
+        "use_ids.rs",
+        "use crate::ids::ClientId;\n\
+         pub fn wrap(raw: u32) -> u32 {\n    let _id = ClientId(raw);\n    raw\n}\n",
+    ),
+    (
+        "ids.rs",
+        "pub struct ClientId(pub u32);\n\
+         pub fn wrap(raw: u32) -> u32 {\n    let _id = ClientId(raw);\n    raw\n}\n",
+    ),
+    (
+        "dir.rs",
+        "pub struct Ignore {\n    parent: u32,\n}\n\n\
+         impl Ignore {\n    pub fn matched(&self) -> bool {\n        true\n    }\n}\n\n\
+         pub fn ignore() -> Ignore {\n    build()\n}\n\n\
+         fn build() -> Ignore {\n    Ignore { parent: 0 }\n}\n",
+    ),
+    (
+        "dir.rs",
+        "pub struct Ignore {\n    parent: u32,\n}\n\n\
+         impl Ignore {\n    pub fn matched(&self) -> bool {\n        true\n    }\n}\n\n\
+         fn build() -> Ignore {\n    Ignore { parent: 0 }\n}\n",
+    ),
+    (
+        "dir.rs",
+        "pub fn ignore() -> Ignore {\n    build()\n}\n\n\
+         fn build() -> Ignore {\n    Ignore { parent: 0 }\n}\n\n\
+         impl Ignore {\n    pub fn matched(&self) -> bool {\n        true\n    }\n}\n\n\
+         pub struct Ignore {\n    parent: u32,\n}\n",
+    ),
+    (
+        "literal.rs",
+        "fn e(s: &str) -> u32 {\n    1\n}\n\nfn E(s: &str) -> u32 {\n    2\n}\n",
+    ),
+    (
+        "walk.rs",
+        "#[cfg(unix)]\nfn device_num(p: &str) -> u64 {\n    1\n}\n\n\
+         #[cfg(windows)]\nfn device_num(p: &str) -> u64 {\n    2\n}\n",
+    ),
+    (
+        "walk.rs",
+        "#[cfg(unix)]\nfn device_num(p: &str) -> u64 {\n    1\n}\n\n\
+         #[cfg(windows)]\nfn device_num(p: &str) -> u64 {\n    2\n}\n\nstruct Device_Num;\n",
+    ),
+    (
+        "dir.rs",
+        "pub struct Ignore {\n    parent: u32,\n}\n\n\
+         impl Ignore {\n    pub fn matched(&self) -> bool {\n        true\n    }\n}\n\n\
+         pub fn ignore() -> Ignore {\n    build()\n}\n\n\
+         fn build() -> Ignore {\n    Ignore { parent: 0 }\n}\n\
+         \nfn e(s: &str) -> u32 {\n    1\n}\n\
+         \nfn E(s: &str) -> u32 {\n    2\n}\n\
+         \nfn caller() -> u32 {\n    let _ = ignore();\n    e(\"a\") + E(\"b\")\n}\n",
+    ),
+    (
+        "a/src/lib.rs",
+        "pub enum Field {\n    Value(String),\n}\npub struct Map;\n",
+    ),
+    (
+        "b/src/lib.rs",
+        "use serde_json::{Map, Value};\n\npub fn f(m: &Map<String, Value>) {}\n",
+    ),
+    ("c/src/lib.rs", "pub struct Value;\n"),
+    ("osiris-types/src/lib.rs", "pub struct Other;\n"),
+    ("server/src/lib.rs", "pub struct Config;\n"),
+    (
+        "plugin/src/lib.rs",
+        "use osiris_types::Config;\n\npub fn f(c: &Config) {}\n",
+    ),
+    ("osiris-types/src/lib.rs", "pub struct Config;\n"),
+    ("other/src/lib.rs", "pub struct FromRequestParts;\n"),
+    (
+        "api/src/lib.rs",
+        "pub(crate) use corelib::FromRequestParts;\n",
+    ),
+    (
+        "lib.rs",
+        "struct Child;\n\
+         impl Drop for Child { fn drop(&mut self) {} }\n\
+         fn total() -> usize { 0 }\n\
+         fn close(c: Child) { drop(c); }\n\
+         fn count(v: &Stats) -> usize { v.total() }\n",
+    ),
+    (
+        "lib.rs",
+        "fn compute(x: u8) -> u8 { x }\n\
+         fn run() { println!(\"{}\", compute(1)); let _y = compute(2); }\n",
+    ),
+    ("src/c.rs", "pub fn helper() {}\n"),
+    ("src/a.rs", "pub fn run() { util::helper(); }\n"),
+    ("src/util/mod.rs", "pub fn helper() {}\n"),
+    ("src/b/mod.rs", "pub fn helper() {}\n"),
+    ("src/a.rs", "pub fn run() { Helper::helper(); }\n"),
+    (
+        "src/helper.rs",
+        "pub struct Helper;\nimpl Helper { pub fn helper() {} }\npub fn helper() {}\n",
+    ),
+    ("src/a.rs", "pub fn run() { crate::util::helper(); }\n"),
+    ("src/util.rs", "pub fn helper() {}\n"),
+    (
+        "src/a.rs",
+        "pub fn run() { let _ = std::fs::read(\"x\"); }\n",
+    ),
+    (
+        "src/fs.rs",
+        "pub fn read(p: &str) -> Vec<u8> { Vec::new() }\n",
+    ),
+    (
+        "src/a.rs",
+        "use std::fs;\npub fn run() { let _ = fs::read(\"x\"); }\n",
+    ),
+    (
+        "src/a.rs",
+        "use crate::util;\npub fn run() { util::helper(); }\n",
+    ),
+    (
+        "crate_a/src/main.rs",
+        "mod util;\nfn run() { crate::util::f(); }\n",
+    ),
+    ("crate_a/src/util.rs", "pub fn g() {}\n"),
+    ("crate_b/src/util.rs", "pub fn f() {}\n"),
+    (
+        "src/store.rs",
+        "pub struct Db;\nimpl Db { pub fn open(&self) {} }\n",
+    ),
+    ("src/main.rs", "mod store;\nfn run() { store::open(); }\n"),
 ];
 
 /// smoke; the real checks are the ihc.18-ignored tests
