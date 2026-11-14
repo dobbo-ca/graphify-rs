@@ -10,3 +10,19 @@ pub(crate) fn extract_python(rel: &str, src: &[u8]) -> Option<Result> {
 /// Names this language's kinds in Go's init order and stores its masks (see `kinds`). Empty
 /// until graphify-rs-ihc.25.
 pub(super) fn register_kinds() {}
+
+#[cfg(test)]
+#[path = "tests/pycalls.rs"]
+mod pycalls_tests;
+
+#[cfg(test)]
+#[path = "tests/python_nested.rs"]
+mod python_nested_tests;
+
+#[cfg(test)]
+#[path = "tests/python.rs"]
+mod python_tests;
+
+#[cfg(test)]
+#[path = "tests/python_type_only.rs"]
+mod python_type_only_tests;
