@@ -20,7 +20,7 @@ fn extract_proj(proj: &str, files: &[&str]) -> Extraction {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.29"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_extract_c() {
     let ext = extract_proj("cproj", &["util/math.c", "web/server.c"]);
 
@@ -74,5 +74,31 @@ fn test_extract_c() {
     assert!(
         imports > 0,
         "no external import edges (expected stdio.h / helper.h)"
+    );
+}
+
+/// smoke; the real checks are the ihc.18-ignored tests
+#[test]
+fn test_extract_c_smoke() {
+    kinds::register_kinds();
+    let root = testdata().join("extract").join("cproj");
+    let mut srcs: Vec<(String, Vec<u8>)> = ["util/math.c", "web/server.c"]
+        .iter()
+        .map(|f| (f.to_string(), std::fs::read(root.join(f)).unwrap()))
+        .collect();
+    // The two .c-only tests of preproc_test.go.
+    srcs.push(("e.c".into(), b"#ifdef A\nint split(int a) {\n#else\nint split(long a) {\n#endif\n  return after();\n}\nint after(void) { return 0; }\n".to_vec()));
+    srcs.push(("a.c".into(), b"int x1(void) { return 0; }\n#ifdef A\nint dup(void) { return x1(); }\n#else\nint dup(void) { return x1(); }\n#endif\n".to_vec()));
+    srcs.push(("b.c".into(), b"int user(void) { return dup(); }\n".to_vec()));
+    for (rel, src) in &srcs {
+        assert!(super::extract_c(rel, src).is_some(), "extract_c({rel})");
+        let res = crate::extract::file_from_bytes(rel, src);
+        assert!(!res.nodes.is_empty(), "{rel}: no file node");
+    }
+    let res = super::extract_c("web/server.c", &srcs[1].1).unwrap();
+    let labels: Vec<&str> = res.nodes.iter().map(|n| n.label.as_str()).collect();
+    assert_eq!(
+        labels,
+        ["server.c", "Server", "Server.start()", "boot()", "run()"]
     );
 }
