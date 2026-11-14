@@ -409,7 +409,7 @@ The Rust tests read graph.json back with `gostd::json::unmarshal` into the priva
 | `extract-julia` (`graphify-rs-ihc.38`) | - | - | - | not started |
 | `extract-lua` (`graphify-rs-ihc.39`) | - | - | - | not started |
 | graphify-go `internal/extract/zig_test.go` (`graphify-rs-ihc.40`) | 1 | 1 | 0 | - (no upstream file) |
-| graphify-go `internal/extract/verilog_test.go` (`graphify-rs-ihc.41`) | 1 | 1 | 0 | - (no upstream file) |
+| graphify-go `internal/extract/verilog_test.go` (`graphify-rs-ihc.41`) | 1 | 1 | 0 (+1 added, passing) | `TestExtractVerilog` needs resolve: ignored on ihc.18 |
 
 #### cache
 
