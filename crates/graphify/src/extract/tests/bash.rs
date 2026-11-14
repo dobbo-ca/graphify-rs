@@ -20,7 +20,7 @@ fn extract_proj(proj: &str, files: &[&str]) -> Extraction {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.35"]
+#[ignore = "graphify-rs-ihc.18"] // bash test (ihc.35, bash_test.go): needs resolve
 fn test_extract_bash() {
     let ext = extract_proj("bashproj", &["util/math.sh", "app/main.sh"]);
 
@@ -74,4 +74,59 @@ fn test_extract_bash() {
         imports > 0,
         "no external import edges (expected /etc/profile)"
     );
+}
+
+/// Every distinct bash `(rel, src)` of `bash_scriptinvocation.rs` (the `write_script` bodies, with
+/// `INVOCATION_CMDS` and `RUNNER_CASES` expanded), verbatim. The python, js and php sources are
+/// left out: their extractors are stubs.
+const SMOKE_SRCS: &[(&str, &str)] = &[
+    ("helpers.sh", "#!/bin/bash\necho helper\n"),
+    ("deploy.sh", "#!/bin/bash\n./helpers.sh\n"),
+    ("deploy.sh", "#!/bin/bash\nbash ./helpers.sh\n"),
+    (
+        "deploy.sh",
+        "#!/bin/bash\ndeploy() { bash ./helpers.sh; }\n",
+    ),
+    (
+        "deploy.sh",
+        "#!/bin/bash\nbash() { echo custom; }\nbash ./helpers.sh\n",
+    ),
+    ("deploy.sh", "#!/bin/bash\nbash \"./$SCRIPT.sh\"\n"),
+    ("deploy.sh", "#!/bin/bash\n./missing.sh\n"),
+    ("run.sh", "#!/bin/bash\npython3 build.py\n"),
+    ("run.sh", "#!/bin/bash\nnode build.js\n"),
+    ("run.sh", "#!/bin/bash\npython3 -u build.py\n"),
+    ("run.sh", "#!/bin/bash\n\"$PY\" build.py\n"),
+    ("run.sh", "#!/bin/bash\npython3 \"$X\"\n"),
+    ("b1.sh", "#!/bin/bash\npython3 -m app.main\n"),
+    ("deploy.sh", "#!/bin/bash\n"),
+    ("ci.sh", "#!/bin/bash\nsh -e ./deploy.sh\n"),
+    ("ci2.sh", "#!/bin/bash\nbash -e deploy.sh\n"),
+    ("e1.sh", "#!/bin/bash\nphp -e s.php\n"),
+];
+
+/// smoke; the real checks are the ihc.18-ignored tests
+///
+/// Runs the extractor, without `resolve`, on the `bashproj` files and every inline bash script of
+/// the resolve-dependent tests. Go's `TestExtractBash` asserts no node count, so none is asserted
+/// here.
+#[test]
+fn smoke_extract_bash_sources() {
+    kinds::register_kinds();
+    let root = testdata().join("extract").join("bashproj");
+    // extract_bash directly: file/file_from_bytes first run the MCP-config check, a stub until
+    // graphify-rs-ihc.17. `None` is Go's parse-budget recover.
+    for f in ["util/math.sh", "app/main.sh"] {
+        let src = std::fs::read(root.join(f)).unwrap_or_else(|e| panic!("read {f}: {e}"));
+        assert!(
+            crate::extract::bash::extract_bash(f, &src).is_some(),
+            "bashproj/{f}: parse over budget"
+        );
+    }
+    for (i, (rel, src)) in SMOKE_SRCS.iter().enumerate() {
+        assert!(
+            crate::extract::bash::extract_bash(rel, src.as_bytes()).is_some(),
+            "inline source #{i} ({rel}): parse over budget"
+        );
+    }
 }

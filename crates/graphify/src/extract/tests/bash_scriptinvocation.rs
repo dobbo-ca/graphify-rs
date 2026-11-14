@@ -35,7 +35,7 @@ fn write_script(root: &TempDir, name: &str, body: &str) {
 const INVOCATION_CMDS: [&str; 2] = ["./helpers.sh", "bash ./helpers.sh"];
 
 #[test]
-#[ignore = "graphify-rs-ihc.35"]
+#[ignore = "graphify-rs-ihc.18"] // bash test (ihc.35, bash_scriptinvocation_test.go): needs resolve
 fn test_bash_script_invocation() {
     for cmd in INVOCATION_CMDS {
         let root = TempDir::new();
@@ -62,7 +62,7 @@ fn test_bash_script_invocation() {
 // The edge is attributed to the enclosing function when the invocation is inside
 // one, not to the file node.
 #[test]
-#[ignore = "graphify-rs-ihc.35"]
+#[ignore = "graphify-rs-ihc.18"] // bash test (ihc.35, bash_scriptinvocation_test.go): needs resolve
 fn test_bash_script_invocation_from_function() {
     let root = TempDir::new();
     write_script(&root, "helpers.sh", "#!/bin/bash\necho helper\n");
@@ -89,7 +89,7 @@ fn test_bash_script_invocation_from_function() {
 // A runner name that shadows a function defined in the file is that function, not
 // a script invocation: no edge even though the target exists.
 #[test]
-#[ignore = "graphify-rs-ihc.35"]
+#[ignore = "graphify-rs-ihc.18"] // bash test (ihc.35, bash_scriptinvocation_test.go): needs resolve
 fn test_bash_script_invocation_skips_shadowed() {
     let root = TempDir::new();
     write_script(&root, "helpers.sh", "#!/bin/bash\necho helper\n");
@@ -113,7 +113,7 @@ fn test_bash_script_invocation_skips_shadowed() {
 
 // A dynamic target (`bash "./$X.sh"`) is not a literal and emits no edge.
 #[test]
-#[ignore = "graphify-rs-ihc.35"]
+#[ignore = "graphify-rs-ihc.17"] // bash test (ihc.35): `file` runs the MCP-config check (mcpconfig.rs)
 fn test_bash_script_invocation_skips_dynamic() {
     kinds::register_kinds();
     let root = TempDir::new();
@@ -131,7 +131,7 @@ fn test_bash_script_invocation_skips_dynamic() {
 // A target that is not in the corpus leaves a dangling edge that graph build
 // prunes, so the final graph has no invocation edge to a missing script.
 #[test]
-#[ignore = "graphify-rs-ihc.35"]
+#[ignore = "graphify-rs-ihc.18"] // bash test (ihc.35, bash_scriptinvocation_test.go): needs resolve
 fn test_bash_script_invocation_prunes_missing() {
     let root = TempDir::new();
     write_script(&root, "deploy.sh", "#!/bin/bash\n./missing.sh\n");
@@ -154,7 +154,7 @@ const RUNNER_CASES: [(&str, bool); 5] = [
 ];
 
 #[test]
-#[ignore = "graphify-rs-ihc.35"]
+#[ignore = "graphify-rs-ihc.26"] // bash test (ihc.35, bash_scriptinvocation_test.go): also parses python and js files (js is the last of the two to land); also needs resolve (ihc.18)
 fn test_bash_runner_non_shell_targets() {
     for (cmd, want_edge) in RUNNER_CASES {
         let root = TempDir::new();
@@ -171,7 +171,7 @@ fn test_bash_runner_non_shell_targets() {
 
 // `python3 -m app.main` names a module, not a file; it must not hit app_main.
 #[test]
-#[ignore = "graphify-rs-ihc.35"]
+#[ignore = "graphify-rs-ihc.25"] // bash test (ihc.35, bash_scriptinvocation_test.go): also parses a python file; also needs resolve (ihc.18)
 fn test_bash_runner_module_flag_no_edge() {
     let root = TempDir::new();
     write_script(&root, "app.py", "def main():\n    pass\n");
@@ -187,7 +187,7 @@ fn test_bash_runner_module_flag_no_edge() {
 
 // `-e` is errexit for shells, so `bash -e x.sh` still runs x.sh.
 #[test]
-#[ignore = "graphify-rs-ihc.35"]
+#[ignore = "graphify-rs-ihc.18"] // bash test (ihc.35, bash_scriptinvocation_test.go): needs resolve
 fn test_bash_shell_errexit_keeps_edge() {
     let root = TempDir::new();
     write_script(&root, "deploy.sh", "#!/bin/bash\n");
@@ -204,7 +204,7 @@ fn test_bash_shell_errexit_keeps_edge() {
 
 // php's code flag is -r; `php -e s.php` still runs s.php.
 #[test]
-#[ignore = "graphify-rs-ihc.35"]
+#[ignore = "graphify-rs-ihc.34"] // bash test (ihc.35, bash_scriptinvocation_test.go): also parses a php file; also needs resolve (ihc.18)
 fn test_bash_php_dash_e_keeps_edge() {
     let root = TempDir::new();
     write_script(&root, "s.php", "<?php\n");
