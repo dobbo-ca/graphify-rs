@@ -86,7 +86,7 @@ fn test_cpp_export_macro_class() {
         + "class MACRO OTHER final : public Base {};\n"
         + "void F() {\n  for (class API v : items) {}\n  class API w{1};\n}\n";
     let out = blank_cpp_export_macros(src.as_bytes());
-    let out_s = String::from_utf8_lossy(&out);
+    let out_s = std::str::from_utf8(&out).expect("blanking keeps ASCII input ASCII");
     assert!(
         out.len() == src.len()
             && out_s.contains("class              \nWidget")
