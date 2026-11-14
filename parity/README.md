@@ -392,7 +392,7 @@ The Rust tests read graph.json back with `gostd::json::unmarshal` into the priva
 | `extract-rust` (`graphify-rs-ihc.32`) | - | - | - | not started |
 | `extract-ruby` (`graphify-rs-ihc.33`) | - | - | - | not started |
 | `extract-php` (`graphify-rs-ihc.34`) | - | - | - | not started |
-| `extract-bash` (`graphify-rs-ihc.35`) | - | - | - | not started |
+| graphify-go `internal/extract/bash_test.go`, `bash_scriptinvocation_test.go` (`graphify-rs-ihc.35`) | 10 | 10 (`TestBashScriptInvocation` has one `t.Run` case per command, a loop over `INVOCATION_CMDS`) | 0 | - (no upstream file); none moved: the script-invocation edge is emitted by `bash.go` and `Resolve` only passes it through |
 | `extract-scala` (`graphify-rs-ihc.36`) | - | - | - | not started |
 | `extract-kotlin` (`graphify-rs-ihc.37`) | - | - | - | not started |
 | `extract-julia` (`graphify-rs-ihc.38`) | - | - | - | not started |
