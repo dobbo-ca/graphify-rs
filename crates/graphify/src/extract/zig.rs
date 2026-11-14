@@ -192,7 +192,8 @@ fn zig_calls(b: &mut Builder, body: Option<Node<'_>>, caller_id: &str, src: &[u8
     if body.is_none() {
         return;
     }
-    walk_kinds(body, *ZIG_CALL_KINDS.get().expect("register_kinds"), |c| {
+    let mask = *ZIG_CALL_KINDS.get().expect("register_kinds");
+    walk_kinds(body, mask, |c| {
         let Some(func) = c.child_by_field_name("function") else {
             return true;
         };
