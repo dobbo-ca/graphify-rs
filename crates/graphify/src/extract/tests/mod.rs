@@ -6,6 +6,7 @@ mod cpp_header_routing;
 mod degenerate;
 mod dispatch;
 mod extract;
+mod js_dynamic_import;
 mod json;
 mod kinds;
 mod nodeid;

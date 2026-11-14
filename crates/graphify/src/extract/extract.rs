@@ -204,3 +204,8 @@ pub(crate) fn to_utf8(src: &[u8]) -> Cow<'_, [u8]> {
 pub(crate) fn is_cpp_header(src: &[u8]) -> bool {
     todo!("graphify-rs-ihc.16")
 }
+
+/// Go `Imp.Dyn` values (`extract.go:553-556`): a file's dynamic import, a function's deferred
+/// import.
+pub(crate) const DYN_IMPORT: u8 = 1;
+pub(crate) const DYN_DEFERRED: u8 = 2;
