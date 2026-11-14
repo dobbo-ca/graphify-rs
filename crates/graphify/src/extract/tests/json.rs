@@ -41,7 +41,6 @@ fn json_has_edge(
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_extract_json_package_manifest() {
     let src = r#"{
   "name": "demo",
@@ -98,7 +97,6 @@ fn test_extract_json_package_manifest() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_extract_json_tsconfig_extends_and_ref() {
     let src = r#"{
   "extends": "./base.json",
@@ -135,7 +133,6 @@ fn test_extract_json_tsconfig_extends_and_ref() {
 /// drops the edge as dangling. The $ref/references target still has no node (stays dangling per
 /// parity).
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_extract_json_extends_target_survives_build() {
     let res = extract_bytes(
         "tsconfig.json",
@@ -179,7 +176,6 @@ fn test_extract_json_extends_target_survives_build() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_extract_json_extends_array() {
     let src = r#"{
   "extends": ["eslint:recommended", "plugin:react/recommended"]
@@ -210,7 +206,6 @@ fn test_extract_json_extends_array() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_extract_json_schema_ref() {
     // Recognized via the top-level $schema key probe (arbitrary basename).
     let src = r##"{
@@ -235,7 +230,6 @@ fn test_extract_json_schema_ref() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_extract_json_skips_data_json() {
     // No recognized basename, no config key probe hit => data JSON, skipped.
     let src = r#"{"users": [{"id": 1, "name": "a"}, {"id": 2, "name": "b"}]}"#;
@@ -249,7 +243,6 @@ fn test_extract_json_skips_data_json() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_extract_json_non_object_root_skipped() {
     let res = extract_bytes("data.json", b"[1, 2, 3]");
     assert!(
@@ -260,7 +253,6 @@ fn test_extract_json_non_object_root_skipped() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_extract_json_malformed_skipped() {
     let res = extract_bytes("package.json", b"{not valid json");
     // tree-sitter is error-tolerant; a malformed config still must not panic and must not emit a
@@ -292,7 +284,6 @@ fn test_extract_json_mcp_config_still_routed_to_mcp_extractor() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_extract_json_schema_document_skipped() {
     let src = r#"{
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -310,7 +301,6 @@ fn test_extract_json_schema_document_skipped() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_extract_json_schema_alone_still_walked() {
     let src = r#"{"$schema": "https://example.com/s.json", "thing": {"a": 1}}"#;
     let res = extract_bytes("config/whatever.json", src.as_bytes());
@@ -325,7 +315,6 @@ fn test_extract_json_schema_alone_still_walked() {
 /// in a `.json` file must not overflow the stack; the top level is not an object, so nothing but
 /// (at most) the file node of a stopped parse comes back.
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn deep_json_nesting() {
     let src = "[".repeat(100_000);
     let res = on_worker_stack(|| extract_bytes("data.json", src.as_bytes()));

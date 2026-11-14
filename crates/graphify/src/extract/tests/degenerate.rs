@@ -37,7 +37,6 @@ fn test_extract_js_skips_degenerate_name() {
 /// A JSONC `"//"` comment key normalizes to an empty ID and must not produce a node; real config
 /// keys alongside it must still be extracted (#1899).
 #[test]
-#[ignore = "graphify-rs-ihc.16"]
 fn test_extract_json_skips_comment_key() {
     kinds::register_kinds();
     let root = TempDir::new();
