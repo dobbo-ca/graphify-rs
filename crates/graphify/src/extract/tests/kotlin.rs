@@ -2,12 +2,14 @@
 //! `test_kotlin_*.py` files whose assertion holds for graphify-go v0.12.0 (see the `extract-kotlin`
 //! block of `parity/README.md`). The upstream sources are written inline, so no fixture is copied.
 //! Upstream names the nodes of a method `.name()`; Go labels them `Owner.name()`. A case that holds
-//! only because Go lacks the feature carries the `pins Go v0.12.0` comment.
+//! only because Go lacks the feature carries the `pins Go v0.12.0` comment, and so does a case that
+//! asserts the value Go produces where upstream asserts another (the `method` relation, EXTRACTED
+//! confidence, an import bound to the corpus type).
 
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::extract::{file, file_from_bytes, kinds, resolve};
-use crate::model::Extraction;
+use crate::model::{Confidence, Extraction};
 use crate::testutil::testdata;
 
 /// Go `File` on each file of `testdata/extract/<proj>`, then `Resolve` (GOMAXPROCS workers).
@@ -177,6 +179,20 @@ fn has_edge(ext: &Extraction, src: &str, relation: &str, tgt: &str) -> bool {
     targets_from(ext, src, relation).contains(&tgt)
 }
 
+/// The confidence of the first `relation` edge from the node labelled `src` to the one labelled `tgt`.
+fn edge_conf(ext: &Extraction, src: &str, relation: &str, tgt: &str) -> Confidence {
+    let label = id2label(ext);
+    ext.edges
+        .iter()
+        .find(|e| {
+            e.relation.as_str() == relation
+                && label.get(e.source.as_str()) == Some(&src)
+                && label.get(e.target.as_str()) == Some(&tgt)
+        })
+        .unwrap_or_else(|| panic!("no {src:?} --{relation}--> {tgt:?} edge"))
+        .confidence
+}
+
 /// A node without a `source_file` (a stub).
 fn sourceless(ext: &Extraction) -> Vec<(&str, &str)> {
     let mut v: Vec<(&str, &str)> = ext
@@ -201,6 +217,49 @@ const IMPORT_MODEL_FILES: [(&str, &str); 2] = [
         "package com.demo.model\n\nclass Ledger {\n    fun record(m: Money) { }\n}\n",
     ),
 ];
+
+const IMPORT_MAIN: (&str, &str) = (
+    "app/Main.kt",
+    "package com.demo.app\n\nimport com.demo.model.Money\nimport com.demo.model.Ledger\n\nfun main() {\n    val m = Money(5)\n    val l = Ledger()\n}\n",
+);
+
+// pins Go v0.12.0 (imports edge to an external dependency node labelled with the FQN); upstream 0.9.107 emits an imports edge to the corpus type node -> P3 (B24)
+#[test]
+#[ignore = "graphify-rs-ihc.37"]
+fn test_kotlin_imports_resolve_to_real_nodes() {
+    let ext = run(&[IMPORT_MODEL_FILES[0], IMPORT_MODEL_FILES[1], IMPORT_MAIN]);
+    for fqn in ["com.demo.model.Money", "com.demo.model.Ledger"] {
+        assert!(has_edge(&ext, "Main.kt", "imports", fqn), "{fqn}");
+    }
+    assert!(!has_edge(&ext, "Main.kt", "imports", "Money"));
+    assert!(!has_edge(&ext, "Main.kt", "imports", "Ledger"));
+    // Every Kotlin import edge points at an existing node.
+    let ids: BTreeSet<&str> = ext.nodes.iter().map(|n| n.id.as_str()).collect();
+    let imports: Vec<_> = ext
+        .edges
+        .iter()
+        .filter(|e| e.relation.as_str() == "imports" && e.source_file.as_str().ends_with(".kt"))
+        .collect();
+    assert!(imports.len() >= 2);
+    for e in imports {
+        assert!(
+            ids.contains(e.target.as_str()),
+            "import target {} dangles",
+            e.target
+        );
+    }
+}
+
+// pins Go v0.12.0 (INFERRED); upstream 0.9.107 emits EXTRACTED -> P3 (B24)
+#[test]
+#[ignore = "graphify-rs-ihc.37"]
+fn test_kotlin_import_evidence_promotes_calls_to_extracted() {
+    let ext = run(&[IMPORT_MODEL_FILES[0], IMPORT_MODEL_FILES[1], IMPORT_MAIN]);
+    assert_eq!(
+        edge_conf(&ext, "main()", "calls", "Money"),
+        Confidence::INFERRED
+    );
+}
 
 #[test]
 #[ignore = "graphify-rs-ihc.37"]
@@ -229,6 +288,26 @@ fn test_kotlin_wildcard_import_emits_no_symbol_edge() {
     }
 }
 
+// pins Go v0.12.0 (imports edge to an external node labelled with the FQN); upstream 0.9.107 emits an imports edge to the corpus type node -> P3 (B24)
+#[test]
+#[ignore = "graphify-rs-ihc.37"]
+fn test_kotlin_aliased_import_resolves_to_original_symbol() {
+    // The edge only: Go has no edge metadata (`target_fqn`, `alias`).
+    let ext = run(&[
+        IMPORT_MODEL_FILES[0],
+        IMPORT_MODEL_FILES[1],
+        (
+            "app/Main.kt",
+            "package com.demo.app\n\nimport com.demo.model.Money as Cash\n\nfun main() {\n    val m = Cash(5)\n}\n",
+        ),
+    ]);
+    assert!(
+        has_edge(&ext, "Main.kt", "imports", "com.demo.model.Money"),
+        "`import a.b.C as D` still imports C"
+    );
+    assert!(!has_edge(&ext, "Main.kt", "imports", "Money"));
+}
+
 const FQ_CORPUS: [(&str, &str); 3] = [
     (
         "lib/Lib.kt",
@@ -243,6 +322,33 @@ const FQ_CORPUS: [(&str, &str); 3] = [
         "package com.demo.nav\n\nfun NavGraph() {\n    com.demo.lib.BetaScreen()\n    com.demo.feature.DeltaScreen()\n    com.demo.lib.Help.help()\n    com.nonexistent.pkg.Thing()\n}\n",
     ),
 ];
+
+// pins Go v0.12.0 (INFERRED); upstream 0.9.107 emits EXTRACTED -> P3 (B24)
+#[test]
+#[ignore = "graphify-rs-ihc.37"]
+fn test_kotlin_fully_qualified_calls_resolve() {
+    // Go binds the receiver's last identifier (`lib`, `feature`, `Help`) to a path segment or
+    // owner of the definition.
+    let ext = run(&FQ_CORPUS);
+    for (src, tgt) in [
+        ("NavGraph()", "BetaScreen()"),
+        ("NavGraph()", "DeltaScreen()"),
+        ("SamePackageCaller()", "DeltaScreen()"),
+        ("NavGraph()", "Help.help()"),
+    ] {
+        assert!(has_edge(&ext, src, "calls", tgt), "{src} --calls--> {tgt}");
+    }
+    let navgraph = find(&ext, "NavGraph()");
+    let fq_calls: Vec<_> = ext
+        .edges
+        .iter()
+        .filter(|e| e.relation.as_str() == "calls" && e.source == navgraph)
+        .collect();
+    assert!(!fq_calls.is_empty());
+    for e in fq_calls {
+        assert_eq!(e.confidence, Confidence::INFERRED, "{e:?}");
+    }
+}
 
 #[test]
 #[ignore = "graphify-rs-ihc.37"]
@@ -280,6 +386,27 @@ fn test_kotlin_fq_call_to_ambiguous_name_yields_no_edge() {
     );
 }
 
+// pins Go v0.12.0 (INFERRED); upstream 0.9.107 emits EXTRACTED -> P3 (B24)
+#[test]
+#[ignore = "graphify-rs-ihc.37"]
+fn test_kotlin_object_member_call_resolves_across_files() {
+    let ext = run(&[
+        (
+            "config/Config.kt",
+            "package com.demo.config\n\nobject Config {\n    fun load() { }\n}\n",
+        ),
+        (
+            "app/App.kt",
+            "package com.demo.app\n\nimport com.demo.config.Config\n\nfun Start() {\n    Config.load()\n}\n",
+        ),
+    ]);
+    assert_eq!(
+        edge_conf(&ext, "Start()", "calls", "Config.load()"),
+        Confidence::INFERRED,
+        "`Config.load()` in another file binds to `object Config`'s method"
+    );
+}
+
 #[test]
 #[ignore = "graphify-rs-ihc.37"]
 fn test_kotlin_object_member_call_same_file_control_unaffected() {
@@ -314,6 +441,60 @@ fn test_kotlin_object_member_call_ambiguous_receiver_yields_no_edge() {
     assert!(
         targets_from(&ext, "Start()", "calls").is_empty(),
         "`Config` exists in two packages: the exactly one candidate guard must refuse to pick"
+    );
+}
+
+// pins Go v0.12.0 (contains); upstream 0.9.107 emits method -> P3 (B28)
+#[test]
+#[ignore = "graphify-rs-ihc.37"]
+fn test_kotlin_one_line_class_with_fun_still_extracts() {
+    let ext = run(&[("VM.kt", "class VM { fun f() = 1 }\nfun After() { }\n")]);
+    find(&ext, "After()");
+    assert!(has_edge(&ext, "VM", "contains", "VM.f()"));
+}
+
+// pins Go v0.12.0 (contains); upstream 0.9.107 emits method -> P3 (B28)
+#[test]
+#[ignore = "graphify-rs-ihc.37"]
+fn test_multiline_kotlin_unchanged() {
+    // The field reference is asserted without its `field` context: Go edges have none.
+    let ext = run(&[(
+        "Shop.kt",
+        "package com.shop\n\nclass Cart {\n    val items: Inventory = Inventory()\n    fun checkout() {\n        total()\n    }\n    fun total() { }\n}\n\nclass Inventory\n\nfun main() {\n    Cart().checkout()\n}\n",
+    )]);
+    let labels: BTreeSet<&str> = ext.nodes.iter().map(|n| n.label.as_str()).collect();
+    for want in [
+        "Shop.kt",
+        "Cart",
+        "Inventory",
+        "Cart.checkout()",
+        "Cart.total()",
+        "main()",
+    ] {
+        assert!(labels.contains(want), "missing node label {want:?}");
+    }
+    assert!(has_edge(&ext, "Cart", "contains", "Cart.checkout()"));
+    assert!(has_edge(&ext, "Cart", "contains", "Cart.total()"));
+    assert!(has_edge(&ext, "Cart.checkout()", "calls", "Cart.total()"));
+    assert!(has_edge(&ext, "Cart", "references", "Inventory"));
+}
+
+// pins Go v0.12.0 (contains); upstream 0.9.107 emits method -> P3 (B28)
+#[test]
+#[ignore = "graphify-rs-ihc.37"]
+fn test_kotlin_annotated_inferred_property_keeps_the_file() {
+    // Not `failed_sources` (Python) and not the `attribute` context (Go edges have none).
+    let ext = run(&[(
+        "Repro.kt",
+        "class Repro {\n    @Volatile\n    var counter = 0\n\n    fun ping() { }\n}\n",
+    )]);
+    assert!(
+        has_edge(&ext, "Repro", "references", "Volatile"),
+        "the annotation is a references edge on the class"
+    );
+    assert!(
+        has_edge(&ext, "Repro", "contains", "Repro.ping()"),
+        "a sibling method in the same file must survive"
     );
 }
 
@@ -442,4 +623,24 @@ fn test_user_and_container_types_still_referenced() {
     assert!(targets.contains("Box"), "no reference to Box: {targets:?}");
     assert!(!targets.contains("T"), "a reference to T: {targets:?}");
     assert_eq!(sourceless(&ext), Vec::<(&str, &str)>::new());
+}
+
+// ---- test_kotlin_object_literal.py ----
+
+// pins Go v0.12.0 (contains); upstream 0.9.107 emits method -> P3 (B28)
+#[test]
+#[ignore = "graphify-rs-ihc.37"]
+fn test_named_object_and_plain_class_unchanged() {
+    let ext = run(&[(
+        "Mix.kt",
+        "object Singleton {\n    fun go() { }\n}\nclass Plain {\n    fun run() { go2() }\n    fun go2() { }\n}\n",
+    )]);
+    assert!(has_edge(&ext, "Singleton", "contains", "Singleton.go()"));
+    assert!(has_edge(&ext, "Plain", "contains", "Plain.run()"));
+    assert!(has_edge(&ext, "Plain", "contains", "Plain.go2()"));
+    assert!(has_edge(&ext, "Plain.run()", "calls", "Plain.go2()"));
+    assert!(
+        !ext.nodes.iter().any(|n| n.label.starts_with("object@")),
+        "no phantom object-literal owner nodes"
+    );
 }
