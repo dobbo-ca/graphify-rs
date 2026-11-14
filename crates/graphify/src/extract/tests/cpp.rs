@@ -1,7 +1,5 @@
-//! graphify-go `internal/extract/cpp_test.go`. Not ported: `TestCppHeaderRoutesToCppExtractor`
-//! (calls `isCppHeader`, `extract.go:316`, with no Rust item) and
-//! `TestCppExportMacroScanMatchesRegexp` (reference matcher is a `regexp` pass seeded from Go's
-//! `math/rand`; the crate has neither a regex nor a rand dependency).
+//! graphify-go `internal/extract/cpp_test.go`. Not ported here: `TestCppHeaderRoutesToCppExtractor`
+//! (it tests `isCppHeader`, `extract.go:316`, which belongs to extract-core).
 
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -118,5 +116,89 @@ fn test_cpp_export_macro_class() {
         inherits,
         "no Widget inherits Base ref in {:?}",
         res.type_refs
+    );
+}
+
+// The keyword scan must blank exactly what one unanchored regexp pass did.
+// (Go draws the inputs from math/rand seed 1; this draws them from gostd's PCG with seed 1. The
+// test is a property over the same token set, so the source does not matter. Go's
+// `strings.TrimSpace` is `trim_ascii` here: no token holds a non-ASCII space.)
+#[test]
+#[ignore = "graphify-rs-ihc.30"]
+fn test_cpp_export_macro_scan_matches_regexp() {
+    let re = gostd::regexp::Regexp::must_compile(
+        r"\b(?:class|struct)\s+((?:[A-Z][A-Z0-9_]*\s+)+)([A-Za-z_]\w*(?:\s+final)?\s*)([:{])",
+    );
+    let reference = |src: &[u8]| -> Vec<u8> {
+        let mut out = src.to_vec();
+        for m in re.find_all_submatch_index(src, -1) {
+            let g = |i: usize| m[i].expect("group");
+            let (m0, (m2, m3), (m4, m5), (m6, m7)) = (g(0).0, g(1), g(2), g(3));
+            if src[..m0].trim_ascii().ends_with(b"(") {
+                continue;
+            }
+            let rest = src[m7..].trim_ascii();
+            if src[m6] == b'{' && !rest.is_empty() && b"0123456789\"'-".contains(&rest[0]) {
+                continue;
+            }
+            let mut end = m3;
+            if src[m4..m5].trim_ascii() == b"final" {
+                let t = src[m2..m3].trim_ascii();
+                end = m2
+                    + t.iter()
+                        .rposition(|c| b" \t\r\n".contains(c))
+                        .expect("space")
+                    + 1;
+            }
+            for c in &mut out[m2..end] {
+                if *c != b'\r' && *c != b'\n' {
+                    *c = b' ';
+                }
+            }
+        }
+        out
+    };
+    let toks: [&[u8]; 22] = [
+        b"class ",
+        b"struct\n",
+        b"class",
+        b" ",
+        b"\n",
+        b"\t",
+        b"API ",
+        b"A_B2 ",
+        b"API",
+        b"Foo",
+        b"Foo ",
+        b"final ",
+        b":",
+        b"{",
+        b" {",
+        b"(",
+        b"1",
+        b"x",
+        b"_",
+        "\u{e9}".as_bytes(),
+        b"\xff",
+        b";",
+    ];
+    let mut rng = gostd::pcg::Rand::new(gostd::pcg::PcgSource::new(1));
+    let mut blanked = 0;
+    for _ in 0..200_000 {
+        let mut src = Vec::new();
+        let mut n = rng.intn(14);
+        while n >= 0 {
+            src.extend_from_slice(toks[rng.intn(toks.len() as i64) as usize]);
+            n -= 1;
+        }
+        let (got, want) = (blank_cpp_export_macros(&src), reference(&src));
+        assert!(got == want, "{src:?}: got {got:?}, want {want:?}");
+        if got != src {
+            blanked += 1;
+        }
+    }
+    assert!(
+        blanked >= 100,
+        "only {blanked} inputs blanked: the generator no longer reaches the match"
     );
 }
