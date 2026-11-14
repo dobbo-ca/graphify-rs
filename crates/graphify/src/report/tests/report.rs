@@ -8,9 +8,7 @@ use crate::cluster::cluster;
 use crate::model::{Confidence, Graph, Relation, file_of, rel};
 use crate::report::generate;
 
-// The freshness line cuts the commit with `short`, which goes through `detect::go_lossy` (R3).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_generate_sections() {
     let g = report_graph();
     let communities = cluster(&g);
