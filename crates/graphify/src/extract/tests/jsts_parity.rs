@@ -841,9 +841,7 @@ var w = function () {};
 "#;
     let (nodes, _) = resolve_src(&[("a.js", src)]);
     // An unexported receiver proves no owner: no node, as upstream.
-    for l in ["w()"] {
-        assert!(has_node(&nodes, "a.js", l), "missing node {l}");
-    }
+    assert!(has_node(&nodes, "a.js", "w()"), "missing node w()");
     for l in ["top()", "nested()", "iife()", "stat()", "v()"] {
         assert!(!has_node(&nodes, "a.js", l), "unexpected node {l}");
     }
