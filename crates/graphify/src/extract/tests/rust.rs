@@ -1509,3 +1509,285 @@ fn test_a_cross_file_reference_lands_on_the_alias() {
         .collect();
     assert_eq!(targets, BTreeSet::from([aliases[0].id.as_str()]));
 }
+
+// ---- smoke ----
+
+/// Every distinct `(rel, src)` of the inline `run(&[...])` sources above, copied verbatim (the
+/// `STRUCT_VALUE`, `USE_VALUE` and `ALIAS_SRC` consts expanded), identical pairs once.
+const SMOKE_SRCS: &[(&str, &str)] = &[
+    (
+        "codec.rs",
+        "pub const WIDTH: usize = 8;\n\
+         const _: () = assert!(WIDTH == 8);\n\
+         const _: () = ();\n\
+         static READY: bool = true;\n\
+         pub fn encode() {}\n",
+    ),
+    (
+        "a.rs",
+        "pub fn parse(items: Vec<String>, name: Option<String>) -> Result<u32, String> {\n    \
+         let mut seen: std::collections::HashMap<String, u32> = std::collections::HashMap::new();\n    \
+         let _ = &mut seen;\n    \
+         Ok(name.map(|_| 1u32).unwrap_or(0))\n\
+         }\n",
+    ),
+    (
+        "b.rs",
+        "pub struct Widget {\n    pub name: String,\n    pub parts: Vec<u32>,\n}\n\
+         pub fn widget() -> Widget {\n    \
+         Widget { name: String::new(), parts: Vec::new() }\n\
+         }\n",
+    ),
+    (
+        "shadow.rs",
+        "pub struct Result<T>(pub T);\npub struct Holder {\n    pub value: Result<u32>,\n}\n",
+    ),
+    (
+        "lib.rs",
+        "pub fn helper() -> u32 { 1 }\npub fn run() -> u32 { helper() }\n",
+    ),
+    (
+        "dir.rs",
+        "fn before() -> Ignore {\n    ignore()\n}\n\n\
+         pub struct Ignore {\n    parent: u32,\n}\n\n\
+         impl Ignore {\n    pub fn matched(&self) -> bool {\n        true\n    }\n}\n\n\
+         pub fn ignore() -> Ignore {\n    build()\n}\n\n\
+         fn build() -> Ignore {\n    Ignore { parent: 0 }\n}\n",
+    ),
+    ("other.rs", "pub struct Ignore;\n"),
+    ("a/src/lib.rs", "pub enum Field {\n    Value(String),\n}\n"),
+    (
+        "b/src/lib.rs",
+        "use serde_json::Value;\n\npub fn get(v: &Value) -> Option<&Value> {\n    v.get(\"x\")\n}\n",
+    ),
+    ("b/src/lib.rs", "use serde_json::Value;\n\npub fn f() {}\n"),
+    (
+        "b/src/lib.rs",
+        "pub fn get(v: &Value) -> Option<&Value> {\n    v.get(\"x\")\n}\n",
+    ),
+    ("a/src/lib.rs", "pub struct HashMap;\n"),
+    (
+        "b/src/lib.rs",
+        "use std::collections::HashMap;\n\npub fn f(m: &HashMap<u8, u8>) {}\n",
+    ),
+    ("a/src/lib.rs", "pub struct Value;\n"),
+    (
+        "b/src/lib.rs",
+        "use a::Value;\n\npub fn get(v: &Value) -> Option<&Value> {\n    v.get(\"x\")\n}\n",
+    ),
+    (
+        "b/src/lib.rs",
+        "mod model;\nuse crate::model::Value;\n\npub fn get(v: &Value) -> Option<&Value> {\n    v.get(\"x\")\n}\n",
+    ),
+    ("b/src/model.rs", "pub struct Value;\n"),
+    ("b/src/lib.rs", "pub struct Value;\n"),
+    ("corelib/src/lib.rs", "pub struct FromRequestParts;\n"),
+    ("api/src/lib.rs", "pub use corelib::FromRequestParts;\n"),
+    (
+        "plugin/src/lib.rs",
+        "use api::FromRequestParts;\n\npub fn f(x: &FromRequestParts) {}\n",
+    ),
+    (
+        "api/src/lib.rs",
+        "pub mod sub;\npub use corelib::FromRequestParts;\n",
+    ),
+    (
+        "api/src/sub.rs",
+        "use super::FromRequestParts;\n\npub fn f(x: &FromRequestParts) {}\n",
+    ),
+    (
+        "plugin/src/lib.rs",
+        "use corelib::FromRequestParts;\n\npub fn f(x: &FromRequestParts) {}\n",
+    ),
+    (
+        "lib.rs",
+        "struct A;\n\
+         struct B;\n\
+         impl A { fn new() -> A { A } }\n\
+         impl B { fn new() -> B { B } }\n\
+         fn make_a() -> A { A::new() }\n\
+         fn make_b() -> B { crate::B::new() }\n\
+         impl A { fn again() -> A { Self::new() } }\n",
+    ),
+    (
+        "lib.rs",
+        "use std::sync::Arc;\n\
+         struct Builder;\n\
+         impl Builder { fn new() -> Builder { Builder } fn default() -> Builder { Builder } }\n\
+         fn shared() -> Arc<u8> { Arc::new(1) }\n\
+         fn options() -> Vec<u8> { Vec::default() }\n",
+    ),
+    (
+        "lib.rs",
+        "struct A;\n\
+         struct B;\n\
+         impl A {\n\
+         \x20   fn run(&self) { self.go(); self.stop(); }\n\
+         \x20   fn go(&self) {}\n\
+         }\n\
+         impl B {\n\
+         \x20   fn go(&self) {}\n\
+         \x20   fn stop(&self) {}\n\
+         }\n",
+    ),
+    (
+        "lib.rs",
+        "struct Wrap(u8);\n\
+         fn len() -> usize { 0 }\n\
+         fn new() -> u8 { 0 }\n\
+         fn show(v: Vec<u8>) { println!(\"{} {} {:?}\", v.len(), Vec::<u8>::new().len(), Wrap(1).0); }\n",
+    ),
+    (
+        "lib.rs",
+        "fn format() -> String { String::new() }\n\
+         fn show() { println!(\"{}\", format!(\"x\")); }\n",
+    ),
+    (
+        "lib.rs",
+        "fn helper() {}\n\
+         macro_rules! twice { ($e:expr) => { helper(); helper(); }; }\n\
+         fn idle() {}\n",
+    ),
+    (
+        "lib.rs",
+        "fn users() {}\n\
+         fn name() {}\n\
+         table! { users (id) { id -> Int4, } }\n\
+         fn gen() { quote! { #name(1) }; html! { <div>{ users() }</div> }; }\n",
+    ),
+    ("lib.rs", "fn run() {\n    log::info!(\"hi\");\n}\n"),
+    (
+        "src/a.rs",
+        "pub fn run() { super::helper(); self::helper2(); }\n",
+    ),
+    ("src/b.rs", "pub fn helper() {}\npub fn helper2() {}\n"),
+    ("src/a.rs", "pub fn run() { b::helper(); }\n"),
+    ("src/a.rs", "pub fn run() { helper(); }\n"),
+    ("src/b.rs", "pub fn helper() {}\n"),
+    ("src/_internal.rs", "pub fn helper() {}\n"),
+    (
+        "src/main.rs",
+        "mod _internal;\nfn run() { crate::_internal::helper(); }\n",
+    ),
+    (
+        "src/a.rs",
+        "fn helper() {}\nfn run() { crate::b::helper(); }\n",
+    ),
+    (
+        "lib.rs",
+        "struct Widget { n: u32 }\n\
+         impl Widget {\n\
+         \x20   fn get(&self) -> u32 { self.n }\n\
+         \x20   fn show(&self) -> u32 { self.get() }\n\
+         }\n",
+    ),
+    ("a/state.rs", "pub struct Bucket<T> { value: T }\n"),
+    (
+        "a/read.rs",
+        "impl<T> Bucket<T> {\n    pub fn fetch_value(&self) {}\n}\n",
+    ),
+    ("b/state.rs", "pub struct Bucket<T> { value: T }\n"),
+    (
+        "b/run.rs",
+        "impl<U> Bucket<U> {\n    pub fn run(&self) { self.fetch_value(); }\n}\n",
+    ),
+    (
+        "method.rs",
+        "impl<T> Bucket<T> { pub fn fetch_value(&self) {} }\n",
+    ),
+    (
+        "caller.rs",
+        "impl<U> Bucket<U> {\n    pub fn run(&self) { self.fetch_value(); }\n}\n",
+    ),
+    (
+        "state.rs",
+        "pub mod a { pub struct Bucket<T>(pub T); }\npub mod b { pub struct Bucket<T>(pub T); }\n",
+    ),
+    (
+        "a_impl.rs",
+        "impl<T> Bucket<T> {\n    pub fn fetch_value(&self) {}\n}\n",
+    ),
+    (
+        "fallback.rs",
+        "pub trait Fallback { fn fetch_value(&self) {} }\n",
+    ),
+    (
+        "b_impl.rs",
+        "impl<T> Fallback for Bucket<T> {}\nimpl<U> Bucket<U> {\n    pub fn run(&self) { self.fetch_value(); }\n}\n",
+    ),
+    ("state.rs", "pub struct Bucket<T> { value: T }\n"),
+    (
+        "method.rs",
+        "impl<T> Bucket<T> {\n    pub fn fetch_value(&self) {}\n}\n",
+    ),
+    (
+        "caller.rs",
+        "impl<U> Bucket<U> {\n    pub fn run(&self) { Self::fetch_value(self); }\n}\n",
+    ),
+    (
+        "a.rs",
+        "struct Config { x: i32 }\nimpl Config {\n    fn load(&self) -> i32 { self.x }\n}\n",
+    ),
+    (
+        "b.rs",
+        "struct Config { y: i32 }\nimpl Config {\n    fn load(&self) -> i32 { self.y }\n}\n",
+    ),
+    (
+        "c.rs",
+        "struct Config { z: i32 }\nimpl Config {\n    fn start(&self) -> i32 { self.load() }\n}\n",
+    ),
+    (
+        "lib.rs",
+        "struct Widget { n: u32 }\nimpl Widget {\n    fn show(&self) -> u32 { self.missing() }\n}\n",
+    ),
+    (
+        "a.rs",
+        "struct Config { x: i32 }\nimpl Config {\n    fn foo(&self) -> i32 { self.x }\n}\n",
+    ),
+    (
+        "b.rs",
+        "struct Config { y: i32 }\nimpl Config {\n    fn bar(&self) -> i32 { self.y }\n    fn start(&self) -> i32 { self.foo() }\n}\n",
+    ),
+    (
+        "lib.rs",
+        "pub type Callback = fn(i32) -> i32;\n\
+         pub type Res<T> = Result<T, Error>;\n\
+         pub struct Error;\n\
+         pub union Bits {\n    i: u32,\n    e: Error,\n}\n\
+         pub struct Button {\n    cb: Callback,\n    bits: Bits,\n}\n\
+         pub fn run(cb: Callback, b: Bits) -> Res<Callback> {\n    Ok(cb)\n}\n",
+    ),
+    (
+        "lib.rs",
+        "use std::ops::Add;\npub struct Meters(pub f64);\n\
+         impl Add for Meters {\n    type Output = Meters;\n    \
+         fn add(self, o: Meters) -> Meters { Meters(self.0 + o.0) }\n}\n",
+    ),
+    ("src/lib.rs", "pub mod types;\npub mod user;\n"),
+    ("src/types.rs", "pub type Callback = fn(i32) -> i32;\n"),
+    (
+        "src/user.rs",
+        "use crate::types::Callback;\npub struct Button {\n    cb: Callback,\n}\n",
+    ),
+];
+
+/// smoke; the real checks are the ihc.18-ignored tests
+///
+/// Runs the extractor, without `resolve`, on the `rsproj` files and every inline source above.
+/// Go's `TestExtractRust` asserts no node count, so none is asserted here.
+#[test]
+fn smoke_extract_rust_sources() {
+    kinds::register_kinds();
+    let root = testdata().join("extract").join("rsproj");
+    for f in ["util/math.rs", "web/server.rs"] {
+        let r = file(&root, f).unwrap_or_else(|e| panic!("File({f}): {e}"));
+        assert!(!r.over_budget, "rsproj/{f}: parse over budget");
+    }
+    for (i, (rel, src)) in SMOKE_SRCS.iter().enumerate() {
+        let r = file_from_bytes(rel, src.as_bytes());
+        assert!(
+            !r.over_budget,
+            "inline source #{i} ({rel}): parse over budget"
+        );
+    }
+}
