@@ -10,3 +10,15 @@ pub(crate) fn extract_ruby(rel: &str, src: &[u8]) -> Option<Result> {
 /// Names this language's kinds in Go's init order and stores its masks (see `kinds`). Empty
 /// until graphify-rs-ihc.33.
 pub(super) fn register_kinds() {}
+
+#[cfg(test)]
+#[path = "tests/ruby.rs"]
+mod ruby_tests;
+
+#[cfg(test)]
+#[path = "tests/rake_resolve.rs"]
+mod rake_resolve_tests;
+
+#[cfg(test)]
+#[path = "tests/rake_skill.rs"]
+mod rake_skill_tests;
