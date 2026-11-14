@@ -18,6 +18,12 @@ pub struct EncodeState {
     pub buf: Vec<u8>,
     pub escape_html: bool,
     depth: usize,
+    /// The depths of the objects that [`write_field`] opened and that are still open: only
+    /// these does a hand-written `write_raw(b"}")` close (see [`EncodeState::write_raw`]).
+    field_objects: Vec<usize>,
+    /// Lone `{` written by `write_raw` and not yet closed by a lone `}`: those braces are the
+    /// caller's own and never touch `depth`.
+    raw_open: usize,
 }
 
 impl EncodeState {
@@ -48,24 +54,44 @@ impl EncodeState {
         self.depth -= 1;
     }
 
-    /// Ends a map or `json_fields!` struct: `{}` if nothing was written (`first`), else `}`.
-    #[doc(hidden)]
+    /// Ends an object whose fields went through [`write_field`] (a hand-written `Marshal` impl,
+    /// a `json_fields!` struct, a map): `{}` if no field was written (`first` still true), else
+    /// `}`, which leaves the depth level the first field entered. This is the way to end a
+    /// hand-written object:
+    ///
+    /// ```ignore
+    /// let mut first = true;
+    /// write_field(e, &mut first, "a", &self.a, false)?;
+    /// e.end_object(first);
+    /// ```
     pub fn end_object(&mut self, first: bool) {
         if first {
-            self.write_raw(b"{}");
+            self.buf.extend_from_slice(b"{}");
         } else {
+            if self.field_objects.last() == Some(&self.depth) {
+                self.field_objects.pop();
+            }
             self.close(b'}');
         }
     }
 
-    /// Appends `b` verbatim; the caller guarantees it is valid JSON. A lone `}` ends an object
-    /// that [`write_field`] opened: a hand-written `Marshal` impl writes its fields with
-    /// `write_field` and then `write_raw(b"}")`, so that `}` also leaves the depth level the
-    /// first field entered (else each such object would leak a level toward the 10000 limit).
+    /// Appends `b` verbatim; the caller guarantees it is valid JSON.
+    ///
+    /// Kept for hand-written impls written before [`end_object`](Self::end_object): a lone `}`
+    /// that ends the innermost open object [`write_field`] opened is the same as
+    /// `end_object(false)`, so the object does not leak a depth level toward the 10000 limit.
+    /// A lone `}` that matches a lone raw `{` (an object the caller writes with raw braces)
+    /// leaves the depth alone.
     pub fn write_raw(&mut self, b: &[u8]) {
-        if b == b"}" && self.depth > 0 {
-            self.close(b'}');
-            return;
+        match b {
+            b"{" => self.raw_open += 1,
+            b"}" if self.raw_open > 0 => self.raw_open -= 1,
+            b"}" if self.field_objects.last() == Some(&self.depth) => {
+                self.field_objects.pop();
+                self.close(b'}');
+                return;
+            }
+            _ => {}
         }
         self.buf.extend_from_slice(b);
     }
@@ -432,6 +458,7 @@ pub fn write_field<T: Marshal + ?Sized>(
     }
     if *first {
         e.open(b'{')?;
+        e.field_objects.push(e.depth);
     } else {
         e.write_raw(b",");
     }
@@ -447,6 +474,8 @@ pub fn marshal<T: Marshal + ?Sized>(v: &T) -> Result<Vec<u8>, Error> {
         buf: Vec::new(),
         escape_html: true,
         depth: 0,
+        field_objects: Vec::new(),
+        raw_open: 0,
     };
     v.marshal_json(&mut e)?;
     Ok(e.buf)
@@ -599,6 +628,8 @@ impl<W: std::io::Write> Encoder<W> {
             buf: Vec::new(),
             escape_html: self.escape_html,
             depth: 0,
+            field_objects: Vec::new(),
+            raw_open: 0,
         };
         v.marshal_json(&mut e)?;
         let mut b = if self.prefix.is_empty() && self.indent.is_empty() {
