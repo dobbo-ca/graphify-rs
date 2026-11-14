@@ -23,7 +23,6 @@ fn stat_index(e: StatEntry) -> StatIndex {
 /// Go `TestStatIndexRoundTrip`: the stat sidecar survives a save and load, and a missing or
 /// corrupt file is an empty index.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_stat_index_round_trip() {
     let dir = TempDir::new();
     let path = dir.join(STAT_FILE_NAME);
@@ -58,7 +57,6 @@ fn test_stat_index_round_trip() {
 /// Go `TestHashFileFastpath`: a matching size+mtime entry reuses the stored hash without
 /// reading the file (`src` is `None`), while a stat change reads and re-hashes.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_hash_file_fastpath() {
     let dir = TempDir::new();
     let f = dir.write("x.go", b"package p\n");
@@ -107,7 +105,6 @@ fn test_hash_file_fastpath() {
 
 /// Go `TestHashFileMissing`: `ok=false` for a file that cannot be read.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_hash_file_missing() {
     let dir = TempDir::new();
     assert!(
@@ -120,7 +117,6 @@ fn test_hash_file_missing() {
 /// and mtime untouched, so the stat signature alone cannot prove the cached hash still
 /// describes the content.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_hash_file_racily_clean() {
     let dir = TempDir::new();
     let f = dir.write("x.go", b"func AAAA() {}\n");
@@ -160,7 +156,6 @@ fn test_hash_file_racily_clean() {
 /// Added: the parse of `GRAPHIFY_MTIME_GRANULARITY_MS` (Go `mtimeGranularity`), which
 /// `test_hash_file_racily_clean` cannot reach without `set_var`.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn parse_granularity_cases() {
     const DEFAULT: i64 = 2_000_000_000;
     let cases: [(&str, i64); 7] = [
@@ -180,7 +175,6 @@ fn parse_granularity_cases() {
 /// Go `TestHashFileLegacyEntry`: a sidecar entry from an older graphify-go (no
 /// `indexed_at_ns`) is distrusted once and re-read.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_hash_file_legacy_entry() {
     let dir = TempDir::new();
     let f = dir.write("x.go", b"package p\n");
@@ -213,7 +207,6 @@ fn test_hash_file_legacy_entry() {
 /// ignored by another, so an extractor fix shipped in a new build invalidates every cached
 /// result instead of being served stale ones.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_stamp_mismatch_discards() {
     let dir = TempDir::new();
     let cache_path = dir.join(FILE_NAME);
@@ -271,7 +264,6 @@ fn test_stamp_mismatch_discards() {
 /// number distinguishes a stale entry. A cache written under the old schema-1 stamp must be
 /// discarded even though the version string ("dev") is unchanged.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_schema_bump_discards_pre_feature_cache() {
     let dir = TempDir::new();
     let cache_path = dir.join(FILE_NAME);
@@ -293,7 +285,6 @@ fn test_schema_bump_discards_pre_feature_cache() {
 
 /// Go `TestStale`.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_stale() {
     let dir = TempDir::new();
     let path = dir.join(FILE_NAME);
@@ -331,7 +322,6 @@ fn hash_of(f: &std::path::Path) -> String {
 
 /// Upstream `test_file_hash_consistent`.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_file_hash_consistent() {
     let dir = TempDir::new();
     let f = dir.write("sample.txt", b"hello world");
@@ -344,7 +334,6 @@ fn test_file_hash_consistent() {
 
 /// Upstream `test_file_hash_changes`.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_file_hash_changes() {
     let dir = TempDir::new();
     let f1 = dir.write("a.txt", b"content one");
@@ -355,7 +344,6 @@ fn test_file_hash_changes() {
 /// Upstream `test_md_body_change_different_hash`: Go hashes the whole file, so any change of
 /// the body changes the hash.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_md_body_change_different_hash() {
     let dir = TempDir::new();
     let f = dir.write(
@@ -373,7 +361,6 @@ fn test_md_body_change_different_hash() {
 
 /// Upstream `test_md_no_frontmatter_hashed_normally`.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_md_no_frontmatter_hashed_normally() {
     let dir = TempDir::new();
     let f = dir.write("doc.md", b"# Just a heading\n\nNo frontmatter here.");
@@ -384,7 +371,6 @@ fn test_md_no_frontmatter_hashed_normally() {
 
 /// Upstream `test_non_md_file_hashed_fully`.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_non_md_file_hashed_fully() {
     let dir = TempDir::new();
     let f = dir.write("script.py", b"# comment\nx = 1");
@@ -395,7 +381,6 @@ fn test_non_md_file_hashed_fully() {
 
 /// Upstream `test_cache_roundtrip`: a saved result loads back equal, as a cache entry.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_cache_roundtrip() {
     let dir = TempDir::new();
     let f = dir.write("sample.txt", b"hello world");
@@ -423,7 +408,6 @@ fn test_cache_roundtrip() {
 /// Upstream `test_cache_miss_on_change`: after the file changes its hash no longer equals the
 /// cached entry's (Go's caller compares the two; there is no per-file `load_cached`).
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_cache_miss_on_change() {
     let dir = TempDir::new();
     let f = dir.write("sample.txt", b"hello world");
@@ -438,7 +422,6 @@ fn test_cache_miss_on_change() {
 /// Upstream `test_ast_cache_invalidated_on_version_bump`: an entry written by version X is not
 /// served after upgrading to version Y.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_ast_cache_invalidated_on_version_bump() {
     let dir = TempDir::new();
     let path = dir.join(FILE_NAME);
@@ -459,7 +442,6 @@ fn test_ast_cache_invalidated_on_version_bump() {
 /// Upstream `test_legacy_unversioned_ast_entries_not_served`: a file in the pre-versioning
 /// layout (entries keyed by hash, no stamp) is not served.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_legacy_unversioned_entries_not_served() {
     let dir = TempDir::new();
     let path = dir.write(
@@ -471,7 +453,6 @@ fn test_legacy_unversioned_entries_not_served() {
 
 /// Upstream `test_file_hash_detects_same_size_rewrite_within_one_mtime_tick`.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_file_hash_detects_same_size_rewrite_within_one_mtime_tick() {
     let dir = TempDir::new();
     let f = dir.write("mod.py", b"x = 1  # aaa\n");
@@ -501,7 +482,6 @@ fn test_file_hash_detects_same_size_rewrite_within_one_mtime_tick() {
 /// Upstream `test_file_hash_fastpath_still_serves_a_settled_file`: once a file's mtime tick
 /// has closed, the digest is served from the index without reading.
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_file_hash_fastpath_still_serves_a_settled_file() {
     let dir = TempDir::new();
     let f = dir.write("mod.py", b"x = 1\n");
@@ -528,7 +508,6 @@ fn test_file_hash_fastpath_still_serves_a_settled_file() {
 /// legacy entry costs exactly one re-read, and having paid it, the healed entry is warm from
 /// then on. (Go keys are the caller's strings: there is no root anchor to migrate or prune.)
 #[test]
-#[ignore = "graphify-rs-ihc.19"]
 fn test_legacy_absolute_index_migrates_gracefully() {
     let dir = TempDir::new();
     let f = dir.write("f1.py", b"x = 1\n");
