@@ -25,7 +25,7 @@ fn extract_proj(proj: &str, files: &[&str]) -> Extraction {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_extract_rust() {
     let ext = extract_proj("rsproj", &["util/math.rs", "web/server.rs"]);
 
@@ -206,7 +206,7 @@ fn confidences<'a>(edges: &[&'a Edge]) -> BTreeSet<&'a str> {
 // labels are not asserted.
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_anonymous_constants_preserve_file_identity() {
     let ext = run(&[(
         "codec.rs",
@@ -229,7 +229,7 @@ fn test_anonymous_constants_preserve_file_identity() {
 // test_rust_builtin_type_hubs.py
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_rust_prelude_types_produce_no_nodes() {
     let ext = run(&[
         (
@@ -262,7 +262,7 @@ fn test_rust_prelude_types_produce_no_nodes() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_rust_locally_defined_prelude_name_is_kept() {
     // A crate may shadow a prelude name (its own `struct Result<T>`). The filter must not erase
     // references to a type the file actually defines.
@@ -281,7 +281,7 @@ fn test_rust_locally_defined_prelude_name_is_kept() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_rust_function_call_still_emits_calls() {
     let ext = run(&[(
         "lib.rs",
@@ -296,7 +296,7 @@ fn test_rust_function_call_still_emits_calls() {
 // pins Go v0.12.0 (a tuple-struct construction is a `calls` edge, INFERRED, and no `references`);
 // upstream 0.9.107 emits `references` with context constructor -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_rust_newtype_construction_is_reference_not_call() {
     let ext = run(&[
         ("ids.rs", "pub struct ClientId(pub u32);\n"),
@@ -316,7 +316,7 @@ fn test_rust_newtype_construction_is_reference_not_call() {
 // pins Go v0.12.0 (a tuple-struct construction is a `calls` edge, INFERRED, and no `references`);
 // upstream 0.9.107 emits `references` with context constructor -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_rust_same_file_construction_is_reference_not_call() {
     let ext = run(&[(
         "ids.rs",
@@ -340,7 +340,7 @@ const IGNORE_RS: &str = "pub struct Ignore {\n    parent: u32,\n}\n\n\
 
 // pins Go v0.12.0 (one node `Ignore` at L1, no `ignore()`); upstream 0.9.107 emits both -> P3 (B01)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_function_and_struct_differing_by_case_are_both_extracted() {
     let ext = run(&[("dir.rs", IGNORE_RS)]);
     let at = |label: &str| -> Vec<&str> {
@@ -357,7 +357,7 @@ fn test_function_and_struct_differing_by_case_are_both_extracted() {
 // pins Go v0.12.0 (the type keeps its id and Go labels the method `Ignore.matched()`, with a
 // `contains` edge); upstream 0.9.107 emits `.matched()` with a `method` edge -> P3 (B28)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_struct_keeps_its_id_and_methods_when_a_function_shares_it() {
     let ids = |ext: &Extraction| -> BTreeSet<String> {
         ext.nodes
@@ -382,7 +382,7 @@ fn test_struct_keeps_its_id_and_methods_when_a_function_shares_it() {
 // pins Go v0.12.0 (the call inside `ignore()` is credited to the node `Ignore`, and `ignore()`
 // has no references edge); upstream 0.9.107 emits `ignore()` -> `build()` -> P3 (B01)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_salted_function_owns_its_own_body() {
     let ext = run(&[("dir.rs", IGNORE_RS)]);
     assert!(has_edge(&ext, "Ignore", "calls", "build()"));
@@ -392,7 +392,7 @@ fn test_salted_function_owns_its_own_body() {
 // pins Go v0.12.0 (the first declared keeps the node: `ignore()` when the function comes first,
 // `Ignore` otherwise); upstream 0.9.107 emits the same two nodes in both orders -> P3 (B01)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_type_keeps_the_plain_id_whatever_the_declaration_order() {
     let forward = run(&[("dir.rs", IGNORE_RS)]);
     let reordered = run(&[(
@@ -417,7 +417,7 @@ fn test_type_keeps_the_plain_id_whatever_the_declaration_order() {
 // pins Go v0.12.0 (one node `e()`, no `E()`); upstream 0.9.107 emits both under salted ids
 // -> P3 (B01)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_case_only_functions_are_both_salted() {
     let ext = run(&[(
         "literal.rs",
@@ -431,7 +431,7 @@ fn test_case_only_functions_are_both_salted() {
 // pins Go v0.12.0 (the twins are one node at L2 and the case-only `Device_Num` struct folds into
 // it: no `Device_Num` node); upstream 0.9.107 emits `Device_Num` as a node of its own -> P3 (B01)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_cfg_twins_still_share_one_node() {
     let twins = "#[cfg(unix)]\nfn device_num(p: &str) -> u64 {\n    1\n}\n\n\
                  #[cfg(windows)]\nfn device_num(p: &str) -> u64 {\n    2\n}\n";
@@ -453,7 +453,7 @@ fn test_cfg_twins_still_share_one_node() {
 // pins Go v0.12.0 (`caller()` -> `Ignore` and `caller()` -> `e()`: `ignore()` and `E()` are the
 // nodes `Ignore` and `e()`); upstream 0.9.107 emits `ignore()`, `e()` and `E()` -> P3 (B01)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_calls_to_salted_functions_keep_their_in_file_edges() {
     let ext = run(&[(
         "dir.rs",
@@ -472,7 +472,7 @@ fn test_calls_to_salted_functions_keep_their_in_file_edges() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_forward_reference_to_the_retained_type_lands_on_it() {
     // A reference above `struct Ignore` in a file that also has `fn ignore` resolves to the struct
     // even when another file declares an `Ignore` too.
@@ -514,7 +514,7 @@ const STRUCT_VALUE: &str = "pub struct Value;\n";
 const USE_VALUE: &str = "pub fn get(v: &Value) -> Option<&Value> {\n    v.get(\"x\")\n}\n";
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_external_crate_use_and_annotation_do_not_reach_a_local_crate() {
     // The `variant` row: Go has no node for an enum variant, so `Value` stays a stub.
     let ext = run(&[
@@ -529,7 +529,7 @@ fn test_external_crate_use_and_annotation_do_not_reach_a_local_crate() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3 B05
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_external_crate_use_alone_does_not_reach_a_local_crate() {
     // Holds because nothing is referenced: the `use` is an import of an external node.
     let ext = run(&[
@@ -540,7 +540,7 @@ fn test_external_crate_use_alone_does_not_reach_a_local_crate() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_annotation_without_any_use_does_not_reach_a_local_crate() {
     let ext = run(&[
         ("a/src/lib.rs", "pub enum Field {\n    Value(String),\n}\n"),
@@ -550,7 +550,7 @@ fn test_annotation_without_any_use_does_not_reach_a_local_crate() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_std_use_does_not_reach_a_same_named_local_struct() {
     let ext = run(&[
         ("a/src/lib.rs", "pub struct HashMap;\n"),
@@ -563,7 +563,7 @@ fn test_std_use_does_not_reach_a_same_named_local_struct() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_workspace_crate_use_reaches_that_crate() {
     let ext = run(&[
         ("a/src/lib.rs", STRUCT_VALUE),
@@ -576,7 +576,7 @@ fn test_workspace_crate_use_reaches_that_crate() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_crate_relative_use_reaches_its_own_module() {
     let ext = run(&[
         (
@@ -590,7 +590,7 @@ fn test_crate_relative_use_reaches_its_own_module() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3 B05
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_same_named_types_in_two_crates_have_no_edge_without_a_use() {
     // Holds because nothing references either type.
     let ext = run(&[
@@ -602,7 +602,7 @@ fn test_same_named_types_in_two_crates_have_no_edge_without_a_use() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_a_use_of_this_crate_keeps_the_binding_extracted() {
     let ext = run(&[
         (
@@ -618,7 +618,7 @@ fn test_a_use_of_this_crate_keeps_the_binding_extracted() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_a_use_of_a_reexporting_crate_reaches_the_defining_crate() {
     // `api` re-exports `corelib`'s type, as axum re-exports axum-core's.
     let ext = run(&[
@@ -633,7 +633,7 @@ fn test_a_use_of_a_reexporting_crate_reaches_the_defining_crate() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_a_super_use_of_a_reexported_type_reaches_the_defining_crate() {
     // axum/src/extract/connect_info.rs: `use super::{.., FromRequestParts}` where the parent
     // module re-exports an axum-core type.
@@ -652,7 +652,7 @@ fn test_a_super_use_of_a_reexported_type_reaches_the_defining_crate() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_a_use_of_a_scanned_crate_keeps_the_binding_extracted() {
     let ext = run(&[
         ("corelib/src/lib.rs", "pub struct FromRequestParts;\n"),
@@ -669,7 +669,7 @@ fn test_a_use_of_a_scanned_crate_keeps_the_binding_extracted() {
 
 // pins Go v0.12.0 (b's get() references a's Value); upstream 0.9.107 emits no edge -> P3 (B05)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_external_crate_use_and_annotation_do_not_reach_a_local_crate_struct() {
     // The `struct` row of the parametrized upstream test.
     let ext = run(&[
@@ -686,7 +686,7 @@ fn test_external_crate_use_and_annotation_do_not_reach_a_local_crate_struct() {
 // pins Go v0.12.0 (b's get() references a's Value, EXTRACTED; Go binds `Map` the same way); upstream
 // 0.9.107 emits no edge -> P3 (B05)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_grouped_external_use_does_not_reach_a_local_crate() {
     let ext = run(&[
         (
@@ -707,7 +707,7 @@ fn test_grouped_external_use_does_not_reach_a_local_crate() {
 // pins Go v0.12.0 (no edge to a or c: two `Value` and no scope, so b's get() keeps a stub);
 // upstream 0.9.107 emits an edge to a -> P3 (B05)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_workspace_crate_use_reaches_the_named_crate_not_a_namesake() {
     let ext = run(&[
         ("a/src/lib.rs", STRUCT_VALUE),
@@ -725,7 +725,7 @@ fn test_workspace_crate_use_reaches_the_named_crate_not_a_namesake() {
 // pins Go v0.12.0 (plugin's f() references server's Config, EXTRACTED); upstream 0.9.107 emits no
 // edge -> P3 (B05)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_workspace_crate_use_does_not_reach_another_crates_namesake() {
     // `osiris_types` (package `osiris-types`) has no `Config`; `server` has one.
     let ext = run(&[
@@ -745,7 +745,7 @@ fn test_workspace_crate_use_does_not_reach_another_crates_namesake() {
 // pins Go v0.12.0 (no edge to either crate: two `Config` and no scope, so f() keeps a stub);
 // upstream 0.9.107 emits an edge to osiris-types -> P3 (B05)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_workspace_crate_use_reaches_its_own_crate_when_two_crates_share_a_name() {
     let ext = run(&[
         ("osiris-types/src/lib.rs", "pub struct Config;\n"),
@@ -762,7 +762,7 @@ fn test_workspace_crate_use_reaches_its_own_crate_when_two_crates_share_a_name()
 
 // pins Go v0.12.0 (EXTRACTED); upstream 0.9.107 emits INFERRED -> P3 (B05)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_a_crate_less_binding_is_flagged_inferred_not_extracted() {
     // No Cargo.toml is read: Go binds by name, and a `references` edge is EXTRACTED.
     let ext = run(&[
@@ -781,7 +781,7 @@ fn test_a_crate_less_binding_is_flagged_inferred_not_extracted() {
 // pins Go v0.12.0 (no edge to corelib or other: two `FromRequestParts`, so f() keeps a stub);
 // upstream 0.9.107 emits an edge to corelib -> P3 (B05)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_a_reexport_does_not_reach_an_unrelated_namesake() {
     let ext = run(&[
         ("corelib/src/lib.rs", "pub struct FromRequestParts;\n"),
@@ -799,7 +799,7 @@ fn test_a_reexport_does_not_reach_an_unrelated_namesake() {
 // pins Go v0.12.0 (plugin's f() references corelib's type, EXTRACTED); upstream 0.9.107 emits no
 // edge -> P3 (B05)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_a_crate_restricted_reexport_does_not_leak_out_of_its_crate() {
     let ext = run(&[
         ("corelib/src/lib.rs", "pub struct FromRequestParts;\n"),
@@ -821,7 +821,7 @@ fn test_a_crate_restricted_reexport_does_not_leak_out_of_its_crate() {
 // test_rust_in_file_call_binding.py
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_type_qualified_call_binds_to_that_types_method() {
     let ext = run(&[(
         "lib.rs",
@@ -842,7 +842,7 @@ fn test_type_qualified_call_binds_to_that_types_method() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_call_on_a_type_the_file_does_not_implement_gets_no_edge() {
     let ext = run(&[(
         "lib.rs",
@@ -861,7 +861,7 @@ fn test_call_on_a_type_the_file_does_not_implement_gets_no_edge() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_self_call_binds_to_the_callers_own_type() {
     let ext = run(&[(
         "lib.rs",
@@ -886,7 +886,7 @@ fn test_self_call_binds_to_the_callers_own_type() {
 // pins Go v0.12.0 (INFERRED edge close() -> Child.drop(), no edge from count()); upstream 0.9.107
 // emits no edge from either -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_bare_call_never_binds_to_a_method_and_member_call_never_to_a_free_fn() {
     // Go binds a bare `drop(c)` to the one same-file method named `drop`; `v.total()` has no
     // receiver qualifier that matches the free `total()`.
@@ -910,7 +910,7 @@ fn test_bare_call_never_binds_to_a_method_and_member_call_never_to_a_free_fn() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3 B44
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_method_path_and_constructor_tokens_are_not_bare_calls() {
     let ext = run(&[(
         "lib.rs",
@@ -924,7 +924,7 @@ fn test_method_path_and_constructor_tokens_are_not_bare_calls() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3 B44
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_nested_macro_name_is_not_a_call() {
     let ext = run(&[(
         "lib.rs",
@@ -936,7 +936,7 @@ fn test_nested_macro_name_is_not_a_call() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3 B44
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_macro_rules_body_is_not_scanned() {
     let ext = run(&[(
         "lib.rs",
@@ -949,7 +949,7 @@ fn test_macro_rules_body_is_not_scanned() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3 B44
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_dsl_macros_are_not_scanned() {
     let ext = run(&[(
         "lib.rs",
@@ -967,7 +967,7 @@ fn test_dsl_macros_are_not_scanned() {
 
 // pins Go v0.12.0 (INFERRED); upstream 0.9.107 emits EXTRACTED -> P3 (0td.32)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_a_parsed_call_keeps_extracted_when_the_macro_comes_first() {
     // The call inside `println!` is not read; `compute(2)` is the one call edge.
     let ext = run(&[(
@@ -986,7 +986,7 @@ fn test_a_parsed_call_keeps_extracted_when_the_macro_comes_first() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_scoped_macro_invocation_stays_unresolved() {
     // Holds because no `info` is defined: the macro name is a call to `info`, with nothing to bind.
     let ext = run(&[("lib.rs", "fn run() {\n    log::info!(\"hi\");\n}\n")]);
@@ -997,7 +997,7 @@ fn test_scoped_macro_invocation_stays_unresolved() {
 // against the path tokens of the defining file, and marks the edge INFERRED.
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_bare_super_and_self_are_skipped() {
     // Bare `super::`/`self::` names no module file: the call has no type to start from.
     let ext = run(&[
@@ -1011,7 +1011,7 @@ fn test_bare_super_and_self_are_skipped() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_rust_scoped_call_cannot_bind_across_languages() {
     // Rust `b::helper()` with a Python b.py defining helper: no cross-language edge.
     let ext = run(&[
@@ -1022,7 +1022,7 @@ fn test_rust_scoped_call_cannot_bind_across_languages() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_bare_name_calls_keep_their_existing_resolution() {
     let ext = run(&[
         ("src/a.rs", "pub fn run() { helper(); }\n"),
@@ -1032,7 +1032,7 @@ fn test_bare_name_calls_keep_their_existing_resolution() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_underscore_module_resolves() {
     let ext = run(&[
         ("src/_internal.rs", "pub fn helper() {}\n"),
@@ -1065,7 +1065,7 @@ fn test_underscore_module_resolves() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_path_call_does_not_bind_to_a_same_named_local_function() {
     let ext = run(&[
         (
@@ -1094,7 +1094,7 @@ fn test_path_call_does_not_bind_to_a_same_named_local_function() {
 
 // pins Go v0.12.0 (INFERRED, to b.rs only); upstream 0.9.107 emits EXTRACTED -> P3 (B26)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_module_qualified_call_resolves_to_the_named_module() {
     // c.rs defines a same-named helper: the qualifier, not the name, decides.
     let ext = run(&[
@@ -1111,7 +1111,7 @@ fn test_module_qualified_call_resolves_to_the_named_module() {
 
 // pins Go v0.12.0 (INFERRED); upstream 0.9.107 emits EXTRACTED -> P3 (B26)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_mod_rs_form_resolves() {
     let ext = run(&[
         ("src/a.rs", "pub fn run() { util::helper(); }\n"),
@@ -1126,7 +1126,7 @@ fn test_mod_rs_form_resolves() {
 // pins Go v0.12.0 (INFERRED edge to src/b.rs, the file in the caller's directory); upstream
 // 0.9.107 emits no edge (two survivors) -> P3 (B26)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_two_matching_module_files_emit_nothing() {
     let ext = run(&[
         ("src/a.rs", "pub fn run() { b::helper(); }\n"),
@@ -1143,7 +1143,7 @@ fn test_two_matching_module_files_emit_nothing() {
 // pins Go v0.12.0 (INFERRED edge to the impl method Helper.helper()); upstream 0.9.107 emits no
 // edge -> P3 (B26)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_uppercase_qualifier_is_a_type_not_a_module() {
     let ext = run(&[
         ("src/a.rs", "pub fn run() { Helper::helper(); }\n"),
@@ -1160,7 +1160,7 @@ fn test_uppercase_qualifier_is_a_type_not_a_module() {
 
 // pins Go v0.12.0 (INFERRED); upstream 0.9.107 emits EXTRACTED -> P3 (B26)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_crate_qualified_path_verifies_against_directories() {
     let ext = run(&[
         ("src/a.rs", "pub fn run() { crate::util::helper(); }\n"),
@@ -1175,7 +1175,7 @@ fn test_crate_qualified_path_verifies_against_directories() {
 // pins Go v0.12.0 (INFERRED edge to the local fs.rs read()); upstream 0.9.107 emits no edge
 // -> P3 (B26)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_std_qualified_call_does_not_bind_to_local_shadow() {
     let ext = run(&[
         (
@@ -1196,7 +1196,7 @@ fn test_std_qualified_call_does_not_bind_to_local_shadow() {
 // pins Go v0.12.0 (INFERRED edge to the local fs.rs read()); upstream 0.9.107 emits no edge
 // -> P3 (B26)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_use_bound_qualifier_from_std_is_skipped() {
     let ext = run(&[
         (
@@ -1216,7 +1216,7 @@ fn test_use_bound_qualifier_from_std_is_skipped() {
 
 // pins Go v0.12.0 (INFERRED); upstream 0.9.107 emits EXTRACTED -> P3 (B26)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_use_bound_qualifier_from_crate_still_resolves() {
     let ext = run(&[
         (
@@ -1234,7 +1234,7 @@ fn test_use_bound_qualifier_from_crate_still_resolves() {
 // pins Go v0.12.0 (INFERRED edge into crate_b/src/util.rs f()); upstream 0.9.107 emits no edge
 // -> P3 (B26)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_crate_path_does_not_cross_into_another_workspace_crate() {
     let ext = run(&[
         (
@@ -1253,7 +1253,7 @@ fn test_crate_path_does_not_cross_into_another_workspace_crate() {
 // pins Go v0.12.0 (INFERRED edge to the impl method Db.open()); upstream 0.9.107 emits no edge
 // -> P3 (B26)
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_module_path_never_names_an_impl_method() {
     let ext = run(&[
         (
@@ -1272,7 +1272,7 @@ fn test_module_path_never_names_an_impl_method() {
 // which is per file: it never resolves a self call to an impl block of another file.
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_self_call_same_file_control_is_unaffected() {
     let ext = run(&[(
         "lib.rs",
@@ -1286,7 +1286,7 @@ fn test_self_call_same_file_control_is_unaffected() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_generic_self_call_does_not_cross_unrelated_same_named_families() {
     let ext = run(&[
         ("a/state.rs", "pub struct Bucket<T> { value: T }\n"),
@@ -1304,7 +1304,7 @@ fn test_generic_self_call_does_not_cross_unrelated_same_named_families() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_generic_self_call_without_a_declaration_fails_closed() {
     // Impl blocks alone do not prove that same-named owners are one family.
     let ext = run(&[
@@ -1322,7 +1322,7 @@ fn test_generic_self_call_without_a_declaration_fails_closed() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_generic_self_call_counts_collapsed_same_file_declarations() {
     // Holds because Go never resolves a self call across files.
     let ext = run(&[
@@ -1347,7 +1347,7 @@ fn test_generic_self_call_counts_collapsed_same_file_declarations() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_scoped_self_call_remains_deferred_across_impl_files() {
     // `Self::method()` is a scoped-call form, outside this resolver slice.
     let ext = run(&[
@@ -1365,7 +1365,7 @@ fn test_scoped_self_call_remains_deferred_across_impl_files() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_self_call_to_ambiguous_type_name_yields_no_edge() {
     // Two different structs share the bare name `Config`, and both define a same-named method.
     let ext = run(&[
@@ -1386,7 +1386,7 @@ fn test_self_call_to_ambiguous_type_name_yields_no_edge() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_self_call_to_undefined_method_yields_no_edge() {
     let ext = run(&[(
         "lib.rs",
@@ -1396,7 +1396,7 @@ fn test_self_call_to_undefined_method_yields_no_edge() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_self_call_does_not_link_across_two_unrelated_types_sharing_a_name() {
     // Two unrelated structs share the bare name `Config`; each defines a different method. A
     // caller in one type's impl must not link to a method that only exists on the other.
@@ -1423,7 +1423,7 @@ const ALIAS_SRC: &str = "pub type Callback = fn(i32) -> i32;\n\
      pub fn run(cb: Callback, b: Bits) -> Res<Callback> {\n    Ok(cb)\n}\n";
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_alias_and_union_are_sourced_nodes_in_their_file() {
     let ext = run(&[("lib.rs", ALIAS_SRC)]);
     for (label, line) in [("Callback", "L1"), ("Res", "L2"), ("Bits", "L4")] {
@@ -1442,7 +1442,7 @@ fn test_alias_and_union_are_sourced_nodes_in_their_file() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_alias_and_union_are_contained_by_the_file() {
     let ext = run(&[("lib.rs", ALIAS_SRC)]);
     let contained: BTreeSet<String> = pairs(&ext, "contains").into_iter().map(|p| p.1).collect();
@@ -1452,7 +1452,7 @@ fn test_alias_and_union_are_contained_by_the_file() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_references_bind_to_the_local_declarations() {
     let ext = run(&[("lib.rs", ALIAS_SRC)]);
     let refs = pairs(&ext, "references");
@@ -1471,7 +1471,7 @@ fn test_references_bind_to_the_local_declarations() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_an_impl_associated_type_is_not_a_file_level_node() {
     let ext = run(&[(
         "lib.rs",
@@ -1483,7 +1483,7 @@ fn test_an_impl_associated_type_is_not_a_file_level_node() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.32"]
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32): needs resolve
 fn test_a_cross_file_reference_lands_on_the_alias() {
     // The reference from another file binds to the alias instead of a stub.
     let ext = run(&[
