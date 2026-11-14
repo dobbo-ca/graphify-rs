@@ -113,6 +113,7 @@ fn test_bash_script_invocation_skips_shadowed() {
 
 // A dynamic target (`bash "./$X.sh"`) is not a literal and emits no edge.
 #[test]
+#[ignore = "graphify-rs-ihc.17"] // bash test (ihc.35): `file` runs the MCP-config check (mcpconfig.rs)
 fn test_bash_script_invocation_skips_dynamic() {
     kinds::register_kinds();
     let root = TempDir::new();

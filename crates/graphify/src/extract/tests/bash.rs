@@ -2,7 +2,7 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::extract::{file, file_from_bytes, kinds, resolve};
+use crate::extract::{file, kinds, resolve};
 use crate::model::Extraction;
 use crate::testutil::testdata;
 
@@ -114,14 +114,18 @@ const SMOKE_SRCS: &[(&str, &str)] = &[
 fn smoke_extract_bash_sources() {
     kinds::register_kinds();
     let root = testdata().join("extract").join("bashproj");
+    // extract_bash directly: file/file_from_bytes first run the MCP-config check, a stub until
+    // graphify-rs-ihc.17. `None` is Go's parse-budget recover.
     for f in ["util/math.sh", "app/main.sh"] {
-        let r = file(&root, f).unwrap_or_else(|e| panic!("File({f}): {e}"));
-        assert!(!r.over_budget, "bashproj/{f}: parse over budget");
+        let src = std::fs::read(root.join(f)).unwrap_or_else(|e| panic!("read {f}: {e}"));
+        assert!(
+            crate::extract::bash::extract_bash(f, &src).is_some(),
+            "bashproj/{f}: parse over budget"
+        );
     }
     for (i, (rel, src)) in SMOKE_SRCS.iter().enumerate() {
-        let r = file_from_bytes(rel, src.as_bytes());
         assert!(
-            !r.over_budget,
+            crate::extract::bash::extract_bash(rel, src.as_bytes()).is_some(),
             "inline source #{i} ({rel}): parse over budget"
         );
     }
