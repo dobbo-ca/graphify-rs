@@ -90,7 +90,9 @@ pub(super) fn parse_granularity(raw: &str) -> i64 {
         Ok(ms) if ms >= 0.0 || ms.is_nan() => {
             let ns = ms * 1_000_000.0;
             // Go `int64(f)` on amd64 (the parity build): out of range and NaN are MinInt64.
-            if (-9.223_372_036_854_775_808e18..9.223_372_036_854_775_808e18).contains(&ns) {
+            // [-2^63, 2^63): `i64::MIN as f64` is exactly -2^63.
+            let lim = -(i64::MIN as f64);
+            if (-lim..lim).contains(&ns) {
                 ns as i64
             } else {
                 i64::MIN
