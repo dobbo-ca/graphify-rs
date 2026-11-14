@@ -447,6 +447,10 @@ The Rust tests read graph.json back with `gostd::json::unmarshal` into the priva
 | `extract-julia` (`graphify-rs-ihc.38`) | - | - | - | not started |
 | `extract-lua` (`graphify-rs-ihc.39`) | - | - | - | not started |
 | graphify-go `internal/extract/zig_test.go` (`graphify-rs-ihc.40`) | 1 | 1 | 0 (+2 added, passing) | - (no upstream file); `TestExtractZig` needs resolve: ignored on ihc.18 |
+| graphify-go `internal/extract/lua_test.go` (`graphify-rs-ihc.39`) | 1 | 1 | 0 | - (no test of shared code: nothing moved) |
+| upstream `test_lua_import.py` | 8 | 7 (each asserts Go's value: a dotted `require("config.lazy")` is an `imports` edge to an external node `config.lazy`, not an edge to the `config.lazy.lua` file node: 6 tests; `foo.require("mod")` and `bar:require("mod")` are imports in Go: 1 test) | 0 | 1: `test_lua_non_require_call_still_recurses_into_its_callback` needs a node for a `local function` inside a callback; Go reads only chunk-level function declarations |
+| upstream `test_lua_method_calls.py` | 5 | 5 (labels are Go's `Animal.speak()`, not `Animal:speak()`; the two fail-closed tests hold in Go through its receiver-qualifier filter) | 0 | - |
+| graphify-go `internal/extract/zig_test.go` (`graphify-rs-ihc.40`) | 1 | 1 | 0 | - (no upstream file) |
 | graphify-go `internal/extract/verilog_test.go` (`graphify-rs-ihc.41`) | 1 | 1 | 0 (+1 added, passing) | `TestExtractVerilog` needs resolve: ignored on ihc.18 |
 
 #### cache
