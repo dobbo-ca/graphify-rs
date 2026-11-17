@@ -39,7 +39,7 @@ fn gap_edges(rel: &str, code: &str) -> (HashSet<String>, HashSet<String>) {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_gap_c_sharp_null_conditional_call() {
     let (edges, _) = gap_edges(
         "a.cs",

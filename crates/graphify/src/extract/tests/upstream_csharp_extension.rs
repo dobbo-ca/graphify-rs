@@ -38,16 +38,16 @@ use crate::model::Extraction;
 // `test_chained_receiver_binds_when_the_name_is_unique`.
 // ---------------------------------------------------------------------------------------------
 
-struct Fixture {
+pub(super) struct Fixture {
     name: &'static str,
-    files: &'static [(&'static str, &'static str)],
+    pub(super) files: &'static [(&'static str, &'static str)],
     /// Call markers that must not bind to anything.
     forbid: &'static [&'static str],
     /// (call marker, target file, target marker) that must not bind.
     forbid_pairs: &'static [(&'static str, &'static str, &'static str)],
 }
 
-const FIXTURES: &[Fixture] = &[
+pub(super) const FIXTURES: &[Fixture] = &[
     Fixture {
         name: "issue_repro",
         files: &[
@@ -591,7 +591,7 @@ fn binds_call(b: &Bindings, call: &str) -> bool {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3 B20
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_production_never_emits_a_forbidden_edge() {
     for f in FIXTURES {
         let b = graph_bindings(f);
@@ -612,7 +612,7 @@ fn test_production_never_emits_a_forbidden_edge() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3 B20
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_production_invents_no_call_site() {
     for f in FIXTURES {
         let b = graph_bindings(f);
@@ -623,7 +623,7 @@ fn test_production_invents_no_call_site() {
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3 B20
 /// `Cache.GetValue()` is nominal; the extension of the same name must not win.
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_instance_member_wins_over_a_same_named_extension() {
     let b = graph_bindings(fixture("instance_wins"));
     assert!(bound(&b, "// E1", "Cache.cs", "// D1"));
@@ -633,7 +633,7 @@ fn test_instance_member_wins_over_a_same_named_extension() {
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3 B20
 /// `Conv.ToInt32(x)` names its type in source and is bound by the nominal pass.
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_static_form_is_never_rebound_to_the_extension() {
     let b = graph_bindings(fixture("static_class_receiver"));
     assert!(bound(&b, "// B1", "E.cs", "// D1"));
@@ -642,7 +642,7 @@ fn test_static_form_is_never_rebound_to_the_extension() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3 B20
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_ambiguity_binds_nothing() {
     let b = graph_bindings(fixture("ambiguous_same_scope"));
     assert!(!binds_call(&b, "// E1"));
@@ -650,7 +650,7 @@ fn test_ambiguity_binds_nothing() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3 B20
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_out_of_scope_extension_binds_nothing() {
     let b = graph_bindings(fixture("out_of_scope"));
     assert!(!binds_call(&b, "// E1"));
@@ -658,7 +658,7 @@ fn test_out_of_scope_extension_binds_nothing() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3 B20
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_unresolved_base_poisons_the_lookup() {
     let b = graph_bindings(fixture("unresolved_base_poison"));
     assert!(!binds_call(&b, "// E1"));
@@ -668,7 +668,7 @@ fn test_unresolved_base_poisons_the_lookup() {
 /// `PropertyInfo.GetValue(obj)` is an instance call; the corpus cannot prove otherwise, so the
 /// same-named extension is refused.
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_bcl_member_name_on_an_undeclared_type_is_not_bound() {
     let b = graph_bindings(fixture("bcl_name_cost"));
     assert!(!binds_call(&b, "// E1"));
@@ -676,7 +676,7 @@ fn test_bcl_member_name_on_an_undeclared_type_is_not_bound() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3 B20
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_untyped_rung_refuses_a_name_a_regular_method_uses() {
     let b = graph_bindings(fixture("untyped_regular_name"));
     assert!(!binds_call(&b, "// F1"));
@@ -685,7 +685,7 @@ fn test_untyped_rung_refuses_a_name_a_regular_method_uses() {
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3 B20
 /// `Conv.ToInt32(x)` names a type; the extension must not be considered.
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_untyped_rung_refuses_a_capitalized_type_receiver() {
     let b = graph_bindings(fixture("static_class_receiver"));
     assert!(!bound(&b, "// B1", "E.cs", "// D2"));
@@ -707,7 +707,7 @@ fn test_untyped_rung_refuses_a_capitalized_type_receiver() {
 //   `test_member_name_is_read_up_to_the_first_parenthesis` calls Python's `_method_label`.
 // ---------------------------------------------------------------------------------------------
 
-const INJECTED: &[(&str, &str)] = &[
+pub(super) const INJECTED: &[(&str, &str)] = &[
     ("IReport.cs", "public interface IReport { void Build(); }\n"),
     (
         "Report.cs",
@@ -746,7 +746,7 @@ fn node_id<'a>(ext: &'a Extraction, label: &str) -> &'a str {
 // pins Go v0.12.0 (INFERRED, confidence_score 0.0, which is not written); upstream 0.9.107 emits
 // INFERRED with confidence_score 0.85 -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_single_implementer_links_the_interface_method() {
     let ext = run(INJECTED);
     assert!(has_edge(
@@ -766,7 +766,7 @@ fn test_single_implementer_links_the_interface_method() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_chain_through_an_injected_dependency_becomes_reachable() {
     let ext = run(INJECTED);
     assert!(!dispatch_pairs(&ext).is_empty());
@@ -790,14 +790,14 @@ fn test_chain_through_an_injected_dependency_becomes_reachable() {
 
 /// Additive: the call site really does name the interface.
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_the_call_to_the_interface_method_is_kept() {
     let ext = run(INJECTED);
     assert!(has_edge(&ext, "Runner.Go()", "calls", "IReport.Build()"));
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_no_matching_member_produces_no_edge() {
     let ext = run(&[(
         "S.cs",
@@ -812,7 +812,7 @@ fn test_no_matching_member_produces_no_edge() {
 /// Go keeps one node per method name (overloads share an id), so the interface's `M()` pairs with
 /// the one `A.M()`.
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_overloaded_implementer_still_links() {
     let ext = run(&[(
         "S.cs",
@@ -827,7 +827,7 @@ fn test_overloaded_implementer_still_links() {
 /// `class Impl : Base` is an `inherits` edge, and a base method may well be the real target, so
 /// walking inheritance is a different bet from dispatch.
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_abstract_base_class_is_out_of_scope() {
     let ext = run(&[(
         "S.cs",
@@ -842,7 +842,7 @@ fn test_abstract_base_class_is_out_of_scope() {
 /// Known limit: IBase's only implementer is IChild, which declares nothing, so IBase.M never
 /// reaches Impl.M.
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_interface_hierarchy_is_not_walked_transitively() {
     let ext = run(&[(
         "S.cs",
@@ -857,7 +857,7 @@ fn test_interface_hierarchy_is_not_walked_transitively() {
 
 // Also parses the Java grammar.
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.27"] // csharp test (ihc.28): parses Java; also needs resolve (ihc.18)
 fn test_java_interface_and_implementation_are_untouched() {
     let ext = run(&[
         (
@@ -875,7 +875,7 @@ fn test_java_interface_and_implementation_are_untouched() {
 /// C# is case sensitive: an implementation must spell the member exactly, so `build` does not
 /// implement `Build`.
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_case_only_member_difference_is_not_a_match() {
     let ext = run(&[(
         "S.cs",
@@ -889,7 +889,7 @@ fn test_case_only_member_difference_is_not_a_match() {
 
 // Also parses the Java grammar.
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.27"] // csharp test (ihc.28): parses Java; also needs resolve (ihc.18)
 fn test_a_non_csharp_implementer_is_not_dispatched_to() {
     let ext = run(&[
         ("IReport.cs", "public interface IReport { void Build(); }\n"),
@@ -903,7 +903,7 @@ fn test_a_non_csharp_implementer_is_not_dispatched_to() {
 
 // Also parses the Java grammar.
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.27"] // csharp test (ihc.28): parses Java; also needs resolve (ihc.18)
 fn test_mixed_corpus_links_only_the_csharp_pair() {
     let ext = run(&[
         ("IReport.cs", "public interface IReport { void Build(); }\n"),

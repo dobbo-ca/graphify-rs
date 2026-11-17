@@ -59,7 +59,7 @@ fn stubs<'a>(ext: &'a Extraction, label: &str) -> Vec<&'a Node> {
 // ---- upstream `test_csharp_tuple_type_refs.py` (2 of 2 ported) ----
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_tuple_element_names_are_not_type_references() {
     let ext = run(&[(
         "Reader.cs",
@@ -85,7 +85,7 @@ fn test_tuple_element_names_are_not_type_references() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_user_defined_tuple_element_types_are_still_referenced() {
     let ext = run(&[(
         "Reader.cs",
@@ -119,7 +119,7 @@ fn test_user_defined_tuple_element_types_are_still_referenced() {
 
 // ---- upstream `test_csharp_field_generic_args.py` (8 of 8 ported) ----
 
-const FIELD_TYPES: &str = concat!(
+pub(super) const FIELD_TYPES: &str = concat!(
     "public interface IThing { }\n",
     "public class Box<T> { }\n",
     "public class Outer { public class Inner { } }\n"
@@ -134,7 +134,7 @@ fn field_refs(probe: &str) -> std::collections::BTreeSet<(String, String)> {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_field_generic_argument_produces_edge() {
     let refs = field_refs("public class Probe { private Box<IThing> _f = null!; }\n");
     assert!(
@@ -148,7 +148,7 @@ fn test_field_generic_argument_produces_edge() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_field_matches_property_behaviour() {
     // A field and a property of the same type must produce the same references.
     let refs = field_refs(concat!(
@@ -170,7 +170,7 @@ fn test_field_matches_property_behaviour() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_nested_generic_arguments() {
     let refs = field_refs("public class Probe { private Box<Box<IThing>> _f = null!; }\n");
     assert!(
@@ -180,14 +180,14 @@ fn test_nested_generic_arguments() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_multiple_declarators_share_the_type() {
     let refs = field_refs("public class Probe { private Box<IThing> _a = null!, _b = null!; }\n");
     assert!(refs.contains(&("Probe".to_string(), "IThing".to_string())));
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_bare_type_parameter_is_not_fabricated() {
     let ext = run(&[(
         "P.cs",
@@ -200,7 +200,7 @@ fn test_bare_type_parameter_is_not_fabricated() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_type_parameter_as_generic_argument_is_not_fabricated() {
     let refs = field_refs("public class Probe<T> { private Box<T> _f = null!; }\n");
     assert!(
@@ -214,7 +214,7 @@ fn test_type_parameter_as_generic_argument_is_not_fabricated() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_predefined_types_are_not_fabricated() {
     let refs = field_refs(
         "public class Probe { private Box<int> _f = null!; private string _s = \"\"; }\n",
@@ -226,7 +226,7 @@ fn test_predefined_types_are_not_fabricated() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_plain_field_still_links() {
     let refs = field_refs("public class Probe { private IThing _f = null!; }\n");
     assert!(refs.contains(&("Probe".to_string(), "IThing".to_string())));
@@ -243,7 +243,7 @@ fn test_plain_field_still_links() {
 // and properties). Of the delegate-field test, which also needs a member node, nothing is left.
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_the_enum_type_node_is_kept() {
     // The enum type stays a node and stays contained by its file.
     let ext = run(&[("S.cs", "public enum ProcessingType {\n    Process\n}\n")]);
@@ -258,7 +258,7 @@ fn test_the_enum_type_node_is_kept() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_an_empty_enum_emits_no_members() {
     let ext = run(&[("S.cs", "public enum Empty {\n}\n")]);
     assert!(!defs(&ext, "Empty").is_empty());
@@ -266,7 +266,7 @@ fn test_an_empty_enum_emits_no_members() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_element_access_member_call_still_binds_to_the_real_method_not_an_enum_case() {
     // Upstream also looks up the enum member `Pause` through `case_of` and asserts the call
     // does not land on it; Go has no enum member nodes, so only the call to the real method
@@ -307,7 +307,7 @@ fn test_element_access_member_call_still_binds_to_the_real_method_not_an_enum_ca
 // `CsharpNameResolver`.
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_cross_file_inherits_resolves_to_real_def() {
     let ext = run(&[
         (
@@ -328,7 +328,7 @@ fn test_csharp_cross_file_inherits_resolves_to_real_def() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_global_using_and_global_namespace() {
     let ext = run(&[
         ("gadget.cs", "public class Gadget {}\n"),
@@ -346,7 +346,7 @@ fn test_csharp_global_using_and_global_namespace() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_cross_namespace_enum_reference_resolves_to_real_def() {
     let ext = run(&[
         (
@@ -388,7 +388,7 @@ fn test_csharp_cross_namespace_enum_reference_resolves_to_real_def() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_cross_namespace_struct_and_record_references_resolve() {
     let ext = run(&[
         (
@@ -426,7 +426,7 @@ fn test_csharp_cross_namespace_struct_and_record_references_resolve() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_ambiguous_using_does_not_resolve() {
     // WeaponData is defined in two files and the referrer opens both namespaces: the reference
     // must stay on a stub rather than bind an arbitrary definition.
@@ -460,7 +460,7 @@ fn test_csharp_ambiguous_using_does_not_resolve() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_type_parameter_emits_no_reference() {
     let ext = run(&[(
         "a.cs",
@@ -483,7 +483,7 @@ fn test_csharp_type_parameter_emits_no_reference() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_qualified_ref_known_namespace_resolves() {
     let ext = run(&[
         ("n.cs", "namespace N { class T {} }\n"),
@@ -504,7 +504,7 @@ fn test_csharp_qualified_ref_known_namespace_resolves() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_qualified_generic_resolves_to_real_def() {
     let ext = run(&[(
         "g.cs",
@@ -524,7 +524,7 @@ fn test_csharp_qualified_generic_resolves_to_real_def() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_qualified_alias_namespace_resolves() {
     // using B = X.Y (namespace alias) then B.T -> the type T in namespace X.Y.
     let ext = run(&[
@@ -545,7 +545,7 @@ fn test_csharp_qualified_alias_namespace_resolves() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_qualified_out_of_scope_alias_falls_through_to_namespace() {
     let ext = run(&[
         ("b.cs", "namespace B { class T {} }\n"),
@@ -566,7 +566,7 @@ fn test_csharp_qualified_out_of_scope_alias_falls_through_to_namespace() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_nested_type_not_importable_via_using() {
     // Go has no node for a nested type, so the reference stays on a stub.
     let ext = run(&[
@@ -584,7 +584,7 @@ fn test_csharp_nested_type_not_importable_via_using() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_type_ref_never_targets_a_file_label() {
     let ext = run(&[
         ("core.cs", "namespace N { class Box {} }\n"),
@@ -601,7 +601,7 @@ fn test_csharp_type_ref_never_targets_a_file_label() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_file_level_using_applies_across_blocks() {
     let ext = run(&[
         ("n.cs", "namespace N { class T {} }\n"),
@@ -621,7 +621,7 @@ fn test_csharp_file_level_using_applies_across_blocks() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_using_flows_into_nested_block() {
     let ext = run(&[
         ("n.cs", "namespace N { class T {} }\n"),
@@ -642,7 +642,7 @@ fn test_csharp_using_flows_into_nested_block() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_same_file_enum_member_does_not_preempt_class_inheritance() {
     // Upstream also finds the enum member node `EffectKind.Follow` and asserts FollowFloat does
     // not inherit it; Go has no enum member nodes, so only the edge to the class is asserted.
@@ -665,7 +665,7 @@ fn test_csharp_same_file_enum_member_does_not_preempt_class_inheritance() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_enum_member_cannot_steal_external_parameter_type() {
     // Upstream also finds the member node `Channel.Vector2` and asserts the reference does not
     // end on it; Go has no enum member nodes, so only the stub is asserted.
@@ -698,7 +698,7 @@ fn test_csharp_enum_member_cannot_steal_external_parameter_type() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_property_cannot_steal_external_parameter_type() {
     // Upstream also finds the property node `Node.Type` and asserts the reference does not end
     // on it; Go has no property nodes, so only the stub is asserted.
@@ -737,7 +737,7 @@ fn test_csharp_property_cannot_steal_external_parameter_type() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_cross_file_collision_resolved_by_kind_not_filename_order() {
     // Upstream also finds the enum member node `Follow` in A_Enum.cs and asserts FollowFloat
     // does not inherit it; Go has no enum member nodes, so only the edge to the class is asserted.
@@ -806,7 +806,7 @@ fn check_widget_base(ext: &Extraction, types_file: &str) {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_enclosing_namespace_dotted() {
     let ext = run(&[
         (
@@ -838,7 +838,7 @@ fn test_csharp_enclosing_namespace_dotted() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_enclosing_namespace_nested_blocks() {
     let ext = run(&[(
         "nested.cs",
@@ -863,7 +863,7 @@ fn test_csharp_enclosing_namespace_nested_blocks() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_enclosing_namespace_file_scoped() {
     let ext = run(&[
         (
@@ -889,7 +889,7 @@ fn test_csharp_enclosing_namespace_file_scoped() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_enclosing_namespace_regression_controls() {
     // Upstream picks `CollidingType` of `Demo.Inner` by its namespace metadata and asserts the
     // reference binds it rather than `Demo.CollidingType`. Go has no metadata and gives both
@@ -940,7 +940,7 @@ fn test_csharp_enclosing_namespace_regression_controls() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_unimported_nested_type_dangles() {
     // Go has no node for the nested Record, so the reference stays on a stub.
     let ext = run(&[
@@ -965,7 +965,7 @@ fn test_csharp_unimported_nested_type_dangles() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_ambiguous_static_imports_dangle() {
     // Go has no node for either nested Record, so the reference stays on a stub.
     let ext = run(&[
@@ -1018,7 +1018,7 @@ fn ends(ext: &Extraction, relation: &str, src: &str) -> Vec<(String, bool)> {
 // pins Go v0.12.0 (Holder references a sourceless stub WeaponData: two definitions in one
 // directory); upstream 0.9.107 emits Holder -> Game.Core.WeaponData, no stub -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_collision_disambiguated_by_using() {
     let ext = run(&[
         (
@@ -1043,7 +1043,7 @@ fn test_csharp_collision_disambiguated_by_using() {
 // pins Go v0.12.0 (Use inherits the definition T of namespace C: Go binds by name); upstream
 // 0.9.107 emits no resolved edge -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_cross_namespace_ref_not_misbound() {
     let ext = run(&[(
         "x.cs",
@@ -1055,7 +1055,7 @@ fn test_csharp_cross_namespace_ref_not_misbound() {
 // pins Go v0.12.0 (Use inherits the definition T of namespace B); upstream 0.9.107 emits no
 // resolved edge -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_same_file_cross_namespace_ref_not_misbound() {
     let ext = run(&[(
         "x.cs",
@@ -1067,7 +1067,7 @@ fn test_csharp_same_file_cross_namespace_ref_not_misbound() {
 // pins Go v0.12.0 (Go has no namespace node: Use inherits a sourceless stub Game); upstream
 // 0.9.107 emits no inherits edge to the namespace node -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_inherits_does_not_bind_namespace_node() {
     let ext = run(&[(
         "y.cs",
@@ -1079,7 +1079,7 @@ fn test_csharp_inherits_does_not_bind_namespace_node() {
 // pins Go v0.12.0 (Use inherits the definition T of namespace A: Go drops the qualifier B);
 // upstream 0.9.107 emits no resolved edge -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_qualified_ref_unknown_qualifier_dangles() {
     let ext = run(&[("a.cs", "namespace A { class T {} class Use : B.T {} }\n")]);
     assert_eq!(ends(&ext, "inherits", "Use"), [("T".to_string(), true)]);
@@ -1088,7 +1088,7 @@ fn test_csharp_qualified_ref_unknown_qualifier_dangles() {
 // pins Go v0.12.0 (Good inherits a sourceless stub T: two definitions in one directory, and no
 // alias binding); upstream 0.9.107 emits Good -> X.Y.T -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_qualified_in_scope_alias_shadows_namespace() {
     let ext = run(&[
         ("xy.cs", "namespace X.Y { class T {} }\n"),
@@ -1104,7 +1104,7 @@ fn test_csharp_qualified_in_scope_alias_shadows_namespace() {
 // pins Go v0.12.0 (Good and Bad both inherit N.T: the one definition of T); upstream 0.9.107 emits
 // only Good -> N.T -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_namespace_scoped_using_isolated_to_sibling_block() {
     let ext = run(&[
         ("n.cs", "namespace N { class T {} }\n"),
@@ -1120,7 +1120,7 @@ fn test_csharp_namespace_scoped_using_isolated_to_sibling_block() {
 // pins Go v0.12.0 (Consumer references a sourceless stub Widget: two definitions in one
 // directory); upstream 0.9.107 emits Consumer -> Demo.Inner.Widget -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_enclosing_namespace_multilevel_shadowing() {
     let ext = run(&[
         (
@@ -1145,7 +1145,7 @@ fn test_csharp_enclosing_namespace_multilevel_shadowing() {
 // pins Go v0.12.0 (Service references Other.Record, the one top-level Record: the nested Record
 // has no node and `using static` binds nothing); upstream 0.9.107 emits no resolved edge -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_static_import_vs_namespace_conflict_dangles() {
     let ext = run(&[
         (
@@ -1174,7 +1174,7 @@ fn test_csharp_static_import_vs_namespace_conflict_dangles() {
 // pins Go v0.12.0 (one sourceless List stub per file, two in all); upstream 0.9.107 emits one
 // shared stub -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_external_type_shares_one_placeholder_across_files() {
     let ext = run(&[
         (
@@ -1194,7 +1194,7 @@ fn test_csharp_external_type_shares_one_placeholder_across_files() {
 // pins Go v0.12.0 (Weapon inherits a sourceless stub Dmg: Go binds no `using` alias); upstream
 // 0.9.107 emits Weapon -> Game.Core.Damage -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_using_alias_resolves_to_aliased_type() {
     let ext = run(&[
         (
@@ -1216,7 +1216,7 @@ fn test_csharp_using_alias_resolves_to_aliased_type() {
 // pins Go v0.12.0 (Use inherits a sourceless stub Bx: Go binds no `using` alias); upstream 0.9.107
 // emits Use -> N.Box -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_generic_alias_resolves_to_base_type() {
     let ext = run(&[
         ("core.cs", "namespace N { class Box {} }\n"),
@@ -1228,7 +1228,7 @@ fn test_csharp_generic_alias_resolves_to_base_type() {
 // pins Go v0.12.0 (Use inherits a sourceless stub B: Go binds no `using` alias); upstream 0.9.107
 // emits Use -> N.Box -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_alias_matching_file_stem_resolves_via_token() {
     let ext = run(&[
         ("core.cs", "namespace N { class Box {} }\n"),
@@ -1240,7 +1240,7 @@ fn test_csharp_alias_matching_file_stem_resolves_via_token() {
 // pins Go v0.12.0 (Good and Bad both inherit a sourceless stub AliasT: Go binds no `using` alias);
 // upstream 0.9.107 emits only Good -> N.T -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_csharp_alias_using_scoped_to_its_block() {
     let ext = run(&[
         ("n.cs", "namespace N { class T {} }\n"),

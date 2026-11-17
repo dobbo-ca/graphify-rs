@@ -54,14 +54,14 @@ fn count_label(ext: &Extraction, label: &str) -> usize {
 // ambiguous in Go (two `Alpha`) and binds nothing.
 // ---------------------------------------------------------------------------
 
-const FOO_PART_A: &str = r#"namespace App {
+pub(super) const FOO_PART_A: &str = r#"namespace App {
     public partial class Foo {
         public void Alpha() {}
     }
 }
 "#;
 
-const FOO_PART_B: &str = r#"namespace App {
+pub(super) const FOO_PART_B: &str = r#"namespace App {
     public partial class Foo {
         public void Beta() { Alpha(); }
     }
@@ -69,7 +69,7 @@ const FOO_PART_B: &str = r#"namespace App {
 "#;
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_cross_half_unqualified_in_class_call_resolves() {
     // Beta() in half B calls Alpha() declared in half A: the one definition of the name.
     let ext = run(&[("FooPartA.cs", FOO_PART_A), ("FooPartB.cs", FOO_PART_B)]);
@@ -81,7 +81,7 @@ fn test_cross_half_unqualified_in_class_call_resolves() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_same_name_different_namespace_not_merged() {
     let ext = run(&[
         (
@@ -102,7 +102,7 @@ fn test_same_name_different_namespace_not_merged() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_non_partial_same_name_not_merged() {
     let ext = run(&[
         (
@@ -122,7 +122,7 @@ fn test_non_partial_same_name_not_merged() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_receiver_qualified_calls_are_not_rebound_to_the_own_type() {
     // The own-type binding is for unqualified calls only: `base.M()` and `Type.M()` keep their
     // targets. Upstream also merges the two `Engine` halves; Go keeps two `Engine` nodes, and
@@ -174,7 +174,7 @@ fn test_receiver_qualified_calls_are_not_rebound_to_the_own_type() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_a_field_alone_makes_no_member_node_but_keeps_its_type_reference() {
     // Fields are out for now, and the reference to a field's type is untouched.
     let ext = run(&[(
@@ -192,7 +192,7 @@ public class Worker { }
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3 B21
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_property_sharing_a_methods_id_does_not_lend_it_its_calls() {
     // The explicit interface property `IRun.Next` has no node in Go and its call is not
     // recorded, so the method keeps only its own call.
@@ -218,7 +218,7 @@ public class Run : IRun {
 // ---------------------------------------------------------------------------
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_issue_repro_methods_display_their_owning_type() {
     // Upstream runs this twice (`no_cluster` False, True) through `_rebuild_code`, and reads the
     // labels by node id; Go has one path and different ids, so the labels are read as a set.
@@ -250,7 +250,7 @@ public class Exporter {
 // pins Go v0.12.0 (labels `CsvReport.Build()`, `Exporter.Run()`, ..., no constructor node);
 // upstream 0.9.107 emits the bare `.Build()`, `.Run()` and `.Exporter()` -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_extraction_keeps_the_bare_resolver_label() {
     let ext = run(&[(
         "Report.cs",
@@ -290,7 +290,7 @@ public class Exporter {
 // ---------------------------------------------------------------------------
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_explicitly_declared_local_links_to_constructed_type() {
     let ext = run(&[(
         "S.cs",
@@ -304,7 +304,7 @@ public class Caller {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_var_local_links_to_constructed_type() {
     let ext = run(&[(
         "S.cs",
@@ -318,7 +318,7 @@ public class Caller {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_argument_position_links_to_constructed_type() {
     // The publish shape: the message type never appears in a declared position.
     let ext = run(&[(
@@ -334,7 +334,7 @@ public class Publisher {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_object_initializer_without_parens_links() {
     let ext = run(&[(
         "S.cs",
@@ -349,7 +349,7 @@ public class Publisher {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_generic_construction_names_the_outer_type() {
     let ext = run(&[(
         "S.cs",
@@ -363,7 +363,7 @@ public class Caller {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_qualified_construction_names_the_last_segment() {
     let ext = run(&[
         (
@@ -382,7 +382,7 @@ fn test_qualified_construction_names_the_last_segment() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_target_typed_new_produces_no_edge() {
     // `new()` carries no type node; guessing one needs the target's declared type.
     let ext = run(&[(
@@ -398,7 +398,7 @@ public class Caller {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_cross_file_publisher_reaches_the_message_class() {
     let ext = run(&[
         (
@@ -419,7 +419,7 @@ public class Publisher {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_ambiguous_type_name_produces_no_edge() {
     // Two classes share a name, so the construction site cannot be pinned to one of them.
     let ext = run(&[
@@ -439,13 +439,13 @@ public class Caller {
     assert!(!call_ids(&ext).iter().any(|(_, t)| caches.contains(t)));
 }
 
-const COLLIDING_CACHES: [(&str, &str); 2] = [
+pub(super) const COLLIDING_CACHES: [(&str, &str); 2] = [
     ("Left.cs", "namespace Infra.Data;\npublic class Cache { }\n"),
     ("Right.cs", "namespace Other;\npublic class Cache { }\n"),
 ];
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_qualified_construction_picks_the_named_namespace() {
     // The bare name is ambiguous, but the source says which Cache it means.
     let caller = r#"public class Caller {
@@ -466,7 +466,7 @@ fn test_qualified_construction_picks_the_named_namespace() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_partially_qualified_construction_stays_unresolved() {
     // `new Data.Cache()` under `using Infra;` would need the using directives in scope to become
     // a namespace. Resolving it by suffix would be a guess.
@@ -485,7 +485,7 @@ public class Caller {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_qualified_construction_with_two_candidates_in_one_namespace() {
     // Same namespace declared in two files, both holding a Cache: the qualifier cannot separate
     // them either, so the guard still applies.
@@ -506,7 +506,7 @@ fn test_qualified_construction_with_two_candidates_in_one_namespace() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_receiver_typed_member_call_still_resolves() {
     // Guard for #1609: the object-creation path must not disturb the invocation path that binds
     // a call to its receiver's declared type.
@@ -525,7 +525,7 @@ public class Repo {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_qualified_construction_resolves_when_the_method_also_declares_the_type() {
     // The method takes the type as a parameter and constructs it. The declared position mints a
     // bare-name stub in this file; the call must land on the class, not on that stub.
@@ -552,7 +552,7 @@ fn test_qualified_construction_resolves_when_the_method_also_declares_the_type()
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_qualified_construction_of_a_foreign_type_makes_no_stub_edge() {
     // `new System.Text.StringBuilder()` has no declaration in the corpus. No edge beats an edge
     // into a sourceless placeholder that stands for nothing.
@@ -568,7 +568,7 @@ fn test_qualified_construction_of_a_foreign_type_makes_no_stub_edge() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_construction_never_binds_to_a_same_named_method_cross_file() {
     let ext = run(&[
         (
@@ -590,7 +590,7 @@ fn test_construction_never_binds_to_a_same_named_method_cross_file() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_construction_inside_a_same_named_method_is_no_self_loop() {
     let ext = run(&[(
         "Box.cs",
@@ -603,7 +603,7 @@ fn test_construction_inside_a_same_named_method_is_no_self_loop() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_construction_still_binds_to_the_type_beside_a_same_named_method() {
     let ext = run(&[
         ("Kit.cs", "namespace Demo { public class Piece { } }\n"),
