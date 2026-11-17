@@ -153,7 +153,7 @@ fn test_resolve_module_path() {
 // `@/lib/x` is the project-root alias convention: it must resolve to the corpus
 // file lib/x.ts (imports_from), not become an external dependency node.
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_resolve_at_slash_alias_import() {
     crate::extract::kinds::register_kinds();
     let ext = resolve_srcs(&[
@@ -190,7 +190,7 @@ fn test_resolve_at_slash_alias_import() {
 
 // A .js specifier names a .ts or .tsx file; a real .js file wins.
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_js_import_js_falls_back_to_tsx() {
     crate::extract::kinds::register_kinds();
     let vue = "<script setup lang=\"ts\">\nimport { Button } from './Button.js'\n</script>\n";
@@ -242,7 +242,7 @@ export function main() { Button(); render(); bothTs(); realJs(); jsxTs() }
 
 // './self.js' in self.ts never falls through to the self.tsx sibling.
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_js_import_js_self_skip() {
     crate::extract::kinds::register_kinds();
     let got = edge_set(
@@ -267,7 +267,7 @@ fn test_js_import_js_self_skip() {
 
 // './x.js' is x.ts before x.js.ts or x.js/index.ts, as upstream tries it.
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_js_import_js_swap_first() {
     crate::extract::kinds::register_kinds();
     let got = edge_set(
@@ -295,7 +295,7 @@ fn test_js_import_js_swap_first() {
 
 // A .js specifier that falls back to its own file is resolved, not external.
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_js_import_js_self_not_external() {
     crate::extract::kinds::register_kinds();
     let srcs = [
@@ -327,7 +327,7 @@ fn test_js_import_js_self_not_external() {
 // Only the static './x.js' self import is dropped: import() of the file
 // itself still gives the file's dynamic_import and the function's deferred edge.
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_js_dynamic_import_self_fallback() {
     crate::extract::kinds::register_kinds();
     let got = edge_set(
@@ -362,7 +362,7 @@ fn test_js_dynamic_import_self_fallback() {
 
 // A call from a component never binds to a Python definition.
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_sfc_call_does_not_cross_to_python() {
     crate::extract::kinds::register_kinds();
     let (_, edges) = resolve_src(&[
@@ -382,7 +382,7 @@ fn test_sfc_call_does_not_cross_to_python() {
 
 // A component keeps an import and a call bound through it, whatever the language.
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_sfc_import_keeps_python_call() {
     crate::extract::kinds::register_kinds();
     let got = edge_set(
@@ -409,7 +409,7 @@ fn test_sfc_import_keeps_python_call() {
 // An ambiguous new X() binds only by a unique symbol import, then by a unique
 // imported file; never by directory, and never past a second symbol import.
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_js_new_ambiguous() {
     crate::extract::kinds::register_kinds();
     let got = edge_set(
@@ -472,7 +472,7 @@ fn test_js_new_ambiguous() {
 
 // Namespaces, values and class members of the same name make a new X() ambiguous.
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_js_new_ambiguous_with_other_nodes() {
     crate::extract::kinds::register_kinds();
     let got = edge_set(
@@ -529,7 +529,7 @@ fn test_js_new_ambiguous_with_other_nodes() {
 // A same-file new X() binds the last node labelled X, as upstream's label
 // map does; a namespace twin of a plain class is no candidate.
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_js_new_same_label() {
     crate::extract::kinds::register_kinds();
     // (name, file, src, from, to)
@@ -609,7 +609,7 @@ fn test_js_new_same_label() {
 
 // `./a.js` names a.ts, and a cycle of `export *` barrels ends.
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_js_import_js_specifier_and_barrel_cycle() {
     crate::extract::kinds::register_kinds();
     let mut srcs: Vec<(String, String)> = vec![
@@ -663,7 +663,7 @@ fn test_js_import_js_specifier_and_barrel_cycle() {
 
 // A file-level import() replaces the static edge's line, either order.
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_js_deferred_merge_takes_import_site() {
     crate::extract::kinds::register_kinds();
     let mut srcs: Vec<(String, String)> = vec![
@@ -711,7 +711,7 @@ fn test_js_deferred_merge_takes_import_site() {
 
 // A file-level deferred import marks the static one of the pair, whatever the order.
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_js_deferred_beats_static_either_order() {
     crate::extract::kinds::register_kinds();
     let b = ("b.js", "const a = require('./a');\n");
@@ -731,7 +731,7 @@ fn test_js_deferred_beats_static_either_order() {
 
 // A static import of the target hides the file's dynamic_import.
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_js_dynamic_import_behind_static_import() {
     crate::extract::kinds::register_kinds();
     let got = edge_set(

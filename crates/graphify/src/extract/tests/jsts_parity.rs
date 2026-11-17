@@ -137,7 +137,7 @@ fn want_calls(srcs: &[(&str, &str)], file: &str, caller: &str, want: &[&str]) {
 
 // Nested declarations are nodes under their parent and own their calls.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_nested_functions() {
     let src = r#"function helper() {}
 function outer() {
@@ -183,7 +183,7 @@ class K { m() { function inMethod() { helper(); } inMethod(); } }
 // Declarations behind a wrapper are file-level; closure calls go to the
 // nearest tracked body, or the file for a top-level callback.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_wrapped_declarations() {
     let src = r#"function helper() {}
 (function () { function inIife() { helper(); } })();
@@ -215,7 +215,7 @@ function f() { [1].map(() => helper()); }
 
 // A nested function binds only from inside its parent.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_nested_scope() {
     let a = r#"export function top() {
   function only() {}
@@ -240,7 +240,7 @@ function user() { only(); }
 // A declaration below module level makes no node; its calls go to the
 // enclosing body, or the file for a top-level callback.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_local_declarations_no_node() {
     let src = r#"function helper() {}
 (function () { var inner = function () { helper(); }; })();
@@ -262,7 +262,7 @@ describe("x", () => { const lh = () => {}; });
 
 // Only a closure in a call statement makes the file its caller.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_file_caller_shapes() {
     let src = r#"function a() {} function b() {} function c() {} function d() {} function e() {}
 late = () => { a(); };
@@ -288,7 +288,7 @@ ok && foo(() => e());
 // A const initialised by a call, array or object makes no declaration
 // nodes; a ternary or var initializer still does.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_const_initializer_no_recursion() {
     let src = r#"const w1 = wrap(() => { function g1() {} });
 const w3 = [function () { function g3() {} }];
@@ -312,7 +312,7 @@ var w6 = wrap(function () { function g7() {} });
 // A module-level const or let that is no function: a node for an object,
 // array, cast, call or new value, or for any exported plain name.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_top_level_const_nodes() {
     let src = r#"export const LIMIT = 3;
 const plain = 5;
@@ -353,7 +353,7 @@ function f() { const local = {}; }
 // A closure in a call initializer is called by the const; an object
 // literal's methods are not tracked.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_const_closure_calls() {
     let src = r#"function h1() {} function h2() {} function h3() {} function h4() {}
 const ex = wrap(() => { h1(); function g() { h2(); } });
@@ -378,7 +378,7 @@ const lit = { a: () => h4() };
 
 // A const sharing a callee's name must not hide the call.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_const_keeps_call_binding() {
     let (_, edges) = resolve_src(&[
         ("a.ts", "export function trace() {}"),
@@ -400,7 +400,7 @@ fn test_js_const_keeps_call_binding() {
 
 // A generator function expression is a function, not a const.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_exported_generator_const() {
     let src = "function p1() {}\nexport const E = function* () { p1(); };\nexport const A = async function* () { p1(); };\n";
     let (nodes, edges) = resolve_src(&[("g.ts", src)]);
@@ -422,7 +422,7 @@ fn test_js_exported_generator_const() {
 
 // Prose naming a const does not link to it.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_const_no_markdown_reference() {
     let (_, edges) = resolve_src(&[
         (
@@ -443,7 +443,7 @@ fn test_js_const_no_markdown_reference() {
 // Namespaces and modules are file-contained nodes; members carry the
 // namespace in their id, so equal names in two namespaces both survive.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_ts_namespaces() {
     let src = r#"namespace NS {
   export class Inner { im() {} }
@@ -502,7 +502,7 @@ namespace A.B { export function ab() {} }
 
 // A call binds to the innermost namespace that has the name.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_ts_namespace_lexical_calls() {
     let a = "export function mk() {}\nnamespace P { export function mk() {} export function other() { mk(); } }\nexport function local() { mk(); }\n";
     let b = "import { mk } from \"./a\";\nexport function u() { mk(); }\n";
@@ -535,7 +535,7 @@ function topcall() { b(); }
 
 // A namespace named `_` or `$` still has its members.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_ts_degenerate_namespace_members() {
     let src = "declare namespace _ { interface Coll {} class Kept {} }\nnamespace $ { export function d() {} }\nnamespace Outer { namespace _ { export class Hidden {} } }\n";
     let (nodes, _) = resolve_src(&[("o.ts", src)]);
@@ -546,7 +546,7 @@ fn test_ts_degenerate_namespace_members() {
 
 // A namespace member never takes the id of a class member or top-level name.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_ts_namespace_member_ids() {
     let src = r#"class Foo { create() {} }
 namespace Foo { export function create() {} }
@@ -579,7 +579,7 @@ function A_B_u() {}
 
 // Exported variables of a namespace or ambient module make an orphan node.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_ts_namespace_variable_nodes() {
     let src = r#"namespace M {
   export const arrow = () => {};
@@ -605,7 +605,7 @@ declare namespace G { const k3: number; export const k4: { a: 1 }; }
 
 // A namespace const is no call target; functions and classes are.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_ts_namespace_call_targets() {
     let src = r#"namespace T {
   export const cfn = () => {};
@@ -635,7 +635,7 @@ fn test_ts_namespace_call_targets() {
 // A method body is a boundary: its calls go nowhere, also in a closure
 // the file or a const owns.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_method_in_closure_drops_calls() {
     let src = r#"function h01() {} function h08() {} function h1() {} function h2() {}
 foo(() => { return { m01() { h01(); } }; });
@@ -656,7 +656,7 @@ const c2 = foo(class { m() { h2(); } });
 // A file-level callback or IIFE calling a function of the file adds no
 // edge: upstream's contains edge hides it.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_file_closure_calls_hidden() {
     let src = r#"function helper() {}
 describe("x", () => { helper(); });
@@ -677,7 +677,7 @@ p.then(() => helper());
 // A member-assigned function has no nested nodes; calls in its inner
 // declarations are its own.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_member_assign_no_nested() {
     let src = r#"function helper() {}
 exports.run = function () { function inRun() { helper(); } inRun(); };
@@ -705,7 +705,7 @@ exports.gen = async function* () { helper(); };
 
 // A module-level const is a call target, in its file and through an import.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_const_call_targets() {
     let a = "export const eObj = {};\nexport const eCall = make();\nconst loc = new Map();\nfunction f() { loc(); eObj(); }\n";
     let b = "import { eCall } from \"./a\";\nfunction g() { eCall(); }\n";
@@ -726,7 +726,7 @@ fn test_js_const_call_targets() {
 // A static block holds file-level declarations; an exported destructure
 // makes a node per key.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_static_block_and_pattern_keys() {
     let src = r#"function helper() {}
 class S { static { function inStatic() { helper(); } inStatic(); } }
@@ -753,7 +753,7 @@ export const { a, b: c, d: { e }, f = 1, g: h = 2, ...rest } = x();
 
 // A namespace member without `export` is no call target outside it.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_ts_namespace_private_not_global() {
     let p = "namespace P {\n  function hidden() {}\n  export function shown() {}\n  export function parse() { hidden(); }\n}\n";
     let u = "export function user() { hidden(); }\n";
@@ -766,7 +766,7 @@ fn test_ts_namespace_private_not_global() {
 
 // A bare call in JS/TS never names a class method.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_bare_call_skips_methods() {
     let srcs = [
         ("k.ts", "export class K { some() {} only() {} }\n"),
@@ -783,7 +783,7 @@ fn test_js_bare_call_skips_methods() {
 
 // An exported variable without a node of its own still gets one, edgeless.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_exported_variable_orphans() {
     let src = r#"export const c1: number;
 export let l1: string;
@@ -829,7 +829,7 @@ export const h1 = 5;
 
 // Member assignments below module level and `var v = function*` make no node.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_member_assign_module_level_only() {
     let src = r#"function t() {}
 o.top = function () {};
@@ -849,7 +849,7 @@ var w = function () {};
 
 // Heritage binds a same-file or named-import base, never a guess.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_heritage() {
     let m = r#"export class Base {}
 export class Solo {}
@@ -918,7 +918,7 @@ interface J extends B2, Unknown {}
 // An export alias names the binding, `default` and a re-exported import
 // included.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_aliased_exports() {
     let a = "export default class Dflt {}\nexport class A {}\nexport function f() {}\n";
     let idx = "export { f as g, A as AA, default as Named } from \"./a\";\n";
@@ -972,7 +972,7 @@ function h() { g(); }
 // A named import targets the definition, through barrels; a namespace import
 // targets nothing; a re-export gives re_exports.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_import_symbols() {
     let m = "export function x() {}\nexport class K {}\nexport const C1 = { a: 1 };\nexport default class Dm {}\n";
     let m2 = "export function y() {}\nexport interface Ifc {}\n";
@@ -1027,7 +1027,7 @@ import * as ns from "./m";
 
 // A function-valued field and a body-less signature are methods of the class.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_class_member_forms() {
     let src = r#"function helper() {}
 export class C {
@@ -1096,7 +1096,6 @@ class S { only(); }
 // An overloaded method with a body is no abstract method: an abstract
 // one loses a call to an equal-named method elsewhere.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
 fn test_js_overload_not_abstract() {
     crate::extract::kinds::register_kinds();
     let r = file_from_bytes(
@@ -1122,7 +1121,7 @@ fn test_js_overload_not_abstract() {
 
 // A class owns its member even when another symbol took the id first.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_class_member_collisions() {
     let (nodes, edges) =
         resolve_src(&[("c.ts", "function foo_bar() {}\nclass Foo { bar() {} }\n")]);
@@ -1138,7 +1137,7 @@ fn test_js_class_member_collisions() {
 // A member assignment hangs on the owner its receiver proves; an unproven
 // receiver makes nothing.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_member_assign_owners() {
     let src = r#"function helper() {}
 Foo.prototype.early = function () { helper(); };
@@ -1198,7 +1197,7 @@ reg(function () { this.cx = function () { helper(); }; });
 // module-level name it is bound to, else on the class expression's name,
 // else on the file. A const or let object keeps no methods, as upstream.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_literal_method_owners() {
     let src = r#"function helper() {}
 const CE = class { cm() { helper(); } };
@@ -1263,7 +1262,7 @@ type TL = { tm(): void };
 // An owner node never takes the id of a later declaration, and a literal's
 // method is no call target of another file.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_literal_owner_no_steal() {
     let (nodes, edges) = resolve_src(&[
         (
@@ -1291,7 +1290,7 @@ fn test_js_literal_owner_no_steal() {
 
 // A `this.x = fn` in the constructor does not hide the method x from super.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_this_member_keeps_method() {
     let src = r#"class C {
   constructor() { this.foo = () => {}; }
@@ -1314,7 +1313,7 @@ class D extends C {
 // A method on an exported object is a call target of other files, and a
 // prototype member finds an owner declared in a namespace.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_exported_object_method_target() {
     let (nodes, edges) = resolve_src(&[
         (
@@ -1345,7 +1344,7 @@ fn test_js_exported_object_method_target() {
 // Only a member of an exported object binds a bare call: a prototype
 // member never does, whatever its owner, and a class method never does.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_bare_call_frees_only_export_members() {
     let (nodes, edges) = resolve_src(&[
         (

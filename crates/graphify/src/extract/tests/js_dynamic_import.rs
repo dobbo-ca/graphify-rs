@@ -9,7 +9,6 @@ use crate::extract::file_from_bytes;
 //   pub(crate) const DYN_IMPORT: u8 = 1; // in crate::extract::extract
 // The regex pass tracks lines and `//` per line while it scans once.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
 fn test_js_dynamic_import_lines() {
     crate::extract::kinds::register_kinds();
     let src = "import('./a');\n\nconst x = 1; import('./b'); // import('./c')\n// import('./d')\nf(import('./e'), import('./f'));\n";

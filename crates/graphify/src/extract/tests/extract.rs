@@ -11,7 +11,7 @@ use crate::model::append_json_string;
 use crate::testutil::testdata;
 
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_extract_and_resolve() {
     kinds::register_kinds();
     let root = testdata().join("extract").join("proj");

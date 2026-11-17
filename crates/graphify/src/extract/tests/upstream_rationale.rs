@@ -357,7 +357,6 @@ def process():
 // ── JS/TS rationale + doc-reference extraction ────────────────────────────────
 
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
 fn test_js_rationale_comment_extracted() {
     let r = ts(r#"
 // NOTE: must run before compile() or the linker will fail
@@ -367,7 +366,6 @@ export function build(): void {}
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
 fn test_js_block_comment_rationale_extracted() {
     let r = ts(r#"
 /**
@@ -379,7 +377,6 @@ export function fetchData(): void {}
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
 fn test_js_adr_reference_extracted() {
     let r = ts(r#"
 // Gateway pattern per ADR-0002; provider selection per ADR-0015.
@@ -399,7 +396,6 @@ export function route(): void {}
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
 fn test_js_adr_reference_normalized_and_deduped() {
     let r = ts(r#"
 // See ADR-11 for the trust boundary.
@@ -410,7 +406,6 @@ export function guard(): void {}
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
 fn test_js_adr_in_string_literal_not_extracted() {
     let r = ts(r#"
 export const banner = "compliant with ADR-0099";
@@ -421,7 +416,6 @@ export const banner = "compliant with ADR-0099";
 /// A `// WHY:` comment whose content is an unbroken long URL must not collapse to a content-free
 /// label. The `WHY:` prefix always fits, so the invariant is that some real content survives.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
 fn test_js_rationale_comment_opening_with_unbroken_long_token_keeps_content() {
     let url = format!(
         "https://example.com/api/v3/settlements/{}/confirm",
@@ -438,7 +432,6 @@ fn test_js_rationale_comment_opening_with_unbroken_long_token_keeps_content() {
 
 /// A short `// NOTE:` comment passes through byte-for-byte.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
 fn test_js_short_rationale_comment_unchanged() {
     let r = ts(r#"
 // NOTE: must run before compile() or the linker will fail

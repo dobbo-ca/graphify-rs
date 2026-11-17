@@ -66,7 +66,7 @@ fn check_edges(got: &BTreeSet<String>, want: &[&str], not: &[&str]) {
 
 // `new X()` binds like a bare call, but across files only with an import.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_new_expression() {
     crate::extract::kinds::register_kinds();
     let got = edge_set(
@@ -150,7 +150,7 @@ describe('x', () => { new Circle(); new Local(); });
 // import() is a file-level dynamic_import once per target, and a deferred
 // imports_from from the function holding it; require() stays imports_from.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_dynamic_import() {
     crate::extract::kinds::register_kinds();
     let dynsrc = r#"const top = import("./a.js");
@@ -216,7 +216,7 @@ export function sub(n) { return import(`./${n}`); }
 // An import() in a closure of a top-level call is the file's deferred import,
 // and replaces its dynamic_import. In a function it is both.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_dynamic_import_in_top_level_closure() {
     crate::extract::kinds::register_kinds();
     let a = ("a.ts", "export function a() {}\n");
@@ -256,7 +256,7 @@ fn test_js_dynamic_import_in_top_level_closure() {
 
 // Components get a dynamic_import for the file and a deferred edge for the function.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_sfc_dynamic_import() {
     crate::extract::kinds::register_kinds();
     let got = edge_set(
@@ -297,7 +297,7 @@ fn test_sfc_dynamic_import() {
 // Only a lone literal in `import(` makes a file dynamic_import; a recovered
 // call, a comment argument or a `$` template still defers.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_dynamic_import_shapes() {
     crate::extract::kinds::register_kinds();
     let mut srcs: Vec<(String, String)> = vec![
@@ -342,7 +342,7 @@ export function d() { return import(`./e$f`); }
 // Upstream finds dynamic_import by regex: comments and strings count, a
 // line comment or a longer name does not, and a static import hides it.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_dynamic_import_regex() {
     crate::extract::kinds::register_kinds();
     let mut srcs: Vec<(String, String)> = vec![(
@@ -383,7 +383,7 @@ const x = reimport('./e'), y = import('./s'), z = import('./ty'), w = import('./
 // A component's dynamic_import is its regex alone: no template literal, no
 // extra argument. The script still defers.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_sfc_dynamic_import_shapes() {
     crate::extract::kinds::register_kinds();
     let got = edge_set(
@@ -416,7 +416,7 @@ fn test_sfc_dynamic_import_shapes() {
 // `new X()` binds an imported class by its own name, once, outside its own
 // members; a local class does not hide it, as upstream has no node for one.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_new_binding() {
     crate::extract::kinds::register_kinds();
     let got = edge_set(
@@ -496,7 +496,7 @@ export function shadowCls() { class Y {} return new Y(); }
 // local class shadows nothing, and an aliased import falls back to the class
 // of that name.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_new_scopes() {
     crate::extract::kinds::register_kinds();
     let got = edge_set(
@@ -564,7 +564,7 @@ export function own() { class Widget {} return new Widget(); }
 // A new X() in a closure passed to a top-level call is the file's, unless an
 // imports or contains edge already links the pair; module scope makes none.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_new_file_closure() {
     crate::extract::kinds::register_kinds();
     let got = edge_set(
@@ -614,7 +614,7 @@ fn test_js_new_file_closure() {
 
 // import(' ./d ') trims spaces inside the quotes.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_dynamic_import_spaces() {
     crate::extract::kinds::register_kinds();
     let got = edge_set(
@@ -632,7 +632,7 @@ fn test_js_dynamic_import_spaces() {
 
 // An external module imported statically still gets the file's dynamic_import.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_dynamic_import_external_behind_static() {
     crate::extract::kinds::register_kinds();
     let got = edge_set(
@@ -654,7 +654,7 @@ fn test_js_dynamic_import_external_behind_static() {
 
 // import("/x") names no package: only the function defers it.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_dynamic_import_absolute() {
     crate::extract::kinds::register_kinds();
     let got = edge_set(
@@ -688,7 +688,7 @@ fn test_js_dynamic_import_absolute() {
 // Upstream's closure walk skips the params and type of a nested callable, so
 // an import() there gives the file its dynamic_import and no deferred edge.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_dynamic_import_nested_signature() {
     crate::extract::kinds::register_kinds();
     let main = r#"declare function setup(f: () => void): void;
@@ -743,7 +743,7 @@ export let sys = (() => { function nf() { return import('./i1.js'); } const o = 
 // A generic call that tree-sitter misreads as a comparison has its import()
 // type masked upstream, so only the regex pass sees it.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_dynamic_import_masked_type_args() {
     crate::extract::kinds::register_kinds();
     let s = r#"declare function foo<T>(...a: any[]): Promise<T>;
@@ -784,7 +784,7 @@ export function m12() { return foo<(typeof import('./l'))['vl']>(); }
 
 // Upstream's dynamic_import carries no location.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_dynamic_import_no_location() {
     crate::extract::kinds::register_kinds();
     let ext = resolve_srcs(&[

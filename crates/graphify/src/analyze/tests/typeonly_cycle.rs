@@ -51,7 +51,7 @@ fn cycles_of(files: &[(&str, &str)]) -> Vec<Cycle> {
 /// A type-only import is erased at compile time, so the round trip it closes is not a runtime
 /// cycle; a value import in the same position still is.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_import_cycles_skips_type_only_imports() {
     let type_only = ts_cycle_graph("import type { B } from './b';");
     let cycles = import_cycles(&type_only, 5, 20);
@@ -77,7 +77,7 @@ fn test_import_cycles_skips_type_only_imports() {
 /// Two imports from the same module (one type-only, one value) collapse to a single
 /// imports_from edge, so the value import must win regardless of which line comes first.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_import_cycles_type_and_value_import_same_module() {
     for imp in [
         "import type { B } from './b';\nimport { mkB } from './b';",
@@ -95,7 +95,7 @@ fn test_import_cycles_type_and_value_import_same_module() {
 
 /// A deferred import() runs late, so it closes no static cycle.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_import_cycles_skips_deferred_imports() {
     for imp in [
         "export async function lazy() { return import('./b'); }", // from a function
@@ -120,7 +120,7 @@ fn test_import_cycles_skips_deferred_imports() {
 // checks) assert extractor output, not cycles: they belong to the extract tests.
 
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_the_reporters_two_file_cycle_is_gone() {
     let cycles = cycles_of(&[
         (
@@ -139,7 +139,7 @@ fn test_the_reporters_two_file_cycle_is_gone() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_a_real_runtime_cycle_is_still_reported() {
     let cycles = cycles_of(&[
         (
@@ -157,7 +157,7 @@ fn test_a_real_runtime_cycle_is_still_reported() {
 
 /// One runtime leg and one type-only leg: no runtime cycle exists.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_a_cycle_with_one_type_only_leg_is_not_a_cycle() {
     let cycles = cycles_of(&[
         (
@@ -176,7 +176,7 @@ fn test_a_cycle_with_one_type_only_leg_is_not_a_cycle() {
 /// runtime leg closing a -> b -> c -> a. (Upstream's undirected build merges a file pair into
 /// one edge; Go keeps both directed edges, the assertion is the same.)
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_undirected_graph_keeps_the_marker_when_the_reverse_import_is_dropped() {
     let cycles = cycles_of(&[
         (
@@ -198,7 +198,7 @@ fn test_undirected_graph_keeps_the_marker_when_the_reverse_import_is_dropped() {
 
 /// The same merge hid a real cycle for TypeScript (#3123).
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_a_type_import_beside_a_value_import_of_the_same_file_keeps_the_cycle() {
     let cycles = cycles_of(&[
         (
@@ -235,7 +235,7 @@ const PY_CYCLE: [(&str, &str); 2] = [
 /// Two files importing each other are an import cycle (TS and Python). Without upstream's
 /// `reverse_import` stamp and one-edge-per-pair assertions, which Go has no counterpart for.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_two_file_cycle_is_reported() {
     let ts = cycles_of(&TS_CYCLE);
     assert_eq!(names(&ts), [["a.ts", "b.ts"]], "ts: cycles = {ts:?}");
@@ -269,7 +269,7 @@ fn test_longer_cycles_are_still_reported_beside_a_two_file_one() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_a_type_only_reverse_import_closes_no_cycle() {
     const CASES: [(&str, [(&str, &str); 2]); 2] = [
         (

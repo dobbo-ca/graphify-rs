@@ -154,7 +154,7 @@ const RUNNER_CASES: [(&str, bool); 5] = [
 ];
 
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // bash test (ihc.35, bash_scriptinvocation_test.go): also parses python and js files (js is the last of the two to land); also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // bash test (ihc.35, bash_scriptinvocation_test.go): also parses python and js files (js is the last of the two to land); also needs resolve (ihc.18)
 fn test_bash_runner_non_shell_targets() {
     for (cmd, want_edge) in RUNNER_CASES {
         let root = TempDir::new();

@@ -69,7 +69,7 @@ fn test_gap_ruby_bare_self_send() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_gap_js_member_assigned_function() {
     let (edges, nodes) = gap_edges(
         "a.js",
@@ -82,7 +82,7 @@ fn test_gap_js_member_assigned_function() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_gap_ts_abstract_method() {
     let (edges, nodes) = gap_edges(
         "a.ts",
@@ -178,7 +178,7 @@ fn test_gap_abstract_does_not_block_single_impl() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_gap_abstract_cross_file_single_impl() {
     crate::extract::kinds::register_kinds();
     let root = TempDir::new();

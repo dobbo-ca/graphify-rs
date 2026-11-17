@@ -14,7 +14,6 @@ fn label_set(r: &Result) -> BTreeSet<&str> {
 /// would collapse to the bare file stem and be pure noise (#1899). A real function alongside it
 /// must still be extracted.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
 fn test_extract_js_skips_degenerate_name() {
     kinds::register_kinds();
     let root = TempDir::new();

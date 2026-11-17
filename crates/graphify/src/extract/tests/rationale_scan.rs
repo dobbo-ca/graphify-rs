@@ -1,7 +1,6 @@
 //! graphify-go `internal/extract/rationale_scan_test.go`. Go calls `(*builder).jsRationale`,
-//! `pyRationale` and `addDocRef`, which live in `javascript.rs` and `python.rs` (other owners,
-//! not stubbed here). The three functions below stand in for them with `todo!` bodies; the
-//! javascript (ihc.26) and python (ihc.25) PRs replace them with their `Builder` methods.
+//! `pyRationale` and `addDocRef`, which live in `javascript.rs` and `python.rs`; the functions
+//! below call their `Builder` ports.
 
 use std::collections::BTreeSet;
 use std::sync::LazyLock;
@@ -17,7 +16,7 @@ use crate::testutil::Rng;
 
 /// Go `(*builder).jsRationale` (`javascript.go:1441`).
 fn js_rationale(b: &mut Builder, src: &[u8]) {
-    todo!("graphify-rs-ihc.26")
+    crate::extract::javascript::js_rationale(b, src)
 }
 
 /// Go `(*builder).pyRationale` (`python.go:721`).
@@ -27,7 +26,7 @@ fn py_rationale(b: &mut Builder, root: Node<'_>, src: &[u8]) {
 
 /// Go `(*builder).addDocRef` (`javascript.go:1489`).
 fn add_doc_ref(b: &mut Builder, token: &str, line_num: i64, seen_doc_refs: &mut BTreeSet<String>) {
-    todo!("graphify-rs-ihc.26")
+    crate::extract::javascript::add_doc_ref(b, token, line_num, seen_doc_refs)
 }
 
 /// Go `jsRationalePrefixes` (`javascript.go:1419`).
@@ -113,7 +112,6 @@ fn py_ref(b: &mut Builder, src: &[u8]) {
 /// `rand.NewSource(1)`; the generator here is `testutil::Rng` (any sequence serves). The tokens
 /// are bytes, as Go's are: `\xc2\xa0` is ` `, `\xe2\x84\xaa` is `K`, `\xff` is not UTF-8.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
 fn test_rationale_scan_matches_split() {
     kinds::register_kinds();
     let toks: &[&[u8]] = &[

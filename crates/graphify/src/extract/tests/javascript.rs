@@ -11,7 +11,6 @@ use crate::idutil::make_id;
 // `ADR-0001` reference in a comment becomes a normalized doc_ref node cited by
 // the file.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
 fn test_extract_js_rationale() {
     crate::extract::kinds::register_kinds();
     let src = concat!(
@@ -84,7 +83,7 @@ fn import_edges(srcs: &[(&str, &str)]) -> Vec<String> {
 
 // CommonJS require and re-exports each link to the target file.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_js_import_forms_resolve_to_files() {
     crate::extract::kinds::register_kinds();
     const CASES: [(&str, &str); 4] = [
@@ -112,7 +111,6 @@ fn test_js_import_forms_resolve_to_files() {
 
 // `export type { T } from` is type-only, like `import type`.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
 fn test_js_re_export_type_only() {
     crate::extract::kinds::register_kinds();
     const CASES: [(&str, bool); 2] = [
@@ -125,5 +123,102 @@ fn test_js_re_export_type_only() {
             imps.len() == 1 && imps[0].type_only == want,
             "{src:?}: got {imps:?}, want one import with TypeOnly={want}"
         );
+    }
+}
+
+/// smoke; the real checks are the ihc.18-ignored tests
+#[test]
+fn test_extract_js_smoke() {
+    crate::extract::kinds::register_kinds();
+    const SRCS: &[(&str, &str)] = &[
+        (
+            "src/f.ts",
+            "import x from \"./x\";\ntop();\nfunction a() { one(); x.two(() => three()); const m = require(\"m\"); }\nconst b = () => four(), c = function () { five.six(); };\nexport class K {\n  m() { this.seven(); }\n  n() {}\n  o() { eight(); }\n}\nbetween();\nexports.p = () => { nine(); };\nexport default function d() { ten(); }\nafter.all();\n",
+        ),
+        (
+            "n.ts",
+            "function helper() {}\nfunction outer() {\n  function inner() { helper(); }\n  inner();\n  const cb = () => { function deep() { helper(); } deep(); };\n  after();\n}\nfunction after() {}\nconst arrow = () => { function inArrow() { helper(); } inArrow(); };\nclass K { m() { function inMethod() { helper(); } inMethod(); } }\n",
+        ),
+        (
+            "ns.ts",
+            "namespace NS {\n  export class Inner { im() {} }\n  export function nf() {}\n  namespace Deep { export function df() { nf(); } }\n}\nnamespace Other { export function nf() {} }\nmodule Old { export enum E { A } }\ndeclare module \"pkg\" { export function pf(): void; }\ndeclare class Amb { am(): void; }\ndeclare function afn(): void;\ndeclare const ac: number;\ndeclare namespace DN { function dnf(): void; }\ndeclare global { interface Window { w(): void } }\nexport declare function edf(): void;\nnamespace A.B { export function ab() {} }\n",
+        ),
+        (
+            "c.ts",
+            "function helper() {}\nexport class C {\n  plain = 3;\n  declare d: number;\n  arrow = () => { helper(); };\n  static sarrow = () => { helper(); };\n  field = function () { helper(); function inField() {} };\n  typed: () => void = function () { helper(); };\n  over(a: string): void;\n  over(a: any) { helper(); }\n}\nexport abstract class A {\n  abstract f(): void;\n  override abstract h(): void;\n}\ndeclare class D { constructor(); dsig(): void; }\nclass S { only(); }\n",
+        ),
+        (
+            "a.js",
+            "function helper() {}\nFoo.prototype.early = function () { helper(); };\nfunction Foo() {}\nFoo.prototype.bar = function () { helper(); };\nUndef.prototype.pm = function () { helper(); };\nexport const xapi = { run() {} };\nxapi.later = function () { helper(); };\nother.z = function () { helper(); };\nfunction factory() {\n  const o = {};\n  o.x = function () { helper(); };\n  this.y = function () { helper(); };\n  if (c) { this.no = function () {}; }\n}\nclass K { init() { const p = {}; p.px = () => {}; this.cb = function () { helper(); }; } }\nconst arrow = () => { this.ax = function () {}; };\nreg(function () { this.cx = function () { helper(); }; });\n(function () { Foo.prototype.inIife = function () {}; })();\n",
+        ),
+        (
+            "lit.ts",
+            "function helper() {}\nconst CE = class { cm() { helper(); } };\nconst N1 = class Named { nm() {} };\nreg(class Reg { rm() {} });\nvar vo = { vm() { helper(); }, inner: { deep() {} }, arr: [{ am() {} }] };\nlate = { lm() {} };\nconst q = cond ? { qm() {} } : null;\nexports.K = class { kv() {} };\nmodule.exports = { mm() { helper(); } };\nexport default { dm() {} };\ncall({ cm2() { helper(); } });\nconst api = { run() {} };\nlet lo = { lom() {} };\nfunction f() { var local = { fm() {} }; return { rm2() {} }; }\nreg(() => { var inCb = { cbm() {} }; });\nvar tv: { vsig(): void } = null as any;\ntype TL = { tm(): void };\n",
+        ),
+        (
+            "main.ts",
+            "import { Circle, Item } from './shapes';\nimport * as ns from './other';\nimport type { T } from './t';\nexport { Item as Alias } from './other';\nexport * from './lib';\nclass Local {}\nexport function mk() { return new Local(); }\nexport function mkNoParens() { return new Local; }\nexport const arrow = () => new Local();\nexport function mkNs() { return new ns.Item(); }\nexport function mkMap() { return new Map(); }\nexport class Holder { make() { return new Circle(); } }\nconst top = new Circle();\ndescribe('x', () => { new Circle(); new Local(); });\n",
+        ),
+        (
+            "dyn.ts",
+            "const top = import(\"./a.js\");\nexport function f() { return import(\"./b\"); }\nexport const g = async () => (await import(\"./c\")).c;\nexport function t() { return import(`./d`); }\nconst r = require(\"./e\");\nexport function lazy() { const m = require(\"./f\"); return m; }\nexport function ext() { return import(\"lodash\"); }\nexport function twice() { import(\"./b\"); return import(\"./b\", { with: {} }); }\nfunction inner() { return import(\"./h\"); }\nexport function sub(n) { return import(`./${n}`); }\n",
+        ),
+        (
+            "m.ts",
+            "import('./a');\n\nconst x = 1; import('./b'); // import('./c')\n// import('./d')\nf(import('./e'), import('./f'));\n",
+        ),
+        (
+            "t.ts",
+            "export const LIMIT = 3;\nexport const { p1, p2: p3 } = obj;\nexport const E = function* () { p1(); };\nexport const c1: number;\nconst w1 = wrap(() => { function g1() {} });\n",
+        ),
+        (
+            "d.ts",
+            "@Dec export class X extends Base implements I { @Input() a: string; @Out() m(@Arg() p: Foo.Bar): Baz<Qux> {} }\nexport interface I extends J { p: Widget; }\nexport type U = A | B;\nexport enum En { A, B }\n",
+        ),
+        (
+            "r.js",
+            "// NOTE: debounce to avoid thrash\n// See ADR-0001 and RFC 793 for the retry policy.\n/**\n * WHY: capped\n */\nexport const boot = () => { return 1; };\n",
+        ),
+        (
+            "v.tsx",
+            "export function App(): JSX.Element { return <div>{foo()}</div>; }\nexport const B = () => <A x={1} />;\n",
+        ),
+    ];
+    for &(rel, src) in SRCS {
+        let lang = if rel.ends_with(".js") {
+            gositter_grammars::javascript::language()
+        } else if rel.ends_with(".tsx") {
+            gositter_grammars::tsx::language()
+        } else {
+            gositter_grammars::typescript::language()
+        };
+        let res = crate::extract::javascript::extract_js_file(rel, src.as_bytes(), lang);
+        assert!(res.is_some(), "{rel}: extract_js_file is None");
+        let res = file_from_bytes(rel, src.as_bytes());
+        assert!(!res.nodes.is_empty(), "{rel}: no file node");
+    }
+
+    const SFCS: [(&str, &str, bool); 3] = [
+        (
+            "components/Greeter.vue",
+            "<template>\n  <component :is=\"() => import('./LazyWidget.vue')\" />\n  <div>{{ greet() }}</div>\n</template>\n<script setup lang=\"ts\">\nimport { helper } from './helper'\nimport { ref } from 'vue'\n\nfunction greet(): string {\n  return helper('hi')\n}\n</script>\n<style scoped>\n.foo { color: red; }\n</style>\n",
+            false,
+        ),
+        (
+            "a/B.svelte",
+            "<script>\n  import C from './C.svelte';\n  const load = () => import('./D.svelte');\n  function go() { load(); }\n</script>\n<C />\n",
+            false,
+        ),
+        (
+            "pages/p.astro",
+            "---\nimport L from '../L.astro';\nconst t: string = 'x';\n---\n<L title={t} />\n<script>import('./client');</script>\n",
+            true,
+        ),
+    ];
+    for (rel, src, astro) in SFCS {
+        let res = crate::extract::component::extract_component(rel, src.as_bytes(), astro);
+        assert!(res.is_some(), "{rel}: extract_component is None");
+        let res = file_from_bytes(rel, src.as_bytes());
+        assert!(!res.nodes.is_empty(), "{rel}: no file node");
     }
 }
