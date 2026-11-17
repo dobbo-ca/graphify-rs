@@ -5,15 +5,21 @@
 //! graphify-rs-ihc.20 (plan Tasks 21 and 20).
 #![allow(dead_code, unused_variables)]
 
+mod githead;
 pub mod install;
 pub mod main;
 pub mod maintenance;
+mod outfp;
+mod prof;
 pub mod save_result;
+mod semantic;
+mod sigpipe;
 
 use std::ffi::OsString;
 use std::fmt;
 use std::io::{self, Write};
 use std::path::Path;
+use std::process::ExitCode;
 
 /// Where a command writes: stdout or stderr, or a buffer in tests.
 pub type Out<'a> = &'a mut dyn Write;
@@ -41,6 +47,14 @@ impl std::error::Error for Error {}
 /// Go's `*os.PathError` text, `<op> <path>: <errno text>` (for example
 /// `open x.json: no such file or directory`), for an I/O error; `BrokenPipe` for EPIPE.
 pub fn path_error(op: &str, path: &Path, e: &io::Error) -> Error {
+    todo!("graphify-rs-ihc.20")
+}
+
+/// The binary's entry (`src/main.rs` calls it): [`run`] over `std::env::args_os`, stdout and
+/// stderr, on a thread with [`crate::STACK_BYTES`] of stack (plan hazard "Stack depth").
+// graphify-rs-ihc.20: stubs until the code PR
+#[allow(dead_code, unused_variables)]
+pub fn main() -> ExitCode {
     todo!("graphify-rs-ihc.20")
 }
 
