@@ -20,7 +20,7 @@ fn extract_proj(proj: &str, files: &[&str]) -> Extraction {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.38"]
+#[ignore = "graphify-rs-ihc.18"] // julia test (ihc.38): needs resolve
 fn test_extract_julia() {
     let ext = extract_proj("juliaproj", &["math.jl", "geometry.jl"]);
 
@@ -80,4 +80,23 @@ fn test_extract_julia() {
         has_import("LinearAlgebra"),
         "expected import of LinearAlgebra"
     );
+}
+
+/// smoke; the real checks are the ihc.18-ignored tests
+///
+/// Runs the extractor, without `resolve`, on the `juliaproj` files. The only other Julia sources
+/// in the tests are `budget.rs`'s `STALL_JULIA` inputs, which must stop over budget, so they are
+/// not here.
+#[test]
+fn smoke_extract_julia_sources() {
+    kinds::register_kinds();
+    let root = testdata().join("extract").join("juliaproj");
+    // `None` is Go's parse-budget recover.
+    for f in ["math.jl", "geometry.jl"] {
+        let src = std::fs::read(root.join(f)).unwrap_or_else(|e| panic!("read {f}: {e}"));
+        assert!(
+            crate::extract::julia::extract_julia(f, &src).is_some(),
+            "juliaproj/{f}: parse over budget"
+        );
+    }
 }
