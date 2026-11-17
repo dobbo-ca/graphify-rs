@@ -7,6 +7,7 @@
 mod bash;
 pub(crate) mod builder;
 mod c;
+mod cargo;
 mod component;
 mod cpp;
 mod csharp;
@@ -23,6 +24,7 @@ mod julia;
 pub mod kinds;
 mod kotlin;
 mod lua;
+mod manifest;
 mod markdown;
 mod mcpconfig;
 mod nulllabel;
