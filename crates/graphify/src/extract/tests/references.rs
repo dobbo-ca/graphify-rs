@@ -1128,7 +1128,7 @@ class Fn[-In, +Out, P] { def run(i: In, p: P): Out }
 
 // Not copied from upstream: stubs for self, static and parent.
 #[test]
-#[ignore = "graphify-rs-ihc.34"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_php_references() {
     let (nodes, edges) = resolve_src(&[
         ("b.php", "<?php\nclass Late {}\nclass Uniq {}\n"),
@@ -1231,7 +1231,7 @@ fn test_ruby_references() {
 // whose file or directory has the name of its last qualifier. Not copied:
 // upstream drops the qualifier and binds any corpus class of that name.
 #[test]
-#[ignore = "graphify-rs-ihc.34"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_qualified_name_needs_its_qualifier() {
     let (_, edges) = resolve_src(&[
         ("p2/Entry.java", "package p2;\npublic class Entry {}\n"),
