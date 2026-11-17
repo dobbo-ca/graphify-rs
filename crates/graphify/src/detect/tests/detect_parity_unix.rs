@@ -61,6 +61,9 @@ fn test_build_output_probe_aborts_on_stat_error() {
     symlink("a", root.join("out/a")).expect("symlink");
     // Go's test relies on the kernel listing `a` before `Z.class` (the probe stops at the first
     // `.class`). Overlay file systems can list them the other way; then skip, as Go would fail.
+    // Go itself depends on the file system's order here: `hasBuildOutputMarkers` reads
+    // `df.ReadDir(-1) // directory order, like scandir` (graphify-go internal/detect/detect.go:215),
+    // which is unsorted, unlike `os.ReadDir`.
     #[allow(clippy::disallowed_methods)] // directory order is what this guard checks
     let first = std::fs::read_dir(root.join("out"))
         .expect("read out")

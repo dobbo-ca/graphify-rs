@@ -1067,6 +1067,19 @@ pub fn cmd_explain(args: &[OsString], _stdout: Out<'_>, _stderr: Out<'_>) -> Res
     todo!("graphify-rs-ihc.13: query.Explain, explainLines and the printout (main.go:954-1025)")
 }
 
+/// Go `explainConnCap`: how many connections `explain` lists in full.
+// graphify-rs-ihc.13: stubs until the code PR
+#[allow(dead_code, unused_variables)]
+pub(crate) const EXPLAIN_CONN_CAP: usize = 20;
+
+/// Go `explainLines`: the first [`EXPLAIN_CONN_CAP`] neighbours in full, then the rest folded
+/// into (direction, source file) counts (`main.go:976-1016`).
+// graphify-rs-ihc.13: stubs until the code PR
+#[allow(dead_code, unused_variables)]
+pub(crate) fn explain_lines(nbrs: &[crate::query::Neighbor]) -> Vec<String> {
+    todo!("graphify-rs-ihc.13")
+}
+
 /// Go `cmdPath`: `path <from> <to> [--undirected] [--graph path]`.
 pub fn cmd_path(args: &[OsString], _stdout: Out<'_>, _stderr: Out<'_>) -> Result<(), Error> {
     let mut args = strs(args);
