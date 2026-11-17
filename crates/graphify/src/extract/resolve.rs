@@ -99,6 +99,16 @@ pub(crate) fn go_mod_dir(go_mods: &BTreeMap<String, String>, f: &str) -> String 
     todo!("graphify-rs-ihc.18")
 }
 
+/// Go `resolveMDTarget` (`resolve.go:1356`): the corpus file a markdown link target names (an
+/// `#anchor` dropped; a leading `/` from the corpus root, else from the linking file's
+/// directory; the target as written, then each markdown extension; then the same with the
+/// target `%`-unescaped), or "" for an external, in-page or off-corpus target.
+// graphify-rs-ihc.17: stub named by the markdown_test.go port; filled by graphify-rs-ihc.18
+#[allow(dead_code, unused_variables)]
+pub(crate) fn resolve_md_target(from_file: &str, target: &str, corpus: &Corpus) -> String {
+    todo!("graphify-rs-ihc.18")
+}
+
 /// Go `resolveModulePath` (`resolve.go:1877`): the corpus file a JS/TS module path names (the
 /// path itself, then the extensions, then a directory index), or "" when nothing matches.
 pub(crate) fn resolve_module_path(base: &str, corpus: &Corpus) -> String {
