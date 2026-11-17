@@ -28,7 +28,6 @@ fn mkfifo(p: &Path) -> bool {
 
 /// `test_regular_source_file_is_accepted`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn regular_source_file_is_accepted() {
     let (_d, src) = tree();
     assert!(stat_is_file(&src.join("module.py")));
@@ -36,7 +35,6 @@ fn regular_source_file_is_accepted() {
 
 /// `test_fifo_is_rejected`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn fifo_is_rejected() {
     let (_d, src) = tree();
     let fifo = src.join("pipe.py");
@@ -48,7 +46,6 @@ fn fifo_is_rejected() {
 
 /// `test_unix_socket_is_rejected`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn unix_socket_is_rejected() {
     let (_d, src) = tree();
     let sock = src.join("sock.py");
@@ -58,7 +55,6 @@ fn unix_socket_is_rejected() {
 
 /// `test_directory_named_like_a_source_file_is_rejected`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn directory_named_like_a_source_file_is_rejected() {
     let (_d, src) = tree();
     std::fs::create_dir(src.join("package.py")).expect("mkdir");
@@ -67,7 +63,6 @@ fn directory_named_like_a_source_file_is_rejected() {
 
 /// `test_symlink_to_a_regular_file_is_accepted`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn symlink_to_a_regular_file_is_accepted() {
     let (_d, src) = tree();
     symlink(src.join("module.py"), src.join("alias.py")).expect("symlink");
@@ -76,7 +71,6 @@ fn symlink_to_a_regular_file_is_accepted() {
 
 /// `test_symlink_pointing_at_a_fifo_is_rejected`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn symlink_pointing_at_a_fifo_is_rejected() {
     let (_d, src) = tree();
     if !mkfifo(&src.join("real.py")) {
@@ -88,7 +82,6 @@ fn symlink_pointing_at_a_fifo_is_rejected() {
 
 /// `test_broken_symlink_is_rejected_without_raising`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn broken_symlink_is_rejected_without_raising() {
     let (_d, src) = tree();
     symlink(src.join("does-not-exist.py"), src.join("dangling.py")).expect("symlink");
@@ -97,7 +90,6 @@ fn broken_symlink_is_rejected_without_raising() {
 
 /// `test_missing_path_is_rejected_without_raising`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn missing_path_is_rejected_without_raising() {
     let (_d, src) = tree();
     assert!(!stat_is_file(&src.join("absent.py")));
@@ -105,7 +97,6 @@ fn missing_path_is_rejected_without_raising() {
 
 /// `test_char_device_is_rejected`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn char_device_is_rejected() {
     let dev = Path::new("/dev/null");
     if !dev.exists() {

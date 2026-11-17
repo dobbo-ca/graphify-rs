@@ -44,7 +44,7 @@ fn string_of(b: Vec<u8>) -> String {
 
 /// internal/filepathlite/path.go:65 `Clean` (volume length is always 0 on unix). `out.w` of Go's
 /// `lazybuf` is `out.len()`: the lazy copy only avoids an allocation and is not observable.
-pub(crate) fn clean_bytes(path: &[u8]) -> Vec<u8> {
+pub fn clean_bytes(path: &[u8]) -> Vec<u8> {
     if path.is_empty() {
         // `originalPath + "."` for an empty path.
         return b".".to_vec();
@@ -106,7 +106,7 @@ pub(crate) fn clean_bytes(path: &[u8]) -> Vec<u8> {
 }
 
 /// path_unix.go:32 `join`: the first non-empty element starts the join; the result is cleaned.
-pub(crate) fn join_bytes(elems: &[&[u8]]) -> Vec<u8> {
+pub fn join_bytes(elems: &[&[u8]]) -> Vec<u8> {
     for (i, e) in elems.iter().enumerate() {
         if !e.is_empty() {
             return clean_bytes(&elems[i..].join(&b'/'));
@@ -116,7 +116,7 @@ pub(crate) fn join_bytes(elems: &[&[u8]]) -> Vec<u8> {
 }
 
 /// internal/filepathlite/path.go:225 `Base`.
-pub(crate) fn base_bytes(path: &[u8]) -> &[u8] {
+pub fn base_bytes(path: &[u8]) -> &[u8] {
     if path.is_empty() {
         return b".";
     }

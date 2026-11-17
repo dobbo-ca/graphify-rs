@@ -11,7 +11,6 @@ use crate::testutil::TempDir;
 /// Go `TestSymlinkContainment`: a file symlink is collected only when its target stays under the
 /// root and is a regular file; directory symlinks are never followed.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_symlink_containment() {
     let base = TempDir::new();
     let root = base.join("root");
@@ -40,7 +39,6 @@ fn test_symlink_containment() {
 
 /// Go `TestNoiseDirs`: the name-only and evidence-gated noise dirs.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_noise_dirs() {
     // (dir, evidence, pruned): evidence "" means the name alone prunes.
     const CASES: &[(&str, &str, bool)] = &[
@@ -106,7 +104,6 @@ fn test_noise_dirs() {
 /// Go `TestRelativeRootSymlinkAndSnapshots`: root `.` (Go `t.Chdir`) keeps in-root file symlinks,
 /// and a `snapshots/` under a cwd named `__tests__` is pruned.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_relative_root_symlink_and_snapshots() {
     let (_d, root) = resolved();
     put(&root, "b.go", "package a\n");
@@ -131,7 +128,6 @@ fn test_relative_root_symlink_and_snapshots() {
 /// Go `TestGraphifyOutBeatsNoiseGate`: `GRAPHIFY_OUT=out` prunes `out/` by name before the
 /// build-output evidence probe.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_graphify_out_beats_noise_gate() {
     let (_d, root) = resolved();
     put(&root, "control.go", "package a\n");
@@ -151,7 +147,6 @@ fn test_graphify_out_beats_noise_gate() {
 /// Go `TestBuildOutputProbeUsesDirOrder`: the probe of the dir itself reads it unsorted and still
 /// finds a marker one level down.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_build_output_probe_uses_dir_order() {
     let (_d, root) = resolved();
     put(&root, "out/yy/X.class", "");
@@ -165,7 +160,6 @@ fn test_build_output_probe_uses_dir_order() {
 /// Go `TestSymlinkedRootWithDotDot`: a root of `<symlink>/../proj` resolves `..` after the
 /// symlink, as the kernel does.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_symlinked_root_with_dot_dot() {
     let (_d, base) = resolved();
     put(&base, "deep/inner/x", "");

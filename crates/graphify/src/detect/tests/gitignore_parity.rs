@@ -20,7 +20,6 @@ macro_rules! cases {
 /// Go `TestIgnoreMatchesUpstream`: one pattern per case, through the pruning walk's ancestor
 /// checks (`goIgnored`), against upstream 0.9.92 `_is_ignored` on real files.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_ignore_matches_upstream() {
     for &(pat, path, is_dir, want) in UPSTREAM_IGNORE_CASES {
         let rules = parse_ignore("", pat).rules;
@@ -34,7 +33,6 @@ fn test_ignore_matches_upstream() {
 
 /// Go `TestIgnoreClassNeverPanics`: odd character classes parse without a panic.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_ignore_class_never_panics() {
     for p in [
         "[[:alpha:]]",
@@ -56,7 +54,6 @@ fn test_ignore_class_never_panics() {
 /// Go `TestAnchoredDoesNotMatchDescendants`: `docs/*` with `!docs/keep/` keeps `docs/keep` and
 /// prunes the other children.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_anchored_does_not_match_descendants() {
     let root = TempDir::new();
     must_write(&root.join(".gitignore"), "docs/*\n!docs/keep/\n");
@@ -72,7 +69,6 @@ fn test_anchored_does_not_match_descendants() {
 /// Go `TestAncestorIgnoreFiles`: the ignore files and `info/exclude` above the scan root, up to
 /// the VCS root, apply, with deeper files taking precedence.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_ancestor_ignore_files() {
     let (_d, repo) = resolved();
     let env = env_home(repo.join("nohome"));
@@ -121,7 +117,6 @@ fn test_ancestor_ignore_files() {
 /// `$HOME` does not count, and a `.git` file with `gitdir:` is a ceiling whose `info/exclude` is
 /// found through `commondir`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_ancestor_ceiling_rules() {
     // invalid empty .git is not a ceiling
     let (_d1, outer) = resolved();
@@ -169,7 +164,6 @@ fn test_ancestor_ceiling_rules() {
 
 /// Go `TestIgnoreFileNotRegularNeverOpened`: a directory is not read as an ignore file.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_ignore_file_not_regular_never_opened() {
     let d = TempDir::new();
     assert!(
@@ -181,7 +175,6 @@ fn test_ignore_file_not_regular_never_opened() {
 /// Go `TestHomeTrailingSlashStopsWalk`: `$HOME` with a trailing slash still stops the ancestor
 /// walk.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_home_trailing_slash_stops_walk() {
     let (_d, top) = resolved();
     mk_git(&top);
@@ -195,7 +188,6 @@ fn test_home_trailing_slash_stops_walk() {
 /// Go `TestCommondirOnlyForGitFile`: `commondir` is followed only from a `.git` file, never in a
 /// `.git` dir.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_commondir_only_for_git_file() {
     let (_d, base) = resolved();
     let env = env_home(base.join("nohome"));

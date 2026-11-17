@@ -10,7 +10,6 @@ use crate::testutil::TempDir;
 /// order of the original names (`z` 0x7A sorts before 0xFF). macOS (APFS) refuses a name that is
 /// not UTF-8, so the test has nothing to walk there.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn non_utf8_file_name_walk() {
     let root = TempDir::new();
     if std::fs::write(root.path().join(OsStr::from_bytes(b"\xff.py")), "x = 1\n").is_err() {
