@@ -219,7 +219,7 @@ fn receiver_case(name: &str, srcs: &[(&str, &str)], want: &[[&str; 3]], unwanted
 // TestResolveReceiverCalls checks that a member or qualified call binds on its
 // receiver, not on the bare method name.
 #[test]
-#[ignore = "graphify-rs-ihc.39"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.26"] // ts/js cases; also needs resolve (ihc.18); lua (ihc.39) ported
 fn test_resolve_receiver_calls() {
     crate::extract::kinds::register_kinds();
     receiver_case(
