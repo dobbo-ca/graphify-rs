@@ -10,6 +10,7 @@ mod csv;
 mod echo;
 mod filepath;
 mod json;
+mod math;
 mod pcg;
 mod regexp;
 mod sha256;
@@ -42,6 +43,7 @@ const PKGS: &[(&str, usize, Run)] = &[
     ("echo", 4, echo::run),
     ("filepath", 40060, filepath::run),
     ("json", 1228, json::run),
+    ("math", 1, math::run),
     ("pcg", 11, pcg::run),
     ("regexp", 22833, regexp::run),
     ("sha256", 631, sha256::run),

@@ -106,11 +106,11 @@ Oracle package `json` (minimum 1,228 outputs): inputs `strings` (all 256 single 
 
 #### math
 
-Oracle package `math`: added by the code PR (graphify-rs-aa6.21).
+Oracle package `math` (minimum 1 output): input `bits` (20,000 float64 bit patterns: ±0, 1, -1, ±Inf, NaNs of both signs incl. signaling, every power of two from 2^-1074, sqrt(2)/2 x 2^-60..2^60 and their neighbours, 400 neighbours of 1, 1,000 random subnormals, then random patterns, half of them positive); op `log` (the bits of math.Log, one line per input). The Go side runs on amd64, where math.Log is the assembly `archLog` (`math/log_amd64.s`) that `gostd::math::log` ports; `parity-arm64` compares the same Go output, as the port does not depend on the target (D-004 covers Go's own arm64 `log`).
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| `math/all_test.go` | 70 | 1 (TestLog) (+1 added: special_values) | 0 | the other 69: gostd ports only `Log` (graphify-go `ask.go:180`, R10) |
+| `math/all_test.go` | 70 | 1 (TestLog) (+1 added: special_values) | 2 | the other 69: gostd ports only `Log` (graphify-go `ask.go:180`, R10) |
 
 #### pcg
 
