@@ -675,7 +675,7 @@ function top(a: Point): Box { return null as any; }
 // annotations give references; an unresolved base gets a stub. Not copied:
 // a stub for a type parameter, a type position bound to an enum constant.
 #[test]
-#[ignore = "graphify-rs-ihc.27"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_java_references() {
     let (nodes, edges) = resolve_src(&[
         ("a/Base.java", "package a;\npublic class Base {}\n"),
@@ -742,7 +742,7 @@ enum En { A { Ghost15 f; }, B; Dep f; }
 
 // A type nested in the file must not bind to a top-level namesake elsewhere.
 #[test]
-#[ignore = "graphify-rs-ihc.27"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_java_nested_type_no_bind() {
     let (_, edges) = resolve_src(&[
         ("b/Config.java", "package b;\npublic class Config {}\n"),

@@ -7,7 +7,7 @@ use crate::extract::resolve;
 use crate::testutil::testdata;
 
 #[test]
-#[ignore = "graphify-rs-ihc.27"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_extract_java() {
     crate::extract::kinds::register_kinds();
     let root = testdata().join("extract").join("javaproj");
@@ -81,7 +81,6 @@ fn test_extract_java() {
 // type by a `case_of` edge, and that a constant's anonymous class body still
 // contributes its methods (attached to the constant).
 #[test]
-#[ignore = "graphify-rs-ihc.27"]
 fn test_extract_java_enum() {
     crate::extract::kinds::register_kinds();
     let src = b"enum Color {
@@ -122,4 +121,44 @@ fn test_extract_java_enum() {
         has("GREEN", "contains", "GREEN.greet()"),
         "expected GREEN --contains--> GREEN.greet"
     );
+}
+
+/// smoke; the real checks are the ihc.18-ignored tests
+#[test]
+fn test_extract_java_smoke() {
+    crate::extract::kinds::register_kinds();
+    let root = testdata().join("extract").join("javaproj");
+    let mut srcs: Vec<(String, Vec<u8>)> = ["util/Math.java", "web/Server.java"]
+        .iter()
+        .map(|f| (f.to_string(), std::fs::read(root.join(f)).unwrap()))
+        .collect();
+    // A representative subset of the inline sources of the ihc.27 tests.
+    for (rel, src) in [
+        (
+            "Builder.java",
+            "class Builder {\n    Builder size(int n) { return this; }\n    Product build() { return new Product(); }\n}\n",
+        ),
+        (
+            "Client.java",
+            "class Client { void run() { Factory.builder().size(3).build().ship(); ((Builder) o).build(); } }\n",
+        ),
+        (
+            "Sub.java",
+            "interface Sub extends Base, JRun {}\nclass K<T> extends Base<T> implements Comparable<K<T>> { @Ann(Foo.class) java.util.List<a.B> f; K(T t, String... s) {} }\nrecord R(int a, Dep d) {}\n@interface A { Class<?> v(); }\n",
+        ),
+        (
+            "Anon.java",
+            "class Anon { void a() { new Item() { void run() {} }; } }\n",
+        ),
+    ] {
+        srcs.push((rel.to_string(), src.as_bytes().to_vec()));
+    }
+    for (rel, src) in &srcs {
+        assert!(
+            super::extract_java(rel, src).is_some(),
+            "extract_java({rel})"
+        );
+        let res = crate::extract::file_from_bytes(rel, src);
+        assert!(!res.nodes.is_empty(), "{rel}: no file node");
+    }
 }
