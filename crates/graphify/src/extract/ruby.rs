@@ -189,21 +189,19 @@ impl Rb {
         walk_kinds(Some(body), mask(&RUBY_CALL_KINDS), |c| {
             match c.kind() {
                 "call" => ruby_record_call(b, c, caller_id, src),
-                "identifier" => {
-                    // Paren-less self-send parses as a bare identifier statement.
-                    if c.parent().is_some_and(|p| p.kind() == "body_statement") {
-                        let name = node_text(c, src);
-                        if ruby_methods.contains(&*name) && !locals.contains(&*name) {
-                            // Inside a class it binds to that class, not by bare name.
-                            let in_type = body
-                                .parent()
-                                .and_then(|m| m.parent())
-                                .is_some_and(|p| p.kind() != "program");
-                            if in_type {
-                                b.call_recv(caller_id, &name, "self", line(c));
-                            } else {
-                                b.call(caller_id, &name, line(c));
-                            }
+                // Paren-less self-send parses as a bare identifier statement.
+                "identifier" if c.parent().is_some_and(|p| p.kind() == "body_statement") => {
+                    let name = node_text(c, src);
+                    if ruby_methods.contains(&*name) && !locals.contains(&*name) {
+                        // Inside a class it binds to that class, not by bare name.
+                        let in_type = body
+                            .parent()
+                            .and_then(|m| m.parent())
+                            .is_some_and(|p| p.kind() != "program");
+                        if in_type {
+                            b.call_recv(caller_id, &name, "self", line(c));
+                        } else {
+                            b.call(caller_id, &name, line(c));
                         }
                     }
                 }
