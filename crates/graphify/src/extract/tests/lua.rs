@@ -360,3 +360,100 @@ fn test_lua_dot_and_plain_calls_still_resolve() {
         pairs(&ext, "calls")
     );
 }
+
+/// Every distinct inline Lua source of the tests above (and the `lua self` case of
+/// `test_resolve_receiver_calls` in `tests/resolve.rs`), verbatim, with the first `rel` it is
+/// used under.
+const SMOKE_SRCS: &[(&str, &str)] = &[
+    ("init.lua", "require(\"config.lazy\")\n"),
+    ("config.lazy.lua", "-- lazy\n"),
+    ("init.lua", "local ok = require(\"config.lazy\")\n"),
+    (
+        "init.lua",
+        "require(\"config.options\")\nrequire(\"config.keymaps\")\n",
+    ),
+    ("config.options.lua", "-- options\n"),
+    ("config.keymaps.lua", "-- keymaps\n"),
+    ("init.lua", "require 'config.lazy'\n"),
+    ("mod.lua", "-- mod\n"),
+    ("init.lua", "foo.require(\"mod\")\nbar:require(\"mod\")\n"),
+    ("init.lua", "require \"config.lazy\"\n"),
+    (
+        "animal.lua",
+        "local Animal = {}\n\
+         function Animal:speak()\n\
+         \x20   return self:describe()\n\
+         end\n\
+         function Animal:describe()\n\
+         \x20   return self.name\n\
+         end\n",
+    ),
+    (
+        "animal.lua",
+        "local Animal = {}\n\
+         function Animal.helper()\n\
+         \x20   return 1\n\
+         end\n\
+         function Animal:run()\n\
+         \x20   return self:helper()\n\
+         end\n",
+    ),
+    (
+        "animal.lua",
+        "function process()\n\
+         \x20   return 1\n\
+         end\n\
+         local Animal = {}\n\
+         function Animal:run()\n\
+         \x20   return self:process()\n\
+         end\n",
+    ),
+    (
+        "animal.lua",
+        "function process()\n\
+         \x20   return 1\n\
+         end\n\
+         local Animal = {}\n\
+         function Animal:run()\n\
+         \x20   local obj = make()\n\
+         \x20   return obj:process()\n\
+         end\n",
+    ),
+    (
+        "mod.lua",
+        "local M = {}\n\
+         function M.helper()\n\
+         \x20   return 1\n\
+         end\n\
+         function M.main()\n\
+         \x20   return M.helper()\n\
+         end\n",
+    ),
+    (
+        "a.lua",
+        "local A = {}\nlocal B = {}\nfunction A:step() end\nfunction B:step() end\nfunction A:run() self:step() end\n",
+    ),
+];
+
+/// smoke; the real checks are the ihc.18-ignored tests
+///
+/// Runs `extract_lua`, without `resolve`, on the `luaproj` files and every inline Lua source of
+/// the resolve-dependent tests. `None` is Go's parse-budget recover.
+#[test]
+fn smoke_extract_lua_sources() {
+    kinds::register_kinds();
+    let root = testdata().join("extract").join("luaproj");
+    for f in ["util/math.lua", "web/server.lua"] {
+        let src = std::fs::read(root.join(f)).unwrap_or_else(|e| panic!("read {f}: {e}"));
+        assert!(
+            extract_lua(f, &src).is_some(),
+            "luaproj/{f}: parse over budget"
+        );
+    }
+    for (i, (rel, src)) in SMOKE_SRCS.iter().enumerate() {
+        assert!(
+            extract_lua(rel, src.as_bytes()).is_some(),
+            "inline source #{i} ({rel}): parse over budget"
+        );
+    }
+}
