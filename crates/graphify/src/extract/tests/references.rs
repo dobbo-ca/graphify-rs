@@ -1042,7 +1042,7 @@ val topProp: Tp3 = x
 // Not copied from upstream: stubs for type parameters, nested types
 // binding to a namesake elsewhere.
 #[test]
-#[ignore = "graphify-rs-ihc.36"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_scala_references() {
     let (nodes, edges) = resolve_src(&[
         ("b.scala", "class Late\nclass Uniq\nclass Nest1\n"),

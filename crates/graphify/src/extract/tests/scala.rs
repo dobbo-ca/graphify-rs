@@ -12,7 +12,7 @@ use crate::model::{Confidence, Extraction};
 use crate::testutil::testdata;
 
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_extract_scala() {
     kinds::register_kinds();
     let root = testdata().join("extract").join("scalaproj");
@@ -150,7 +150,7 @@ fn sourceless_labels(ext: &Extraction) -> BTreeSet<&str> {
 
 // pins Go v0.12.0 (contains); upstream 0.9.107 emits method -> P3 (B28)
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_deferred_method_without_parens_is_a_node() {
     let ext = run(&[("s.scala", "trait Shape {\n  def area: Double\n}\n")]);
     assert!(has_edge(&ext, "Shape", "contains", "Shape.area()"));
@@ -158,7 +158,7 @@ fn test_deferred_method_without_parens_is_a_node() {
 
 // pins Go v0.12.0 (contains); upstream 0.9.107 emits method -> P3 (B28)
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_deferred_method_with_params_is_a_node() {
     let ext = run(&[(
         "s.scala",
@@ -169,7 +169,7 @@ fn test_deferred_method_with_params_is_a_node() {
 
 // pins Go v0.12.0 (contains); upstream 0.9.107 emits method -> P3 (B28)
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_pure_interface_trait_keeps_every_contract_method() {
     let ext = run(&[(
         "s.scala",
@@ -184,7 +184,7 @@ fn test_pure_interface_trait_keeps_every_contract_method() {
 
 // pins Go v0.12.0 (contains); upstream 0.9.107 emits method -> P3 (B28)
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_abstract_class_deferred_method_is_a_node() {
     let ext = run(&[(
         "s.scala",
@@ -215,7 +215,7 @@ class Container {
 "#;
 
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_unbounded_type_parameter_emits_no_bound_edge() {
     // pins Go v0.12.0; upstream 0.9.107 differs -> P3 (Go edges have no `context`)
     // Upstream: no `type_bound` reference from `plain()`. Go: no reference at all, as `T` is its
@@ -225,7 +225,7 @@ fn test_unbounded_type_parameter_emits_no_bound_edge() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_upper_bound_emits_no_bound_edge() {
     // pins Go v0.12.0; upstream 0.9.107 differs -> P3 (Go edges have no `context`)
     // `[T <: Comparable[T]]` is an `upper_bound`: a subtype constraint, not a dependency.
@@ -234,7 +234,7 @@ fn test_upper_bound_emits_no_bound_edge() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_bound_never_points_at_the_function_itself() {
     // pins Go v0.12.0; upstream 0.9.107 differs -> P3 (Go edges have no `context`)
     let ext = run(&[("ContextBounds.scala", BOUNDS_SRC)]);
@@ -267,7 +267,7 @@ class Holder {
 "#;
 
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_class_without_context_bound_emits_no_bound_edge() {
     // pins Go v0.12.0; upstream 0.9.107 differs -> P3 (Go edges have no `context`)
     let ext = run(&[("ClassContextBounds.scala", CLASS_BOUNDS_SRC)]);
@@ -288,7 +288,7 @@ class Bare(x: Int)
 "#;
 
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_class_without_derives_emits_no_derives_edge() {
     // pins Go v0.12.0; upstream 0.9.107 differs -> P3 (Go edges have no `context`)
     // Go gives `Bare` its `x: Int` reference, but none to a typeclass.
@@ -328,7 +328,7 @@ extension [T](t: T)
 "#;
 
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_extension_is_deterministic() {
     // pins Go v0.12.0; upstream 0.9.107 differs -> P3 B58
     // Go reads no `extension_definition`, so the extension methods are no nodes.
@@ -358,7 +358,7 @@ fn test_extension_is_deterministic() {
 // ---- test_scala_generic_type_params.py ----
 
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_generic_class_and_method_type_params_mint_no_stub() {
     let ext = run(&[(
         "S.scala",
@@ -371,7 +371,7 @@ fn test_generic_class_and_method_type_params_mint_no_stub() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_bounds_param_dropped_but_context_bound_and_real_types_kept() {
     // `A` is a parameter (dropped); the `Ordering` context bound is a real dependency (kept,
     // #2046), and a genuine user type in the signature still references.
@@ -394,7 +394,7 @@ fn test_bounds_param_dropped_but_context_bound_and_real_types_kept() {
 // ---- test_scala_given_instances.py ----
 
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_given_members_do_not_leak_to_file_scope() {
     // pins Go v0.12.0; upstream 0.9.107 differs -> P3
     // Go reads no `given_definition`: the members are no nodes, scoped or not.
@@ -411,7 +411,7 @@ fn test_given_members_do_not_leak_to_file_scope() {
 
 // pins Go v0.12.0 (contains); upstream 0.9.107 emits method -> P3 (B28)
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_trait_method_is_untouched_by_the_given() {
     // Go reads no `given_definition`, so the given steals nothing; the trait keeps its method.
     let ext = run(&[(
@@ -468,7 +468,7 @@ class SelfTypeWithExtends extends BaseTrait {
 "#;
 
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_self_type_binder_only_emits_no_requires_edge() {
     // pins Go v0.12.0; upstream 0.9.107 differs -> P3
     // Go reads no `self_type`: no `requires` edge anywhere.
@@ -477,7 +477,7 @@ fn test_self_type_binder_only_emits_no_requires_edge() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_class_without_self_type_emits_no_requires_edge() {
     // pins Go v0.12.0; upstream 0.9.107 differs -> P3
     let ext = run(&[("SelfTypes.scala", SELF_TYPE_SRC)]);
@@ -485,7 +485,7 @@ fn test_class_without_self_type_emits_no_requires_edge() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_requires_edges_carry_no_context() {
     // pins Go v0.12.0; upstream 0.9.107 differs -> P3
     // Upstream: every `requires` edge has no `context`. Go has neither `requires` edges nor
@@ -514,7 +514,7 @@ val names: List[String] = Nil
 "#;
 
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_class_nested_binding_keeps_its_type_reference() {
     // Control: the in-class behaviour. The edge is owned by the class, not the file.
     let ext = run(&[("TopLevel.scala", TOP_LEVEL_SRC)]);
@@ -522,7 +522,7 @@ fn test_class_nested_binding_keeps_its_type_reference() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_top_level_binding_emits_no_self_edge() {
     // pins Go v0.12.0; upstream 0.9.107 differs -> P3
     // Go reads no file-scope `val`/`var`: the file node owns no reference.
@@ -550,7 +550,7 @@ class Holder {
 "#;
 
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_match_type_emits_reference_to_matched_type() {
     // `case String =>` names a real type the alias discriminates on.
     let ext = run(&[("Aliases.scala", ALIAS_SRC)]);
@@ -558,7 +558,7 @@ fn test_match_type_emits_reference_to_matched_type() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_type_definition_edges_are_tagged_extracted() {
     let ext = run(&[("Aliases.scala", ALIAS_SRC)]);
     let owners = [find(&ext, "Repo"), find(&ext, "Aliases.scala")];
@@ -576,7 +576,7 @@ fn test_type_definition_edges_are_tagged_extracted() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_alias_reference_never_points_at_the_owning_container() {
     // pins Go v0.12.0; upstream 0.9.107 differs -> P3
     // The `Repo` half holds in Go; Go reads no file-scope `type`, so the file node has no
@@ -584,5 +584,115 @@ fn test_alias_reference_never_points_at_the_owning_container() {
     let ext = run(&[("Aliases.scala", ALIAS_SRC)]);
     for owner in ["Repo", "Aliases.scala"] {
         assert_eq!(self_refs(&ext, owner), 0, "{owner} references itself");
+    }
+}
+
+// ---- smoke ----
+
+/// `a.scala` of `references.rs` `test_scala_references`, verbatim.
+const REFS_A_SRC: &str = r#"class Early
+class Foo[T, U: Ordering](val a: Early, b: Pb1, c: Map[String, Ext.Q], d: Option[T]) extends MissingBase[G1] with Early with IMiss {
+  class Nest1
+  val v: Late = null
+  var w: Lst[Early] = null
+  val tup: (Tup1, Tup2) = null
+  val fn: Fn1 => Fn2 = null
+  type Al = Alias1
+  val h: T = null
+  val q: a.b.Qual = null
+  val n: Nest1 = null
+  def m[V](x: Late, y: V, z: => ByName, w: Seq[Seq[Deep]])(implicit ev: Impl): Ret1 = null
+  def n2[A: Ctx](x: A): A = x
+  def p(u: Late with Other): Uniq = null
+  @Anno def q2(): Unit = ()
+  def r(): Unit = { val local: Loc1 = null }
+}
+trait Tr extends Early with Late { def g(x: Early): Rt1 }
+class Der[A] derives Show
+case class CC(x: Early, y: Mis3)
+enum En { case A(x: EnumP) }
+class Dd extends p.Early
+def top(x: Early): Tp2 = null
+sealed trait Opt[+A] { def get: A }
+class Fn[-In, +Out, P] { def run(i: In, p: P): Out }
+"#;
+
+/// Every inline Scala source of the resolve-dependent scala tests (this file, `references.rs`,
+/// `gaps.rs`, `preproc.rs`), verbatim and deduped. The TypeScript sources are left out.
+const SMOKE_SRCS: &[(&str, &str)] = &[
+    ("s.scala", "trait Shape {\n  def area: Double\n}\n"),
+    (
+        "s.scala",
+        "trait Shape {\n  def scale(f: Double): Shape\n}\n",
+    ),
+    (
+        "s.scala",
+        "trait Shape {\n  def area: Double\n  def name(): String\n  def describe: String = name()\n}\n",
+    ),
+    (
+        "s.scala",
+        "abstract class Base {\n  def compute(x: Int): Int\n  def run(): Int = compute(1)\n}\n",
+    ),
+    ("ContextBounds.scala", BOUNDS_SRC),
+    ("ClassContextBounds.scala", CLASS_BOUNDS_SRC),
+    ("Derives.scala", DERIVES_SRC),
+    ("ext.scala", EXTENSION_SRC),
+    (
+        "S.scala",
+        "class Box[T](v: T) {\n  def get(): T = v\n  def map[R](f: T => R): R = ???\n}\n",
+    ),
+    (
+        "S.scala",
+        "class User(name: String)\nclass Processor[A: Ordering] {\n  def run(u: User): User = u\n}\n",
+    ),
+    (
+        "given.scala",
+        "trait Show[A]:\n  def show(a: A): String\n\ngiven intShow: Show[Int] with\n  def show(a: Int): String = helper(a)\n  def helper(a: Int): String = a.toString\n\ngiven Show[String] with\n  def show(a: String): String = a\n",
+    ),
+    ("SelfTypes.scala", SELF_TYPE_SRC),
+    ("TopLevel.scala", TOP_LEVEL_SRC),
+    ("Aliases.scala", ALIAS_SRC),
+    ("b.scala", "class Late\nclass Uniq\nclass Nest1\n"),
+    ("a.scala", REFS_A_SRC),
+    (
+        "a.scala",
+        "trait Shape {\n  def area: Double\n  def describe(): String = this.area().toString\n}\n",
+    ),
+    (
+        "a.scala",
+        "trait Shape {\n  def area: Double\n  def describe(): String = this.area().toString\n}\nclass Circle extends Shape {\n  def area: Double = 1.0\n}\n",
+    ),
+    (
+        "a.scala",
+        "trait Sh { def size: Int }\nclass Ci extends Sh { def size: Int = 1 }\nobject O { def useIt() = size() }\n",
+    ),
+    (
+        "a.scala",
+        "trait T {\n  def run(x: Int): Int\n  def run(x: String): Int = 0\n}\n",
+    ),
+    ("b.scala", "trait U {\n  def run(x: Int): Int\n}\n"),
+    ("c.scala", "object C {\n  def go(): Int = run(\"a\")\n}\n"),
+];
+
+/// smoke; the real checks are the ihc.18-ignored tests
+///
+/// Runs `extract_scala`, without `resolve`, on the `scalaproj` files and every inline Scala
+/// source of the resolve-dependent tests. `None` is Go's parse-budget recover.
+#[test]
+fn smoke_extract_scala_sources() {
+    kinds::register_kinds();
+    let root = testdata().join("extract").join("scalaproj");
+    for f in ["util/math.scala", "web/server.scala"] {
+        let src = std::fs::read(root.join(f)).unwrap_or_else(|e| panic!("read {f}: {e}"));
+        assert!(
+            super::extract_scala(f, &src).is_some(),
+            "scalaproj/{f}: parse over budget"
+        );
+    }
+    for (i, (rel, src)) in SMOKE_SRCS.iter().enumerate() {
+        assert!(
+            super::extract_scala(rel, src.as_bytes()).is_some(),
+            "inline source #{i} ({rel}): parse over budget"
+        );
     }
 }
