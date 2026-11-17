@@ -170,7 +170,7 @@ fn spec_path(spec: Option<&Table>) -> &str {
 /// rules apply), ties broken by path; `None` when there is none or the walk fails (Go's caller
 /// ignores both).
 fn shallowest_cargo(root: &str) -> Option<String> {
-    let files = collect_manifests(Path::new(root)).ok()?;
+    let files = crate::detect::collect_manifests(Path::new(root)).ok()?;
     let mut best = "";
     for f in &files {
         if gostd::filepath::base(f) != "Cargo.toml" {
@@ -186,12 +186,6 @@ fn shallowest_cargo(root: &str) -> Option<String> {
         return None;
     }
     Some(join(&[root, best]))
-}
-
-/// Go `detect.CollectManifests`, which detect (graphify-rs-ihc.14) ports; until then a root with
-/// no `Cargo.toml` stops here.
-fn collect_manifests(_root: &Path) -> std::io::Result<Vec<String>> {
-    todo!("graphify-rs-ihc.14: detect::collect_manifests")
 }
 
 /// Go `resolvePath`: follows symlinks like Python's `Path.resolve()`; falls back to `Clean`.

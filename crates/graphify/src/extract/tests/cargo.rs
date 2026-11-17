@@ -379,7 +379,6 @@ edition = "2021"
 // command can surface it rather than silently producing nothing.
 // nogrammar test (ihc.17): needs detect (no root Cargo.toml: `shallowestCargo` walks the root)
 #[test]
-#[ignore = "graphify-rs-ihc.17"] // walks with detect (on main); needs introspect_cargo (ihc.17)
 fn test_introspect_cargo_no_root_manifest() {
     let root = TempDir::new();
     assert!(
@@ -429,7 +428,6 @@ abs = {{ path = {abs_q} }}
 
 // nogrammar test (ihc.17): needs detect (no root Cargo.toml: `shallowestCargo` walks the root)
 #[test]
-#[ignore = "graphify-rs-ihc.17"] // walks with detect (on main); needs introspect_cargo (ihc.17)
 fn test_introspect_cargo_subdir() {
     let root = TempDir::new();
     root.write(
@@ -454,7 +452,6 @@ fn test_introspect_cargo_subdir() {
 
 // nogrammar test (ihc.17): needs detect (no root Cargo.toml: `shallowestCargo` walks the root)
 #[test]
-#[ignore = "graphify-rs-ihc.17"] // walks with detect (on main); needs introspect_cargo (ihc.17)
 fn test_introspect_cargo_subdir_inherited_dep() {
     let root = TempDir::new();
     root.write(

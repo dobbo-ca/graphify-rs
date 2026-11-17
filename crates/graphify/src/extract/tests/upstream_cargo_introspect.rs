@@ -370,7 +370,6 @@ tokio_rt = { version = "1", package = "tokio" }
 
 // nogrammar test (ihc.17): needs detect (no root Cargo.toml: `shallowestCargo` walks the root)
 #[test]
-#[ignore = "graphify-rs-ihc.17"] // walks with detect (on main); needs introspect_cargo (ihc.17)
 fn test_cargo_introspect_discovers_a_manifest_in_a_subdirectory() {
     let root = TempDir::new();
     write(
@@ -392,7 +391,6 @@ fn test_cargo_introspect_discovers_a_manifest_in_a_subdirectory() {
 
 // nogrammar test (ihc.17): needs detect (no root Cargo.toml: `shallowestCargo` walks the root)
 #[test]
-#[ignore = "graphify-rs-ihc.17"] // walks with detect (on main); needs introspect_cargo (ihc.17)
 fn test_cargo_introspect_discovery_resolves_workspace_members_from_the_manifest() {
     let root = TempDir::new();
     write(
@@ -415,7 +413,6 @@ fn test_cargo_introspect_discovery_resolves_workspace_members_from_the_manifest(
 
 // nogrammar test (ihc.17): needs detect (no root Cargo.toml; node_modules is a skip dir)
 #[test]
-#[ignore = "graphify-rs-ihc.17"] // walks with detect (on main); needs introspect_cargo (ihc.17)
 fn test_cargo_introspect_discovery_skips_noise_directories() {
     let root = TempDir::new();
     write(
@@ -442,7 +439,6 @@ fn test_cargo_introspect_discovery_skips_noise_directories() {
 // depth); upstream 0.9.107 raises FileNotFoundError past its depth cap -> P3
 // nogrammar test (ihc.17): needs detect (no root Cargo.toml: `shallowestCargo` walks the root)
 #[test]
-#[ignore = "graphify-rs-ihc.17"] // walks with detect (on main); needs introspect_cargo (ihc.17)
 fn test_cargo_introspect_discovery_does_not_search_past_the_depth_cap() {
     let root = TempDir::new();
     write(
