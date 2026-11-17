@@ -1406,15 +1406,13 @@ impl Js {
         }
         // No Def: a literal's method is no call target of other files.
         let (mut owner, at) = js_lit_owner(n, src);
-        let id;
-        let this_id;
-        if owner.is_empty() {
-            id = self.b.id(&[&name]);
+        let (id, this_id) = if owner.is_empty() {
+            let id = self.b.id(&[&name]);
             if !self.b.seen.contains(&id) {
                 self.b.add_node(&id, &format!("{name}()"), line(n));
                 self.b.contains(&id, line(n));
             }
-            this_id = id.clone();
+            (id.clone(), id)
         } else {
             let oid = self.b.id(&[&owner]);
             self.js_owners.push(JsProto {
@@ -1423,10 +1421,10 @@ impl Js {
                 loc: at,
                 ..JsProto::default()
             });
-            id = self.b.id(&[&owner, &name]);
+            let id = self.b.id(&[&owner, &name]);
             self.js_method_node(&oid, &id, &owner, &name, line(n));
-            this_id = oid;
-        }
+            (id, oid)
+        };
         let body = n.child_by_field_name("body");
         self.js_fn_body(body, &id, src);
         if owner.is_empty() {
