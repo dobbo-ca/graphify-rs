@@ -27,7 +27,7 @@ fn no_call_to(srcs: &[(&str, &str)], needle: &str) {
 
 // A TSX callback passed by name never binds to the lone same-named Kotlin method.
 #[test]
-#[ignore = "graphify-rs-ihc.37"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.26"] // kotlin test (ihc.37): also needs resolve (ihc.18)
 fn test_tsx_callback_does_not_bind_to_kotlin_method() {
     no_call_to(
         &[
@@ -43,7 +43,7 @@ fn test_tsx_callback_does_not_bind_to_kotlin_method() {
 
 // A bare Python call never binds to the lone same-named Kotlin function.
 #[test]
-#[ignore = "graphify-rs-ihc.37"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // kotlin test (ihc.37): needs resolve
 fn test_python_call_does_not_bind_to_kotlin_function() {
     no_call_to(
         &[
@@ -59,7 +59,7 @@ fn test_python_call_does_not_bind_to_kotlin_function() {
 
 // Kotlin and Java share the JVM: a Kotlin call to a Java method still resolves.
 #[test]
-#[ignore = "graphify-rs-ihc.37"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.27"] // kotlin test (ihc.37): also needs resolve (ihc.18)
 fn test_jvm_interop_kotlin_call_to_java_still_resolves() {
     register_kinds();
     let edges = extract_all(&[

@@ -924,7 +924,7 @@ public class Dc(Pc1 a) : Base<Pc2> { }
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.37"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // kotlin test (ihc.37): needs resolve
 fn test_kotlin_references() {
     let (nodes, edges) = resolve_src(&[
         (

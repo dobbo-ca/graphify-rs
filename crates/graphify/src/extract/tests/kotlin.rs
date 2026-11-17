@@ -26,7 +26,7 @@ fn extract_proj(proj: &str, files: &[&str]) -> Extraction {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.37"]
+#[ignore = "graphify-rs-ihc.18"] // kotlin test (ihc.37): needs resolve
 fn test_extract_kotlin() {
     let ext = extract_proj("ktproj", &["util/math.kt", "web/server.kt"]);
 
@@ -85,7 +85,6 @@ fn test_extract_kotlin() {
 /// edge, and an entry's anonymous class body still contributes its methods (attached to the
 /// entry).
 #[test]
-#[ignore = "graphify-rs-ihc.37"]
 fn test_extract_kotlin_enum() {
     kinds::register_kinds();
     let src = b"enum class Color {
@@ -225,7 +224,7 @@ const IMPORT_MAIN: (&str, &str) = (
 
 // pins Go v0.12.0 (imports edge to an external dependency node labelled with the FQN); upstream 0.9.107 emits an imports edge to the corpus type node -> P3 (B24)
 #[test]
-#[ignore = "graphify-rs-ihc.37"]
+#[ignore = "graphify-rs-ihc.18"] // kotlin test (ihc.37): needs resolve
 fn test_kotlin_imports_resolve_to_real_nodes() {
     let ext = run(&[IMPORT_MODEL_FILES[0], IMPORT_MODEL_FILES[1], IMPORT_MAIN]);
     for fqn in ["com.demo.model.Money", "com.demo.model.Ledger"] {
@@ -252,7 +251,7 @@ fn test_kotlin_imports_resolve_to_real_nodes() {
 
 // pins Go v0.12.0 (INFERRED); upstream 0.9.107 emits EXTRACTED -> P3 (B24)
 #[test]
-#[ignore = "graphify-rs-ihc.37"]
+#[ignore = "graphify-rs-ihc.18"] // kotlin test (ihc.37): needs resolve
 fn test_kotlin_import_evidence_promotes_calls_to_extracted() {
     let ext = run(&[IMPORT_MODEL_FILES[0], IMPORT_MODEL_FILES[1], IMPORT_MAIN]);
     assert_eq!(
@@ -262,7 +261,7 @@ fn test_kotlin_import_evidence_promotes_calls_to_extracted() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.37"]
+#[ignore = "graphify-rs-ihc.18"] // kotlin test (ihc.37): needs resolve
 fn test_kotlin_wildcard_import_emits_no_symbol_edge() {
     // pins Go v0.12.0; upstream 0.9.107 differs -> P3 B24
     // Go records the package path `com.demo.model` as an external dependency node, never the
@@ -290,7 +289,7 @@ fn test_kotlin_wildcard_import_emits_no_symbol_edge() {
 
 // pins Go v0.12.0 (imports edge to an external node labelled with the FQN); upstream 0.9.107 emits an imports edge to the corpus type node -> P3 (B24)
 #[test]
-#[ignore = "graphify-rs-ihc.37"]
+#[ignore = "graphify-rs-ihc.18"] // kotlin test (ihc.37): needs resolve
 fn test_kotlin_aliased_import_resolves_to_original_symbol() {
     // The edge only: Go has no edge metadata (`target_fqn`, `alias`).
     let ext = run(&[
@@ -325,7 +324,7 @@ const FQ_CORPUS: [(&str, &str); 3] = [
 
 // pins Go v0.12.0 (INFERRED); upstream 0.9.107 emits EXTRACTED -> P3 (B24)
 #[test]
-#[ignore = "graphify-rs-ihc.37"]
+#[ignore = "graphify-rs-ihc.18"] // kotlin test (ihc.37): needs resolve
 fn test_kotlin_fully_qualified_calls_resolve() {
     // Go binds the receiver's last identifier (`lib`, `feature`, `Help`) to a path segment or
     // owner of the definition.
@@ -351,7 +350,7 @@ fn test_kotlin_fully_qualified_calls_resolve() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.37"]
+#[ignore = "graphify-rs-ihc.18"] // kotlin test (ihc.37): needs resolve
 fn test_kotlin_fq_call_to_unknown_package_yields_no_edge() {
     // pins Go v0.12.0; upstream 0.9.107 differs -> P3 B24
     // Go has no package table; `Thing` has no definition, so no edge and no node.
@@ -366,7 +365,7 @@ fn test_kotlin_fq_call_to_unknown_package_yields_no_edge() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.37"]
+#[ignore = "graphify-rs-ihc.18"] // kotlin test (ihc.37): needs resolve
 fn test_kotlin_fq_call_to_ambiguous_name_yields_no_edge() {
     // pins Go v0.12.0; upstream 0.9.107 differs -> P3 B24
     // Go qualifies a receiver by path tokens: `dup` names neither `dup1/` nor `dup2/`, so
@@ -388,7 +387,7 @@ fn test_kotlin_fq_call_to_ambiguous_name_yields_no_edge() {
 
 // pins Go v0.12.0 (INFERRED); upstream 0.9.107 emits EXTRACTED -> P3 (B24)
 #[test]
-#[ignore = "graphify-rs-ihc.37"]
+#[ignore = "graphify-rs-ihc.18"] // kotlin test (ihc.37): needs resolve
 fn test_kotlin_object_member_call_resolves_across_files() {
     let ext = run(&[
         (
@@ -408,7 +407,7 @@ fn test_kotlin_object_member_call_resolves_across_files() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.37"]
+#[ignore = "graphify-rs-ihc.18"] // kotlin test (ihc.37): needs resolve
 fn test_kotlin_object_member_call_same_file_control_unaffected() {
     let ext = run(&[(
         "Same.kt",
@@ -421,7 +420,7 @@ fn test_kotlin_object_member_call_same_file_control_unaffected() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.37"]
+#[ignore = "graphify-rs-ihc.18"] // kotlin test (ihc.37): needs resolve
 fn test_kotlin_object_member_call_ambiguous_receiver_yields_no_edge() {
     let ext = run(&[
         (
@@ -446,7 +445,7 @@ fn test_kotlin_object_member_call_ambiguous_receiver_yields_no_edge() {
 
 // pins Go v0.12.0 (contains); upstream 0.9.107 emits method -> P3 (B28)
 #[test]
-#[ignore = "graphify-rs-ihc.37"]
+#[ignore = "graphify-rs-ihc.18"] // kotlin test (ihc.37): needs resolve
 fn test_kotlin_one_line_class_with_fun_still_extracts() {
     let ext = run(&[("VM.kt", "class VM { fun f() = 1 }\nfun After() { }\n")]);
     find(&ext, "After()");
@@ -455,7 +454,7 @@ fn test_kotlin_one_line_class_with_fun_still_extracts() {
 
 // pins Go v0.12.0 (contains); upstream 0.9.107 emits method -> P3 (B28)
 #[test]
-#[ignore = "graphify-rs-ihc.37"]
+#[ignore = "graphify-rs-ihc.18"] // kotlin test (ihc.37): needs resolve
 fn test_multiline_kotlin_unchanged() {
     // The field reference is asserted without its `field` context: Go edges have none.
     let ext = run(&[(
@@ -481,7 +480,7 @@ fn test_multiline_kotlin_unchanged() {
 
 // pins Go v0.12.0 (contains); upstream 0.9.107 emits method -> P3 (B28)
 #[test]
-#[ignore = "graphify-rs-ihc.37"]
+#[ignore = "graphify-rs-ihc.18"] // kotlin test (ihc.37): needs resolve
 fn test_kotlin_annotated_inferred_property_keeps_the_file() {
     // Not `failed_sources` (Python) and not the `attribute` context (Go edges have none).
     let ext = run(&[(
@@ -557,7 +556,7 @@ class Service {
 ];
 
 #[test]
-#[ignore = "graphify-rs-ihc.37"]
+#[ignore = "graphify-rs-ihc.18"] // kotlin test (ihc.37): needs resolve
 fn test_kotlin_literal_initializer_emits_nothing() {
     // pins Go v0.12.0; upstream 0.9.107 differs -> P3 B43
     // Go records no call of a property initializer at all, a literal or not.
@@ -579,7 +578,7 @@ fn test_kotlin_literal_initializer_emits_nothing() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.37"]
+#[ignore = "graphify-rs-ihc.18"] // kotlin test (ihc.37): needs resolve
 fn test_kotlin_function_body_calls_unchanged() {
     let ext = run(&INIT_CORPUS);
     assert!(has_edge(&ext, "Service.go()", "calls", "createRepo()"));
@@ -589,7 +588,7 @@ fn test_kotlin_function_body_calls_unchanged() {
 // ---- test_kotlin_generic_type_params.py ----
 
 #[test]
-#[ignore = "graphify-rs-ihc.37"]
+#[ignore = "graphify-rs-ihc.18"] // kotlin test (ihc.37): needs resolve
 fn test_generic_class_and_method_type_params_mint_no_stub() {
     let ext = run(&[(
         "K.kt",
@@ -603,7 +602,7 @@ fn test_generic_class_and_method_type_params_mint_no_stub() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.37"]
+#[ignore = "graphify-rs-ihc.18"] // kotlin test (ihc.37): needs resolve
 fn test_user_and_container_types_still_referenced() {
     let ext = run(&[(
         "K.kt",
@@ -629,7 +628,7 @@ fn test_user_and_container_types_still_referenced() {
 
 // pins Go v0.12.0 (contains); upstream 0.9.107 emits method -> P3 (B28)
 #[test]
-#[ignore = "graphify-rs-ihc.37"]
+#[ignore = "graphify-rs-ihc.18"] // kotlin test (ihc.37): needs resolve
 fn test_named_object_and_plain_class_unchanged() {
     let ext = run(&[(
         "Mix.kt",
@@ -643,4 +642,218 @@ fn test_named_object_and_plain_class_unchanged() {
         !ext.nodes.iter().any(|n| n.label.starts_with("object@")),
         "no phantom object-literal owner nodes"
     );
+}
+
+// ---- smoke ----
+
+/// The inline Kotlin sources of the tests not held in a const above: this file, `references.rs`
+/// `test_kotlin_references`, `upstream_cross_language_call_resolution.rs` and
+/// `upstream_kotlin_java.rs`, verbatim and deduped (Java, TSX and Python sources skipped).
+const SMOKE_SRCS: &[(&str, &str)] = &[
+    (
+        "Color.kt",
+        "enum class Color {
+  RED,
+  GREEN {
+    fun greet() {}
+  };
+}",
+    ),
+    (
+        "app/Main.kt",
+        "package com.demo.app\n\nimport com.demo.model.*\n\nfun main() { }\n",
+    ),
+    (
+        "app/Main.kt",
+        "package com.demo.app\n\nimport com.demo.model.Money as Cash\n\nfun main() {\n    val m = Cash(5)\n}\n",
+    ),
+    ("dup1/D1.kt", "package com.demo.dup\n\nfun Same() { }\n"),
+    ("dup2/D2.kt", "package com.demo.dup\n\nfun Same() { }\n"),
+    (
+        "callr/Caller.kt",
+        "package com.demo.callr\n\nfun Caller() {\n    com.demo.dup.Same()\n}\n",
+    ),
+    (
+        "config/Config.kt",
+        "package com.demo.config\n\nobject Config {\n    fun load() { }\n}\n",
+    ),
+    (
+        "app/App.kt",
+        "package com.demo.app\n\nimport com.demo.config.Config\n\nfun Start() {\n    Config.load()\n}\n",
+    ),
+    (
+        "Same.kt",
+        "package com.demo.same\n\nobject Config {\n    fun load() { }\n}\n\nfun Start() {\n    Config.load()\n}\n",
+    ),
+    (
+        "one/One.kt",
+        "package com.demo.one\n\nobject Config {\n    fun load() { }\n}\n",
+    ),
+    (
+        "two/Two.kt",
+        "package com.demo.two\n\nobject Config {\n    fun load() { }\n}\n",
+    ),
+    (
+        "callr/Caller.kt",
+        "package com.demo.callr\n\nfun Start() {\n    Config.load()\n}\n",
+    ),
+    ("VM.kt", "class VM { fun f() = 1 }\nfun After() { }\n"),
+    (
+        "Shop.kt",
+        "package com.shop\n\nclass Cart {\n    val items: Inventory = Inventory()\n    fun checkout() {\n        total()\n    }\n    fun total() { }\n}\n\nclass Inventory\n\nfun main() {\n    Cart().checkout()\n}\n",
+    ),
+    (
+        "Repro.kt",
+        "class Repro {\n    @Volatile\n    var counter = 0\n\n    fun ping() { }\n}\n",
+    ),
+    (
+        "K.kt",
+        "class Box<T>(val v: T) {\n    fun get(): T? = v\n    fun <R> map(f: (T) -> R): R? = null\n}\n",
+    ),
+    (
+        "K.kt",
+        "class User(val name: String)\nclass Box<T>(val v: T)\nfun wrap(u: User): Box<User> = Box(u)\n",
+    ),
+    (
+        "Mix.kt",
+        "object Singleton {\n    fun go() { }\n}\nclass Plain {\n    fun run() { go2() }\n    fun go2() { }\n}\n",
+    ),
+    // references.rs test_kotlin_references
+    (
+        "b.kt",
+        "class Uniq\nannotation class Anno\nfun helper() {}\nenum class Color { RED }\nclass Nest1\n",
+    ),
+    (
+        "a.kt",
+        r#"class Early
+class Foo<T>(val pa: Early, var pb: Pb1?, pc: Pc1, @Anno val pd: List<Pd1>) : MissingBase(), IMiss, Early, Other<Gx> by Dl {
+    val f1: Early = Early()
+    val f2: Uniq? = null
+    val f3: Map<String, Dup>
+    val f5: T
+    val f6: com.other.Qual
+    val f7: (Fn1) -> Fn2
+    val f8: helper
+    val f9: Color
+    val f11: Array<Arr1>
+    val f12 = Inf1()
+    @Anno val f13: Ann1 = x
+    val f20: Map.Entry<K1x, V1>
+    val nn: Nest1
+    fun <U> make(a: Mk1, b: U, c: Int, d: List<Mk2>, e: Mk3?, f: (Mk4) -> Mk5, g: T): Mk6 { return x }
+    @Anno @Ext.Q fun run(): Unit {}
+    @Target(Cls1::class) fun lit() {}
+    fun Ex1.recv(vararg v: Va1) {}
+    class Nest1
+    inner class Inn {
+        val ii: Late1
+    }
+    companion object {
+        val cc: Cmp1
+    }
+}
+interface Iface : Early, Other2 {
+    val p: Ip1
+    fun m(x: Ip2): Ip3
+}
+object O : Early() {
+    val o: Ob1 = x
+}
+class Ex : Exception()
+enum class E1(val v: En1) : Early { A(x) { fun a(q: En2) {} }, B }
+fun top(a: Tp1, b: Early): Tp2 {}
+fun <V> gen(v: V): V = v
+val topProp: Tp3 = x
+"#,
+    ),
+    // upstream_cross_language_call_resolution.rs
+    (
+        "android/HeadingSensorBridge.kt",
+        "class HeadingSensorBridge {\n    fun refreshHeading() {\n        println(\"native sensor\")\n    }\n}\n",
+    ),
+    ("Scheduler.kt", "fun schedule() {\n    ring()\n}\n"),
+    // upstream_kotlin_java.rs
+    (
+        "app/Caller.kt",
+        "package app\nimport util.Logger\nclass Caller { fun go() { Logger.single(\"a\") } }\n",
+    ),
+    (
+        "app/Caller.kt",
+        "package app\nimport a.Dup\nclass Caller { fun go() { Dup.ping() } }\n",
+    ),
+    (
+        "util/RepoBase.kt",
+        "package util\nopen class RepoBase { fun baseHelper() {} }\n",
+    ),
+    (
+        "app/KChild.kt",
+        "package app\nimport util.RepoBase\nclass KChild : RepoBase() { fun t() = baseHelper() }\n",
+    ),
+    (
+        "app/Caller.kt",
+        "package app\nimport util.Logger\nclass Caller { fun go() { Logger.overloaded(\"a\") } }\n",
+    ),
+    (
+        "util/Settings.kt",
+        "package util
+object Settings {
+    fun get(k: String): String = k
+    fun get(k: String, d: String): String = d
+    fun fetchValue(k: String): String = k
+}
+",
+    ),
+    (
+        "app/Caller.kt",
+        "package app\nimport util.Settings\nclass Caller { fun go() { Settings.get(\"a\") } }\n",
+    ),
+    (
+        "app/Screen.kt",
+        "package app\nimport android.app.Activity\nclass Screen : Activity() { fun title(): String = getString(1) }\n",
+    ),
+    (
+        "util/BaseScreen.kt",
+        "package util\nimport android.app.Activity\nopen class BaseScreen : Activity() { fun baseHelper() {} }\n",
+    ),
+    (
+        "app/Screen.kt",
+        "package app\nimport util.BaseScreen\nclass Screen : BaseScreen() {\n    fun a() { baseHelper() }\n    fun b(): String = getString(1)\n}\n",
+    ),
+    ("util/Top.kt", "package util\nfun topHelper() {}\n"),
+    (
+        "app/Screen.kt",
+        "package app\nimport android.app.Activity\nimport util.topHelper\nclass Screen : Activity() { fun t() = topHelper() }\n",
+    ),
+    (
+        "app/Screen.kt",
+        "package app\nimport android.app.Activity\nimport util.Settings.fetchValue\nclass Screen : Activity() { fun t() = fetchValue(\"k\") }\n",
+    ),
+];
+
+/// smoke; the real checks are the ihc.18-ignored tests
+///
+/// Runs `extract_kotlin`, without `resolve`, on the `ktproj` files and every Kotlin source the
+/// tests use.
+#[test]
+fn smoke_extract_kotlin_sources() {
+    kinds::register_kinds();
+    let root = testdata().join("extract").join("ktproj");
+    for f in ["util/math.kt", "web/server.kt"] {
+        let src = std::fs::read(root.join(f)).unwrap_or_else(|e| panic!("read {f}: {e}"));
+        assert!(
+            super::extract_kotlin(f, &src).is_some(),
+            "ktproj/{f}: parse over budget"
+        );
+    }
+    let consts = IMPORT_MODEL_FILES
+        .iter()
+        .chain([&IMPORT_MAIN])
+        .chain(FQ_CORPUS.iter())
+        .chain(INIT_CORPUS.iter());
+    for (rel, src) in consts.chain(SMOKE_SRCS.iter()) {
+        assert!(
+            super::extract_kotlin(rel, src.as_bytes()).is_some(),
+            "{rel}: parse over budget\n{src}"
+        );
+    }
 }
