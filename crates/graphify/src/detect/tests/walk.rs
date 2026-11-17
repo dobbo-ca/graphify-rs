@@ -55,9 +55,13 @@ fn walk_dir_report(root: &Path) -> WalkReport {
 /// none. The worker count alternates between 1 and 4 (Go: GOMAXPROCS).
 #[test]
 fn test_walk_tree_matches_walk_dir() {
-    let root = TempDir::new();
+    // The prune rule skips any directory whose path ends in `7`; Go's t.TempDir ends in `/001`,
+    // but a TempDir name can end in `7`, so the tree lives in a fixed `tree` subdirectory.
+    let tmp = TempDir::new();
+    let root = tmp.join("tree");
+    std::fs::create_dir(&root).expect("mkdir tree");
     let mut rng = GoRand::new(1);
-    let mut dirs = vec![root.path().to_path_buf()];
+    let mut dirs = vec![root.clone()];
     for _ in 0..400 {
         let parent = dirs[rng.intn(dirs.len())].clone();
         let d = parent.join(format!("d{}", rng.intn(50)));
@@ -76,11 +80,11 @@ fn test_walk_tree_matches_walk_dir() {
     let want_errors = usize::from(!readable_despite_chmod(&locked));
 
     let f: &WalkFn<'_> = &record;
-    let want = walk_dir_report(root.path());
+    let want = walk_dir_report(&root);
     let mut runs = Vec::new();
     for i in 0..20 {
         let workers = if i % 2 == 0 { 1 } else { 4 };
-        runs.push(walk_tree(root.path(), workers, f));
+        runs.push(walk_tree(&root, workers, f));
     }
     let missing = root.join("missing");
     let want_missing = walk_dir_report(&missing);
