@@ -104,6 +104,14 @@ Oracle package `json` (minimum 1,228 outputs): inputs `strings` (all 256 single 
 | `encoding/json/v2_decode_test.go` (decode side) | 33 | 17 (+1 added: v1_compat_rules) | 18 | Number/UseNumber, `,string` (graphify-go has no `,string` tag), embedded and unexported fields, `[]byte` base64, non-string map keys, `**T` targets, method-set, `time.Parse` and InvalidUnmarshal tests; TestUnmarshal keeps 100 of 178 rows (78 left out by class, listed in the file header) |
 | `encoding/json/v2/fold_test.go` | 3 | 1 (TestEqualFold, 37 of 38 rows, as a field-matching test under the v1 options) | 1 | TestFoldRune checks the internal foldRune (under the v1 options matching reduces to strings.EqualFold); TestBenchmarkUnmarshalUnknown uses the v2 `case:ignore` tag; 1 row has invalid UTF-8 in a key |
 
+#### math
+
+Oracle package `math`: added by the code PR (graphify-rs-aa6.21).
+
+| Source | Source tests | Ported | Passing | Not ported (reason) |
+|---|---|---|---|---|
+| `math/all_test.go` | 70 | 1 (TestLog) (+1 added: special_values) | 0 | the other 69: gostd ports only `Log` (graphify-go `ask.go:180`, R10) |
+
 #### pcg
 
 Oracle package `pcg`: seeds 0, 1, 42, u64::MAX, 2^63; ops `uint64` (10,000 values), `uint64n` (10 bounds × 1,000), `louvain` (louvain.go:131 shuffle, seed 42, n = 2..=1000).

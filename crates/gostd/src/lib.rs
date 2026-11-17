@@ -3,6 +3,7 @@
 pub mod csv;
 pub mod filepath;
 pub mod json;
+pub mod math;
 pub mod path;
 pub mod pcg;
 pub mod regexp;
