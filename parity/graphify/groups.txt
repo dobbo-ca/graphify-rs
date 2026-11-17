@@ -1,0 +1,5 @@
+# Extract groups enabled in the gate corpus (one per line). Files of a group not listed here are
+# deleted from every corpus by filter.sh, so the Rust side only meets inputs it can handle.
+# A grammar task adds its group here in its own PR (see README.md).
+json
+nogrammar

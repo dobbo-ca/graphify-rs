@@ -192,3 +192,122 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
     --mount=type=cache,target=/src/target,sharing=private \
     sh ci/fresh.sh && cargo build --locked --release -p gostd --example bench \
     && cp target/release/examples/bench /usr/local/bin/bench
+
+# ---- graphify parity gate (plan Task 23; parity/graphify/README.md) -------------------------------
+
+# The Go oracle binary: graphify-go v0.12.0 at its pinned commit, built with Go 1.27.4 on amd64 with
+# GOAMD64=v1 (Go fuses multiply-add from v3, D-004) and graphify-go's own go.mod (go 1.25.0).
+FROM golang:1.27.4-bookworm AS graphify-go
+ENV GOTOOLCHAIN=local CGO_ENABLED=0 GOAMD64=v1 GOFLAGS=-mod=readonly
+RUN go version | grep -q 'go1.27.4 ' && test "$(go env GOARCH)" = amd64
+RUN git clone https://github.com/dobbo-ca/graphify-go /gg \
+    && cd /gg && git checkout --detach 35fcd9e79624716b9d9372070055bad85a8ea779 \
+    && test "$(git rev-parse HEAD)" = 35fcd9e79624716b9d9372070055bad85a8ea779 \
+    && test "$(sed -n 3p go.mod)" = 'go 1.25.0'
+WORKDIR /gg
+RUN go mod download && go mod verify
+RUN --mount=type=cache,target=/root/.cache/go-build go build -o /out/graphify ./cmd/graphify \
+    && go version -m /out/graphify | tee /tmp/vm && grep -q 'GOAMD64=v1' /tmp/vm && grep -q 'CGO_ENABLED=0' /tmp/vm \
+    && echo "graphify-go DefaultGODEBUG: $(go list -f '{{.DefaultGODEBUG}}' ./cmd/graphify)" \
+    && go list -f '{{.DefaultGODEBUG}}' ./cmd/graphify | tr ',' '\n' | grep -qx 'urlstrictcolons=0'
+
+# The Rust binary.
+FROM src AS graphify-rs-bin
+RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/usr/local/cargo/git \
+    --mount=type=cache,target=/src/target,sharing=private \
+    sh ci/fresh.sh && cargo build --locked --release -p graphify \
+    && mkdir -p /out && cp target/release/graphify /out/graphify
+
+# Corpora: one stage each, one RUN holding the URL and the full SHA, no repo file copied in, so
+# the BuildKit cache key is the SHA alone.
+FROM debian:bookworm-slim AS corpus-base
+RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+FROM corpus-base AS corpus-ggo
+RUN mkdir /corpus && cd /corpus && git init -q \
+    && git fetch -q --depth 1 https://github.com/dobbo-ca/graphify-go 35fcd9e79624716b9d9372070055bad85a8ea779 \
+    && git checkout -q FETCH_HEAD && test "$(git rev-parse HEAD)" = 35fcd9e79624716b9d9372070055bad85a8ea779 \
+    && rm -rf .git
+
+FROM corpus-base AS corpus-ggo-testdata
+RUN mkdir /r /corpus && cd /r && git init -q \
+    && git fetch -q --depth 1 https://github.com/dobbo-ca/graphify-go 35fcd9e79624716b9d9372070055bad85a8ea779 \
+    && git checkout -q FETCH_HEAD && test "$(git rev-parse HEAD)" = 35fcd9e79624716b9d9372070055bad85a8ea779 \
+    && cp -R internal/extract/testdata/. /corpus/ && cd / && rm -rf /r
+
+FROM corpus-base AS corpus-gositter
+RUN mkdir /corpus && cd /corpus && git init -q \
+    && git fetch -q --depth 1 https://github.com/dobbo-ca/gositter 7a27b3093a71a93449cf633355edb0a9e0e1add7 \
+    && git checkout -q FETCH_HEAD && test "$(git rev-parse HEAD)" = 7a27b3093a71a93449cf633355edb0a9e0e1add7 \
+    && rm -rf .git
+
+FROM corpus-base AS corpus-upstream
+RUN mkdir /r /corpus && cd /r && git init -q \
+    && git fetch -q --depth 1 https://github.com/Graphify-Labs/graphify a8f97f18f086c7fe37afb8109d20d88971eea683 \
+    && git checkout -q FETCH_HEAD && test "$(git rev-parse HEAD)" = a8f97f18f086c7fe37afb8109d20d88971eea683 \
+    && mkdir /corpus/tests && cp -R tests/fixtures /corpus/tests/ && cp -R worked /corpus/ && cd / && rm -rf /r
+
+FROM corpus-base AS corpus-curl
+RUN mkdir /corpus && cd /corpus && git init -q \
+    && git fetch -q --depth 1 https://github.com/curl/curl 75a2079d5c28debb2eaa848ca9430f1fe0d7844c \
+    && git checkout -q FETCH_HEAD && test "$(git rev-parse HEAD)" = 75a2079d5c28debb2eaa848ca9430f1fe0d7844c \
+    && rm -rf .git
+
+FROM corpus-base AS corpus-redis
+RUN mkdir /corpus && cd /corpus && git init -q \
+    && git fetch -q --depth 1 https://github.com/redis/redis a0a6f23d997b024689ba157916837f493a593a34 \
+    && git checkout -q FETCH_HEAD && test "$(git rev-parse HEAD)" = a0a6f23d997b024689ba157916837f493a593a34 \
+    && rm -rf .git
+
+# Three file names that are not valid UTF-8 (R3/D-008), with small valid contents.
+FROM corpus-base AS corpus-nonutf8
+RUN mkdir /corpus && cd /corpus \
+    && printf 'def f():\n    return 1\n' > "$(printf '\377.py')" \
+    && printf '# Title\n\nText.\n' > "$(printf 'a\342\202.md')" \
+    && printf '{"a": 1}\n' > "$(printf '\355\240\200.json')"
+
+# The corpora, filtered (parity/graphify/filter.sh): committed graphify-out, D-001/D-002 inputs, and
+# every extension of a group not listed in groups.txt.
+FROM debian:bookworm-slim AS graphify-corpus
+RUN apt-get update && apt-get install -y --no-install-recommends jq && rm -rf /var/lib/apt/lists/*
+COPY --from=corpus-ggo /corpus /corpus/ggo
+COPY --from=corpus-ggo-testdata /corpus /corpus/ggo-testdata
+COPY --from=corpus-gositter /corpus /corpus/gositter
+COPY --from=corpus-upstream /corpus /corpus/upstream
+COPY --from=corpus-curl /corpus /corpus/curl
+COPY --from=corpus-redis /corpus /corpus/redis
+COPY --from=corpus-nonutf8 /corpus /corpus/nonutf8
+COPY parity/graphify/filter.sh parity/graphify/groups.txt parity/graphify/groups.map /filter/
+RUN sh /filter/filter.sh /filter /corpus
+
+# One side of the gate: the binary at /usr/local/bin/graphify (os.Executable() is in hook scripts
+# and outfp), the corpus at /corpus, then run.sh writes the transcripts to /out.
+FROM debian:bookworm-slim AS gate-base
+RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
+
+# Go runs every command line; the Rust side only those in rs-commands.txt (the switch).
+FROM gate-base AS gate-go
+COPY --from=graphify-go /out/graphify /usr/local/bin/graphify
+COPY --from=graphify-corpus /corpus /corpus
+COPY parity/graphify /parity/graphify
+RUN SIDE=go sh /parity/graphify/run.sh /out
+
+FROM gate-base AS gate-rs
+COPY --from=graphify-rs-bin /out/graphify /usr/local/bin/graphify
+COPY --from=graphify-corpus /corpus /corpus
+COPY parity/graphify /parity/graphify
+RUN SIDE=rs sh /parity/graphify/run.sh /out /parity/graphify/rs-commands.txt
+
+# What the `graphify-parity` job uploads as the artifact graphify-gate-go: Go's transcripts, per-corpus
+# times and the corpus MANIFEST.
+FROM scratch AS gate-go-export
+COPY --from=gate-go /out /
+
+# Go's tree against Rust's, for what rs-commands.txt lists. A difference is a Rust bug unless a D-id
+# in parity/DIVERGENCES.md covers it, and then the corpus or command list must avoid it.
+FROM debian:bookworm-slim AS graphify-parity
+COPY --from=gate-go /out /go
+COPY --from=gate-rs /out /rs
+COPY parity/graphify /parity/graphify
+RUN sh /parity/graphify/compare.sh /go /rs
