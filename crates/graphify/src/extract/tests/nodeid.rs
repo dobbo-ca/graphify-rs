@@ -12,7 +12,7 @@ fn has<const N: usize>(set: &BTreeSet<[String; N]>, want: [&str; N]) -> bool {
 
 /// Files that share a directory name and a stem keep their own symbols.
 #[test]
-#[ignore = "graphify-rs-ihc.33"]
+#[ignore = "graphify-rs-ihc.18"] // ruby test (ihc.33): needs resolve
 fn test_node_ids_do_not_collide_across_files() {
     let py = "class ApiClient:\n    def get(self):\n        pass\n\ndef helper():\n    pass\n\ndef only_py():\n    helper()\n";
     let rb = "class ApiClient\n  def get\n  end\nend\n\ndef helper\nend\n";

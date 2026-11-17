@@ -52,7 +52,7 @@ fn test_gap_c_sharp_null_conditional_call() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.33"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // ruby test (ihc.33): needs resolve
 fn test_gap_ruby_bare_self_send() {
     let (edges, _) = gap_edges(
         "a.rb",
@@ -129,7 +129,7 @@ fn test_gap_abstract_with_same_file_override() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.33"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // ruby test (ihc.33): needs resolve
 fn test_gap_ruby_locals_not_self_sends() {
     for (name, body) in [
         ("opassign", "value ||= 3\n    value"),

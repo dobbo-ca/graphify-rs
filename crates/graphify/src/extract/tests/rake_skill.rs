@@ -15,7 +15,6 @@ fn label_set(r: &Result) -> BTreeSet<&str> {
 // A .rake file is plain Ruby and must route through the Ruby extractor, emitting
 // the same symbol nodes as the identical content in a .rb file (#1784).
 #[test]
-#[ignore = "graphify-rs-ihc.33"]
 fn test_extract_rake_uses_ruby_extractor() {
     kinds::register_kinds();
     let src = "def run\n  greet\nend\n\ndef greet\nend\n";
