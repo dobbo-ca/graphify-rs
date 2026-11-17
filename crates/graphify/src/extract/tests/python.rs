@@ -6,7 +6,7 @@ use crate::idutil::make_id;
 use crate::testutil::testdata;
 
 #[test]
-#[ignore = "graphify-rs-ihc.25"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_extract_python() {
     crate::extract::kinds::register_kinds();
     let root = testdata().join("extract").join("pyproj");
@@ -65,7 +65,6 @@ fn test_extract_python() {
 // A `# NOTE:` comment becomes a rationale node with an edge to the file, and a
 // function docstring becomes a rationale node with an edge to that function.
 #[test]
-#[ignore = "graphify-rs-ihc.25"]
 fn test_extract_python_rationale() {
     crate::extract::kinds::register_kinds();
     let src = concat!(
@@ -114,7 +113,6 @@ fn test_extract_python_rationale() {
 // in pyDocstring, unlike a function body where the comment attaches to the
 // function_definition node rather than the block.
 #[test]
-#[ignore = "graphify-rs-ihc.25"]
 fn test_extract_python_docstring_after_comment() {
     crate::extract::kinds::register_kinds();
     let src = concat!(
@@ -262,7 +260,7 @@ const NO_GATE: &[(&str, &str)] = &[
 // A member call on a plainly imported external module is a call to the module
 // node, unless the receiver could name anything else.
 #[test]
-#[ignore = "graphify-rs-ihc.25"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_python_external_module_calls() {
     crate::extract::kinds::register_kinds();
     let c = |src: &'static str, tgt: &'static str| [src, "calls", tgt];
@@ -310,5 +308,44 @@ fn test_python_external_module_calls() {
         let src = format!("import os\n{body}");
         eprintln!("case no gate {name}");
         want_edges(&[("a.py", src.as_str())], &[c("f()", "os")], &[]);
+    }
+}
+
+/// smoke; the real checks are the ihc.18-ignored tests
+#[test]
+fn test_extract_python_smoke() {
+    crate::extract::kinds::register_kinds();
+    let mut srcs: Vec<(String, Vec<u8>)> = Vec::new();
+    let root = testdata().join("extract").join("pyproj");
+    for f in ["util/math.py", "web/server.py"] {
+        let bytes = std::fs::read(root.join(f)).unwrap_or_else(|e| panic!("read {f}: {e}"));
+        srcs.push((f.to_string(), bytes));
+    }
+    for (name, body) in GATED.iter().chain(REBOUND).chain(NO_GATE) {
+        srcs.push((
+            format!("{name}.py"),
+            format!("import os\n{body}").into_bytes(),
+        ));
+    }
+    for (rel, src) in [
+        (
+            "svc/app.py",
+            "# NOTE: keep boot fast\ndef boot():\n    return 1\n",
+        ),
+        (
+            "service.py",
+            "from typing import TYPE_CHECKING\nif TYPE_CHECKING:\n    from models import Item\nelse:\n    from fallback import Item\n",
+        ),
+        (
+            "a.py",
+            "import os\nclass A:\n    def go(self, x: os.X):\n        os.getcwd()\n",
+        ),
+    ] {
+        srcs.push((rel.to_string(), src.as_bytes().to_vec()));
+    }
+    for (rel, src) in &srcs {
+        assert!(super::extract_python(rel, src).is_some(), "{rel}");
+        let res = crate::extract::file_from_bytes(rel, src);
+        assert!(!res.nodes.is_empty(), "{rel}: no file node");
     }
 }

@@ -171,7 +171,7 @@ fn test_bash_runner_non_shell_targets() {
 
 // `python3 -m app.main` names a module, not a file; it must not hit app_main.
 #[test]
-#[ignore = "graphify-rs-ihc.25"] // bash test (ihc.35, bash_scriptinvocation_test.go): also parses a python file; also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // bash test (ihc.35, bash_scriptinvocation_test.go): also parses a python file (ihc.25, landed); needs resolve
 fn test_bash_runner_module_flag_no_edge() {
     let root = TempDir::new();
     write_script(&root, "app.py", "def main():\n    pass\n");

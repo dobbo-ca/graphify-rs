@@ -22,7 +22,7 @@ fn js_rationale(b: &mut Builder, src: &[u8]) {
 
 /// Go `(*builder).pyRationale` (`python.go:721`).
 fn py_rationale(b: &mut Builder, root: Node<'_>, src: &[u8]) {
-    todo!("graphify-rs-ihc.25")
+    crate::extract::python::py_rationale(b, root, src)
 }
 
 /// Go `(*builder).addDocRef` (`javascript.go:1489`).

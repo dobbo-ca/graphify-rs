@@ -79,7 +79,7 @@ fn py_edges(srcs: &[(&str, &str)], rels: &[Relation]) -> Vec<String> {
 // A def inside a function is a node of its own, held by the function around
 // it, and a call is credited to the innermost def that holds it.
 #[test]
-#[ignore = "graphify-rs-ihc.25"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_python_nested_functions() {
     let src = concat!(
         "def leaf(): pass\n",
@@ -150,7 +150,7 @@ fn test_python_nested_functions() {
 // module alias, an import inside the function, and an aliased name. other/mod.py
 // makes each name one the name alone cannot bind.
 #[test]
-#[ignore = "graphify-rs-ihc.25"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_python_calls_through_imports() {
     let srcs: &[(&str, &str)] = &[
         ("pkg/__init__.py", "from .mod import g as reexp\n"),
@@ -237,7 +237,7 @@ fn test_python_calls_through_imports() {
 // and through a package __init__.py; a submodule, a constant, a method and a
 // nested def get no such edge.
 #[test]
-#[ignore = "graphify-rs-ihc.25"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_python_imported_symbol_edges() {
     let srcs: &[(&str, &str)] = &[
         (
@@ -683,7 +683,7 @@ const EDGE_CASES: &[Case] = &[
 
 // Round 1 of the review of the nested defs and the import-bound calls.
 #[test]
-#[ignore = "graphify-rs-ihc.25"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_python_nested_and_import_edge_cases() {
     for (name, srcs, rels, want) in EDGE_CASES {
         let got = py_edges(srcs, rels);
@@ -892,7 +892,7 @@ const BUILTIN_CASES: &[BuiltinCase] = &[
 // A bare call of a Python builtin names the builtin unless the file defines
 // or imports the name.
 #[test]
-#[ignore = "graphify-rs-ihc.25"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_python_builtin_calls() {
     for (name, srcs, want) in BUILTIN_CASES {
         let got = py_edges(srcs, &[Relation::CALLS]);

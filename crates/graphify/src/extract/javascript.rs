@@ -15,6 +15,30 @@ pub(crate) fn extract_js_file(
 /// until graphify-rs-ihc.26.
 pub(super) fn register_kinds() {}
 
+/// Go `jsNestedCall` (`javascript.go:1401`): binds a call to a nested function seen from its
+/// scope, once per (caller, callee). Go keeps `jsLinked` on the builder; here each language
+/// passes its own set. Shared with python.go.
+pub(crate) fn js_nested_call(
+    b: &mut super::builder::Builder,
+    linked: &mut std::collections::HashSet<(String, String)>,
+    caller_id: &str,
+    id: &str,
+    loc: crate::model::Loc,
+) {
+    if caller_id == id || !linked.insert((caller_id.to_string(), id.to_string())) {
+        return;
+    }
+    b.res.edges.push(crate::model::Edge {
+        source: caller_id.to_string(),
+        target: id.to_string(),
+        relation: crate::model::Relation::CALLS,
+        confidence: crate::model::Confidence::EXTRACTED,
+        source_file: b.src,
+        source_location: loc,
+        ..crate::model::Edge::default()
+    });
+}
+
 #[cfg(test)]
 #[path = "tests/jsts_parity.rs"]
 mod jsts_parity_tests;

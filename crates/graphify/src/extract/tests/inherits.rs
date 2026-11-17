@@ -72,7 +72,7 @@ fn test_c_sharp_bases() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.25"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_python_inherits() {
     register_kinds();
     want_edges(
@@ -94,7 +94,7 @@ fn test_python_inherits() {
 // A qualified Python base outside the corpus drops; a plain one gets a stub
 // (TestPythonReferences).
 #[test]
-#[ignore = "graphify-rs-ihc.25"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_unresolved_base_drops() {
     register_kinds();
     let got = extract_all(&[("sub.py", "class Sub(lib.SomeLibBase):\n    pass\n")]);
