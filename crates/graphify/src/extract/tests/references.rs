@@ -1206,7 +1206,7 @@ enum En: string implements IMiss2 { case A = 'a'; }
 
 // Upstream emits no type references for Ruby, only the superclass stub.
 #[test]
-#[ignore = "graphify-rs-ihc.33"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // ruby test (ihc.33): needs resolve
 fn test_ruby_references() {
     let (nodes, edges) = resolve_src(&[
         ("b.rb", "class Late; end\n"),

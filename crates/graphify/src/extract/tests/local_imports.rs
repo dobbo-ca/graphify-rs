@@ -231,7 +231,7 @@ const CASES: &[Case] = &[
 ];
 
 #[test]
-#[ignore = "graphify-rs-ihc.33"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.30"] // ruby test (ihc.33): also parses C++ (ihc.30), needs resolve (ihc.18)
 fn test_local_imports_resolve_to_files() {
     for (name, srcs, go_mods, want) in CASES {
         let got = import_edges(srcs, go_mods);

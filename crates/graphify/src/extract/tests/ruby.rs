@@ -322,7 +322,6 @@ fn test_no_false_positive_when_type_unknown() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.33"]
 fn test_plain_module_gets_a_node_with_methods() {
     // #1640 shape 1: `module Foo` must get a node and own its methods.
     let r = extract_one(
@@ -445,7 +444,6 @@ fn test_qualified_external_mixin_does_not_bind_to_local() {
 
 // pins Go v0.12.0 (one node `Thing.foo()`: `foo`, `foo!`, `foo?` and `foo=` make one id, the first declared names it); upstream 0.9.107 emits four nodes -> P3 B01
 #[test]
-#[ignore = "graphify-rs-ihc.33"]
 fn test_ruby_suffixed_methods_extraction_and_labels() {
     let r = extract_one(
         "thing.rb",
@@ -461,7 +459,6 @@ fn test_ruby_suffixed_methods_extraction_and_labels() {
 // The ids (`_parse_bang`, `_valid_pred`) of the upstream test are node-ID differences, by
 // design: only the labels are asserted.
 #[test]
-#[ignore = "graphify-rs-ihc.33"]
 fn test_ruby_suffixed_toplevel_functions_extraction() {
     let r = extract_one("utils.rb", "def parse!; end\ndef valid?; end\n");
     let labels: BTreeSet<&str> = r.nodes.iter().map(|n| n.label.as_str()).collect();
@@ -638,4 +635,219 @@ fn test_inherited_singleton_call_stays_inferred_for_external_owner() {
     ]);
     assert!(!label_set(&ext).contains("Child.call()"));
     assert!(!calls_from(&ext, "Child.call()"));
+}
+
+/// Every inline Ruby source of the tests (this file, `rake_resolve.rs`, `rake_skill.rs`,
+/// `nodeid.rs`, `gaps.rs`, `references.rs`, `local_imports.rs`, `resolve.rs` and
+/// `upstream_phantom_cross_package_call.rs`), deduped by source text.
+const SMOKE_SRCS: &[(&str, &str)] = &[
+    (
+        "w.rb",
+        "class Widget\n  def run\n    build\n  end\n  def build\n    1\n  end\nend\n",
+    ),
+    (
+        "g.rb",
+        "module Greetable\n  def greet\n    build_message\n  end\n  def build_message\n    \"hi\"\n  end\nend\n",
+    ),
+    (
+        "v.rb",
+        "class W\n  def run\n    build = 1\n    build\n  end\n  def build\n    2\n  end\nend\n",
+    ),
+    (
+        "p.rb",
+        "class W\n  def run(build)\n    build\n  end\n  def build\n    1\n  end\nend\n",
+    ),
+    (
+        "b.rb",
+        "class W\n  def run\n    [1].each do |item|\n      item\n    end\n  end\n  def item\n  end\nend\n",
+    ),
+    (
+        "s.rb",
+        "class W\n  def run\n    build\n    self.build\n  end\n  def build\n  end\nend\n",
+    ),
+    ("helper.rb", HELPER_RB),
+    ("parent.rb", PARENT_RB),
+    ("child.rb", CHILD_RB),
+    ("main.rb", MAIN_TYPED_RB),
+    (
+        "refinement.rb",
+        "module R\n  refine Parent do\n    def other; :refined; end\n  end\nend\n",
+    ),
+    (
+        "patch.rb",
+        "AliasChild ||= Child\nAliasChild.class_eval { attr_reader :run }\n",
+    ),
+    (
+        "main.rb",
+        "require_relative \"helper\"\n\ndef process_all(thing)\n  thing.run(1)\nend\n",
+    ),
+    (
+        "tax.rb",
+        "module TaxCalculator\n  module_function\n  def rate_for(order)\n    0.2\n  end\nend\n",
+    ),
+    (
+        "pp.rb",
+        "class PaymentProcessor\n  def process(order)\n    TaxCalculator.rate_for(order)\n  end\nend\n",
+    ),
+    (
+        "tax.rb",
+        "module TaxCalculator\n  module_function\n  def rate_for(o)\n    0.2\n  end\nend\n",
+    ),
+    (
+        "c.rb",
+        "class Runner\n  def run\n    Processor.call\n  end\nend\n",
+    ),
+    (
+        "a.rb",
+        "module A\n  class Processor\n    def self.call; end\n  end\nend\n",
+    ),
+    (
+        "b.rb",
+        "module B\n  class Processor\n    def self.call; end\n  end\nend\n",
+    ),
+    ("m.rb", "module M\n  extend self\n  def go; end\nend\n"),
+    ("x.rb", "class X\n  include NotDefinedAnywhere\nend\n"),
+    (
+        "concern.rb",
+        "module Concern\n  def local_thing; end\nend\n",
+    ),
+    (
+        "post.rb",
+        "class Post\n  extend ActiveSupport::Concern\nend\n",
+    ),
+    (
+        "thing.rb",
+        "class Thing\n  def foo; end\n  def foo!; end\n  def foo?; end\n  def foo=(val); end\nend\n",
+    ),
+    ("utils.rb", "def parse!; end\ndef valid?; end\n"),
+    (
+        "other.rb",
+        "class Other\n  def framework_ar\n    ActiveRecord::Base.transaction { save! }\n  end\n\n  def framework_aj\n    ActiveJob::Base.default_queue_name\n  end\nend\n",
+    ),
+    (
+        "thing.rb",
+        "class Thing\n  class Base\n    def self.call(x) = x\n  end\nend\n",
+    ),
+    ("base.rb", "class Base < Grand\nend\n"),
+    (
+        "child.rb",
+        "class Child < Base\n  def call\n    helper()\n  end\nend\n",
+    ),
+    ("grand.rb", "class Grand\n  def helper; :ok; end\nend\n"),
+    ("base.rb", "class Base\n  def helper; :stale; end\nend\n"),
+    (
+        "child.rb",
+        "Base = resolve_base()\nclass Child < Base\n  def call\n    helper()\n  end\nend\n",
+    ),
+    (
+        "child.rb",
+        "Base, Spare = ExternalBase, Object\nclass Child < Base\n  def call\n    helper()\n  end\nend\n",
+    ),
+    ("base.rb", "class Base\n  def helper; :base; end\nend\n"),
+    ("patch.rb", "Base.class_eval { prepend ExternalMethods }\n"),
+    (
+        "base.rb",
+        "class Base < Grand\n  def helper; :instance; end\n  def self.helper; :singleton; end\nend\n",
+    ),
+    ("grand.rb", "class Grand\n  def helper; :grand; end\nend\n"),
+    ("base.rb", "class Base\n  def helper; :instance; end\nend\n"),
+    (
+        "child.rb",
+        "class Child < Base\n  def self.call\n    helper()\n  end\nend\n",
+    ),
+    (
+        "child.rb",
+        "class Child < Base\n  include ExternalMethods\n  def call\n    helper()\n  end\nend\n",
+    ),
+    ("reopen.rb", "class Child\n  def other; :other; end\nend\n"),
+    (
+        "base.rb",
+        "class Base\n  def self.helper; :base; end\nend\n",
+    ),
+    ("reopen.rb", "def Child.helper; :child; end\n"),
+    // rake_resolve.rs, rake_skill.rs
+    ("lib/helpers.rb", "def add(a, b)\n  a + b\nend\n"),
+    ("tasks/build.rake", "def run\n  add(1, 2)\nend\n"),
+    ("build.rake", "def run\n  greet\nend\n\ndef greet\nend\n"),
+    // nodeid.rs
+    (
+        "pkg/sample.rb",
+        "class ApiClient\n  def get\n  end\nend\n\ndef helper\nend\n",
+    ),
+    // gaps.rs (its format!-built sources are below)
+    (
+        "a.rb",
+        "class W\n  def run(helper)\n    helper\n    local = 1\n    local\n    do_thing\n  end\n\n  def do_thing\n  end\n\n  def helper\n  end\nend\n",
+    ),
+    // references.rs
+    ("b.rb", "class Late; end\n"),
+    (
+        "a.rb",
+        "class Early; end\nclass Same < Early; end\nclass Miss < Missing::Deep; end\nclass Far < Late; end\nclass Inc < Early\n  include IMiss\n  def m(a = Pm1.new); end\nend\n",
+    ),
+    // local_imports.rs
+    (
+        "app/main.rb",
+        "require_relative 'lib/h'\nrequire_relative './lib/h'\nrequire 'json'\nrequire_relative 'gone'\n",
+    ),
+    ("app/lib/h.rb", ""),
+    // resolve.rs
+    (
+        "a.rb",
+        "class A\n  def helper\n  end\nend\nclass B\n  def run\n    helper\n  end\nend\n",
+    ),
+    (
+        "a.rb",
+        "class A\n  def dup_name\n  end\nend\nclass B\n  def dup_name\n  end\n  def run\n    dup_name\n  end\nend\n",
+    ),
+    (
+        "a.rb",
+        "class A\n  def helper\n  end\nend\nclass B < A\n  def run\n    helper\n  end\nend\n",
+    ),
+    ("a.rb", "def helper\nend\ndef run\n  helper\nend\n"),
+    // upstream_phantom_cross_package_call.rs
+    ("helper.rb", "def transform(data)\n  data.upcase\nend\n"),
+    ("main.rb", "def handle(v)\n  transform(v)\nend\n"),
+];
+
+/// smoke; the real checks are the ihc.18-ignored tests
+///
+/// Runs `extract_ruby`, without `resolve`, on the `rubyproj` files and every Ruby source of the
+/// resolve-dependent tests. `None` is Go's parse-budget recover.
+#[test]
+fn smoke_extract_ruby_sources() {
+    kinds::register_kinds();
+    let root = testdata().join("extract").join("rubyproj");
+    for f in ["util/math.rb", "web/server.rb"] {
+        let src = std::fs::read(root.join(f)).unwrap_or_else(|e| panic!("read {f}: {e}"));
+        assert!(
+            extract_ruby(f, &src).is_some(),
+            "rubyproj/{f}: parse over budget"
+        );
+    }
+    for (i, (rel, src)) in SMOKE_SRCS.iter().enumerate() {
+        assert!(
+            extract_ruby(rel, src.as_bytes()).is_some(),
+            "inline source #{i} ({rel}): parse over budget"
+        );
+    }
+    // gaps.rs `test_gap_ruby_locals_not_self_sends` builds its sources with this template.
+    for (name, body) in [
+        ("opassign", "value ||= 3\n    value"),
+        ("multi", "helper, value = 1, 2\n    value"),
+        ("block", "[1].each do |value|\n      value\n    end"),
+        ("lambda", "f = ->(value) { value }\n    f"),
+        (
+            "rescue",
+            "begin\n      1\n    rescue => value\n      value\n    end",
+        ),
+        ("for", "for value in [1]\n      value\n    end"),
+    ] {
+        let src =
+            format!("class C\n  def value\n    1\n  end\n  def run\n    {body}\n  end\nend\n");
+        assert!(
+            extract_ruby("a.rb", src.as_bytes()).is_some(),
+            "gaps.rs source {name}: parse over budget"
+        );
+    }
 }

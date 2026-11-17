@@ -30,7 +30,7 @@ fn test_same_file_call_unaffected() {
 // The JS/TS gate is not applied to other languages: Ruby calls a lone same-named function across
 // files without an import.
 #[test]
-#[ignore = "graphify-rs-ihc.33"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // ruby test (ihc.33): needs resolve
 fn test_non_js_single_candidate_cross_file_still_resolves() {
     register_kinds();
     want_edges(
