@@ -203,7 +203,7 @@ fn test_bash_shell_errexit_keeps_edge() {
 
 // php's code flag is -r; `php -e s.php` still runs s.php.
 #[test]
-#[ignore = "graphify-rs-ihc.34"] // bash test (ihc.35, bash_scriptinvocation_test.go): also parses a php file; also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // bash test (ihc.35, bash_scriptinvocation_test.go): also parses a php file; also needs resolve (ihc.18)
 fn test_bash_php_dash_e_keeps_edge() {
     let root = TempDir::new();
     write_script(&root, "s.php", "<?php\n");

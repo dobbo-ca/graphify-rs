@@ -1330,3 +1330,479 @@ fn test_php_import_resolves_when_target_name_prefixes_sibling_classes() {
     assert_eq!(tgt.label, "App\\Entities\\Pivot");
     assert!(tgt.source_file.is_empty());
 }
+
+/// The literal `(rel, src)` PHP sources of the tests above and of the PHP files of the
+/// `nodeid.rs`, `references.rs` and `bash_scriptinvocation.rs` tests, verbatim.
+const SMOKE_SRCS: &[(&str, &str)] = &[
+    (
+        "A.php",
+        "<?php\n\
+         class A {\n\
+         \x20   function isset($k) { return true; }\n\
+         \x20   function list() { return []; }\n\
+         \x20   function run($x) {\n\
+         \x20       if (isset($x)) { return $this->list(); }\n\
+         \x20       return empty($x) ? array() : EXIT();\n\
+         \x20   }\n\
+         }\n",
+    ),
+    (
+        "svc.php",
+        "<?php\n\
+         function target($x) { return $x; }\n\
+         class Service {\n\
+         \x20   public function run() {\n\
+         \x20       $cb = function($x) { return target($x); };\n\
+         \x20       return $cb;\n\
+         \x20   }\n\
+         }\n",
+    ),
+    (
+        "Perms.php",
+        "<?php\nnamespace App;\nclass Base { const SEED = 1; }\n\
+         class C extends Base {\n\
+         \x20   const A = 1;\n\
+         \x20   const B = self::A;\n\
+         \x20   private int $x = static::A;\n\
+         \x20   public function __construct(int $n = parent::SEED) {}\n\
+         }\n",
+    ),
+    ("Bag.php", BAG),
+    (
+        "Mailer.php",
+        "<?php\n\
+         namespace App;\n\
+         \n\
+         class Mailer\n\
+         {\n\
+         \x20   public function send(array $to): void\n\
+         \x20   {\n\
+         \x20       if (empty($to) || !isset($to[0])) {\n\
+         \x20           return;\n\
+         \x20       }\n\
+         \x20   }\n\
+         }\n",
+    ),
+    (
+        "Bag.php",
+        "<?php\n\
+         namespace App;\n\
+         \n\
+         class Bag\n\
+         {\n\
+         \x20   private array $items = [];\n\
+         \n\
+         \x20   public function empty(): bool\n\
+         \x20   {\n\
+         \x20       return $this->items === [];\n\
+         \x20   }\n\
+         \n\
+         \x20   public function isset(string $k): bool\n\
+         \x20   {\n\
+         \x20       return array_key_exists($k, $this->items);\n\
+         \x20   }\n\
+         \n\
+         \x20   public function add(string $k, $v): void\n\
+         \x20   {\n\
+         \x20       if (empty($k) || isset($this->items[$k])) {\n\
+         \x20           return;\n\
+         \x20       }\n\
+         \x20       $this->items[$k] = $v;\n\
+         \x20   }\n\
+         }\n",
+    ),
+    (
+        "helpers.php",
+        "<?php\n\
+         namespace App;\n\
+         \n\
+         function blank(array $a): bool\n\
+         {\n\
+         \x20   return EMPTY($a);\n\
+         }\n",
+    ),
+    (
+        "Repo.php",
+        "<?php\n\
+         namespace App;\n\
+         \n\
+         class Repo\n\
+         {\n\
+         \x20   public function load(): array\n\
+         \x20   {\n\
+         \x20       return [];\n\
+         \x20   }\n\
+         \n\
+         \x20   public function missing(): bool\n\
+         \x20   {\n\
+         \x20       return empty($this->load());\n\
+         \x20   }\n\
+         }\n",
+    ),
+    (
+        "helpers.php",
+        "<?php\n\
+         namespace App;\n\
+         \n\
+         function format_name(string $n): string\n\
+         {\n\
+         \x20   return trim($n);\n\
+         }\n",
+    ),
+    (
+        "User.php",
+        "<?php\n\
+         namespace App;\n\
+         \n\
+         class User\n\
+         {\n\
+         \x20   public function label(string $n): string\n\
+         \x20   {\n\
+         \x20       return format_name($n);\n\
+         \x20   }\n\
+         }\n",
+    ),
+    (
+        "Bag.php",
+        "<?php\nclass Bag { public function useList() { $this->list(); } }\n\
+         class Other { public function list() {} }\n",
+    ),
+    (
+        "Bag.php",
+        "<?php\nfunction open() {}\n\
+         class Bag { public function useOpen() { $this->open(); } }\n",
+    ),
+    (
+        "Bag.php",
+        "<?php\nfunction useList() { $this->list(); }\n\
+         function makeListCallable() { return function() { $this->list(); }; }\n\
+         class Other { public function list() {} }\n",
+    ),
+    ("b.php", CLASS_B),
+    (
+        "a.php",
+        "<?php\nclass A { private function _x() {} public function x() {} }\n",
+    ),
+    (
+        "a.php",
+        "<?php\nclass A { public function x() {} private function _x() {} }\n",
+    ),
+    (
+        "t.php",
+        "<?php\ntrait T {\n\
+         \x20   protected function _x() { return 1; }\n\
+         \x20   public function x() { return $this->_x(); }\n\
+         \x20   public function y() { return $this->x(); }\n\
+         }\n",
+    ),
+    (
+        "k.php",
+        "<?php\nclass K {\n\
+         \x20   private function _run() { return 1; }\n\
+         \x20   public function Run() { return $this->_run(); }\n\
+         \x20   public function go() { return $this->Run(); }\n\
+         }\n",
+    ),
+    (
+        "Caller.php",
+        "<?php\nnamespace App;\nclass Caller {\n\
+         \x20   public function a($cls) { return new $cls(); }\n\
+         \x20   public function b() { return new self(); }\n\
+         \x20   public function c() { return new static(); }\n}\n",
+    ),
+    (
+        "Baz.php",
+        "<?php\nnamespace App;\nclass Baz {\n\
+         \x20   public static function create(): self { return new self(); }\n}\n",
+    ),
+    (
+        "Caller.php",
+        "<?php\nnamespace App;\nclass Caller {\n\
+         \x20   public function run() { return Baz::create(); }\n}\n",
+    ),
+    ("Greeter.php", GREETER),
+    (
+        "App.php",
+        "<?php\nclass App {\n\
+         \x20   public function run($greeter): void { $greeter->greet(); }\n}\n",
+    ),
+    (
+        "Other.php",
+        "<?php\nclass Other {\n    public function greet(): void {}\n}\n",
+    ),
+    (
+        "App.php",
+        "<?php\nclass App {\n\
+         \x20   public function run(Greeter|Other $greeter): void { $greeter->greet(); }\n}\n",
+    ),
+    (
+        "App.php",
+        "<?php\nclass App {\n    private Greeter $greeter;\n\
+         \x20   public function run(): void { $this->greeter->inner->greet(); }\n}\n",
+    ),
+    ("a/Greeter.php", GREETER),
+    ("b/Greeter.php", GREETER),
+    (
+        "App.php",
+        "<?php\nclass App {\n    private Greeter $greeter;\n\
+         \x20   public function run(): void { $this->greeter->greet(); }\n}\n",
+    ),
+    (
+        "Helper.php",
+        "<?php\nclass Helper {\n    public static function format(): void {}\n}\n",
+    ),
+    (
+        "App.php",
+        "<?php\nclass App {\n    public function run(): void { Helper::format(); }\n}\n",
+    ),
+    ("Helper.php", HELPER),
+    (
+        "Caller.php",
+        "<?php\nnamespace App;\nclass Caller {\n\
+         \x20   public function run($x) { return Helper::sanitize($x); }\n}\n",
+    ),
+    (
+        "Widget.php",
+        "<?php\nnamespace App;\nclass Widget {\n\
+         \x20   public static function build() { return self::helper(); }\n\
+         \x20   public static function render() { return static::helper(); }\n\
+         \x20   public static function helper() { return 1; }\n}\n",
+    ),
+    (
+        "Decoy.php",
+        "<?php\nnamespace App;\nclass Decoy {\n\
+         \x20   public static function helper() { return 2; }\n}\n",
+    ),
+    (
+        "A.php",
+        "<?php\nnamespace App;\nclass A {\n\
+         \x20   public function build() { return self::helper(); }\n}\n",
+    ),
+    (
+        "B.php",
+        "<?php\nnamespace App;\nclass B {\n\
+         \x20   public function helper() { return 1; }\n}\n",
+    ),
+    (
+        "Base.php",
+        "<?php\nnamespace App;\nclass Base {\n\
+         \x20   public static function helper() { return 1; }\n}\n",
+    ),
+    (
+        "Child.php",
+        "<?php\nnamespace App;\nclass Child extends Base {\n\
+         \x20   public static function run() { return parent::helper(); }\n}\n",
+    ),
+    (
+        "Caller.php",
+        "<?php\nnamespace App;\nclass Caller {\n\
+         \x20   public function run($cls) { return $cls::helper(); }\n\
+         \x20   public function helper() { return 1; }\n}\n",
+    ),
+    (
+        "helper.php",
+        "<?php\nnamespace App;\nclass helper {\n\
+         \x20   public static function sanitize($x) { return $x; }\n}\n",
+    ),
+    (
+        "Caller.php",
+        "<?php\nnamespace App;\nclass Caller {\n\
+         \x20   public function run($x) { return helper::sanitize($x); }\n}\n",
+    ),
+    (
+        "Caller.php",
+        "<?php\nnamespace Other;\nclass Caller {\n\
+         \x20   public function run($x) { return \\App\\Helper::sanitize($x); }\n}\n",
+    ),
+    (
+        "app/Models/Page.php",
+        "<?php\nnamespace App\\Models;\nclass Page extends Model {}\n",
+    ),
+    (
+        "app/Filament/Pages/ManageSiteSettings.php",
+        "<?php\nnamespace App\\Filament\\Pages;\n\
+         use Filament\\Pages\\Page;\n\
+         class ManageSiteSettings extends Page {}\n",
+    ),
+    (
+        "app/Models/Page.php",
+        "<?php\nnamespace App\\Models;\nclass Page {}\n",
+    ),
+    (
+        "app/Cms/Page.php",
+        "<?php\nnamespace App\\Cms;\nclass Page {}\n",
+    ),
+    (
+        "app/Cms/Editor.php",
+        "<?php\nnamespace App\\Cms;\n\
+         use App\\Cms\\Page;\n\
+         class Editor extends Page {}\n",
+    ),
+    (
+        "src/A.php",
+        "<?php\nnamespace App;\n\
+         use GuzzleHttp\\Client;\n\
+         class A { public function __construct(private Client $client) {} }\n",
+    ),
+    (
+        "src/B.php",
+        "<?php\nnamespace App;\n\
+         use GuzzleHttp\\Client as HttpClient;\n\
+         class B { public function __construct(private HttpClient $client) {} }\n",
+    ),
+    (
+        "src/A.php",
+        "<?php\nnamespace App;\n\
+         use App\\Models\\Session as ModelSession;\n\
+         use Shopify\\Auth\\Session as ShopifySession;\n\
+         class A {\n\
+         \x20   public function __construct(private ModelSession $m, private ShopifySession $s) {}\n\
+         }\n",
+    ),
+    ("src/Foo/Bar.php", "<?php\nnamespace Foo;\nclass Bar {}\n"),
+    (
+        "src/App/X.php",
+        "<?php\nnamespace App;\n\
+         use Foo\\Bar as Baz;\n\
+         class X extends Baz {}\n",
+    ),
+    (
+        "app/Http/Y.php",
+        "<?php\nnamespace App\\Http;\n\
+         class Y extends \\App\\Models\\Page {}\n",
+    ),
+    ("src/Base.php", "<?php\nclass Base {}\n"),
+    ("src/Child.php", "<?php\nclass Child extends Base {}\n"),
+    (
+        "src/Pivot.php",
+        "<?php\nnamespace App\\Entities;\nclass Pivot {}\n",
+    ),
+    (
+        "src/ModelWithRelation.php",
+        "<?php\nnamespace App\\Models;\n\
+         use App\\Entities\\Pivot;\n\
+         class ModelWithRelation {}\n",
+    ),
+    // nodeid.rs test_go_blank_func_keeps_its_node
+    ("php/t.php", "<?php\nfunction __($s) { return $s; }\n"),
+    // references.rs test_php_references
+    ("b.php", "<?php\nclass Late {}\nclass Uniq {}\n"),
+    (
+        "a.php",
+        r#"<?php
+namespace App;
+use Ext\Lib\Ext;
+interface IEarly {}
+class Early {}
+#[Attr1]
+class User extends MissingBase implements IMiss, IEarly {
+    use TraitMiss, Early;
+    public Early $e;
+    public ?Late $l;
+    public int|Uniq $u;
+    public \Other\Qual $q;
+    public Ext $x;
+    public self $s;
+    public array $arr;
+    public function __construct(private Ctor2 $p, int $n, ?Param3 $z = null) {}
+    #[Attr2]
+    public function meth(Param1 $a, int $b, Early&Inter $c): ?Ret3 { return null; }
+    public function m3(): static { return $this; }
+    public function m4(parent $p): void {}
+    public function m6(): Ext\Deep {}
+}
+interface I2 extends IMiss1, IEarly { public function im(Late $x): Early; }
+function top(Late $a, Top1 $b): TopRet {}
+trait TrA { public Late $tl; }
+enum En: string implements IMiss2 { case A = 'a'; }
+"#,
+    ),
+    // references.rs test_qualified_name_needs_its_qualifier
+    (
+        "lib/Base.php",
+        "<?php\nnamespace App\\Lib;\nclass Base {}\n",
+    ),
+    (
+        "app/K.php",
+        "<?php\nclass K extends \\Ext\\Other\\Base {}\nclass L extends \\App\\Lib\\Base {}\n",
+    ),
+    // bash_scriptinvocation.rs test_bash_php_dash_e_keeps_edge
+    ("s.php", "<?php\n"),
+];
+
+/// smoke; the real checks are the ihc.18-ignored tests
+///
+/// Runs `extract_php`, without `resolve`, on the `phpproj` files and on every PHP source of the
+/// resolve-dependent tests once: [`SMOKE_SRCS`] and the sources the tests build.
+#[test]
+fn smoke_extract_php_sources() {
+    kinds::register_kinds();
+    let root = testdata().join("extract").join("phpproj");
+    // `None` is Go's parse-budget recover.
+    for f in ["util/math.php", "web/server.php"] {
+        let src = std::fs::read(root.join(f)).unwrap_or_else(|e| panic!("read {f}: {e}"));
+        assert!(
+            extract_php(f, &src).is_some(),
+            "phpproj/{f}: parse over budget"
+        );
+    }
+
+    let mut srcs: Vec<(String, String)> = SMOKE_SRCS
+        .iter()
+        .map(|(rel, src)| (rel.to_string(), src.to_string()))
+        .collect();
+    // The bodies `refs` is called with.
+    for body in [
+        "class Settings {\n    private Role $fallback = Role::Viewer;\n}\n",
+        "class Guard {\n    public function __construct(private Role $default = Role::Viewer) {}\n}\n",
+        "class Check {\n    public function pick(): Role { return Role::Viewer; }\n}\n",
+        "class S {\n    private Role $f = \\App\\Role::Viewer;\n}\n",
+    ] {
+        srcs.push((
+            "Perms.php".to_string(),
+            format!("<?php\nnamespace App;\n{ENUM_ROLE}{body}"),
+        ));
+    }
+    for (name, statement) in CONSTRUCT_CASES {
+        srcs.push((
+            "Bag.php".to_string(),
+            format!(
+                "<?php\nclass Bag {{\n public function {name}($value) {{ return $value; }}\n \
+                 public function constructUse($value, $values) {{ {statement} }}\n \
+                 public function memberUse($value) {{ return $this->{name}($value); }}\n}}\n"
+            ),
+        ));
+        srcs.push((
+            "outside.php".to_string(),
+            format!("<?php\nfunction externalUse($value, $values) {{ {statement} }}\n"),
+        ));
+    }
+    for src in USE_SRCS {
+        srcs.push(("use.php".to_string(), src.to_string()));
+    }
+    for src in BODY_SRCS {
+        srcs.push(("i.php".to_string(), src.to_string()));
+    }
+    for name in [
+        "PivotRepository",
+        "PivotRepositoryEloquent",
+        "PivotValidator",
+    ] {
+        srcs.push((
+            format!("src/{name}.php"),
+            format!("<?php\nnamespace App\\Repositories;\nclass {name} {{}}\n"),
+        ));
+    }
+
+    let mut seen: BTreeSet<&(String, String)> = BTreeSet::new();
+    for s in &srcs {
+        if !seen.insert(s) {
+            continue;
+        }
+        let (rel, src) = s;
+        assert!(
+            extract_php(rel, src.as_bytes()).is_some(),
+            "{rel}: parse over budget: {src:?}"
+        );
+    }
+}

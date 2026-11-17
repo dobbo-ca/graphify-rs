@@ -64,7 +64,7 @@ fn test_node_ids_do_not_collide_across_files() {
 
 /// A name that is all punctuation must not take the id of its file.
 #[test]
-#[ignore = "graphify-rs-ihc.34"]
+#[ignore = "graphify-rs-ihc.33"] // also parses ruby (ihc.33); also needs resolve (ihc.18)
 fn test_go_blank_func_keeps_its_node() {
     let (nodes, edges) = resolve_src(&[
         (
