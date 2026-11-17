@@ -9,7 +9,6 @@ use crate::ts::with_budget;
 const STALL_JULIA: &str = "@testset \"t0\" begin\n    @testset \"t1\" begin\n        l2";
 
 #[test]
-#[ignore = "graphify-rs-ihc.38"]
 fn test_over_budget_keeps_file_node() {
     let r = extract_bytes("a.jl", STALL_JULIA.as_bytes());
     assert!(
@@ -54,7 +53,7 @@ fn test_budget_setting() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.38"]
+#[ignore = "graphify-rs-ihc.37"] // budget test: also parses a kotlin file
 fn test_budget_scales_with_size() {
     crate::extract::kinds::register_kinds();
     // About 98,000 steps in a row at the last byte, and no endless retry.
