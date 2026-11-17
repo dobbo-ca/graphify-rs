@@ -11,6 +11,7 @@ use std::path::Path;
 use gostd::json::{DecodeState, EncodeState, Error as JsonError, Marshal, Unmarshal, write_field};
 
 use super::builder::Builder;
+use super::nulllabel::SegState;
 use crate::model::{Edge, Loc, Node};
 
 /// Go `extract.Def`: a definition a call or reference can bind to.
@@ -196,13 +197,27 @@ gostd::json_fields!(decode ModRef, "extract.ModRef", {
 });
 
 /// Go `labelInputs` (`nulllabel.go:25`). Its fields are unexported in Go, so its JSON is `{}`
-/// and decoding keeps nothing; they come with graphify-rs-ihc.31.
+/// and decoding keeps nothing (graphify-rs-ihc.31 fills the fields).
 #[derive(Clone, Debug, Default, PartialEq)]
-pub struct LabelInputs {}
+pub struct LabelInputs {
+    pub(crate) scalars: BTreeMap<String, SegVal>,
+    pub(crate) attrs: Vec<String>,
+    pub(crate) attr_state: SegState,
+    pub(crate) delimiter: String,
+    pub(crate) label_order: Vec<String>,
+    pub(crate) value_case: String,
+    pub(crate) has_context: bool,
+    pub(crate) unresolved: bool,
+    pub(crate) var_refs: BTreeMap<String, String>,
+    pub(crate) context_ref: String,
+}
 
-/// Go `segVal` (`nulllabel.go:19`). JSON `{}` as [`LabelInputs`]; fields with graphify-rs-ihc.31.
+/// Go `segVal` (`nulllabel.go:19`). JSON `{}` as [`LabelInputs`].
 #[derive(Clone, Debug, Default, PartialEq)]
-pub struct SegVal {}
+pub struct SegVal {
+    pub(crate) val: String,
+    pub(crate) state: SegState,
+}
 
 /// A Go struct with no exported field: `{}` out, any value skipped in.
 macro_rules! empty_go_struct {

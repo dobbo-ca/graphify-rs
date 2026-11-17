@@ -96,9 +96,7 @@ locals { cidr = "10.0.0.0/16" }
 output "ip" { value = aws_instance.web.private_ip }
 "#;
 
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_no_error_and_all_block_types_become_nodes() {
     let r = extract("main.tf", SAMPLE);
     assert!(!r.over_budget, "parse over budget");
@@ -120,9 +118,7 @@ fn test_no_error_and_all_block_types_become_nodes() {
 
 // Without upstream's `("provider.aws", "var.region")` pair: Go emits no `references` edge from a
 // provider block (`terraform.go:152` gives the provider a node and does not walk its body).
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_reference_edges() {
     let r = extract("main.tf", SAMPLE);
     let refs = rel_pairs(&r, "references");
@@ -132,9 +128,7 @@ fn test_reference_edges() {
     assert!(has_pair(&refs, "output.ip", "aws_instance.web"));
 }
 
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_depends_on_edge() {
     let r = extract("main.tf", SAMPLE);
     assert!(has_pair(
@@ -144,9 +138,7 @@ fn test_depends_on_edge() {
     ));
 }
 
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_file_contains_blocks() {
     let r = extract("main.tf", SAMPLE);
     let contains = rel_pairs(&r, "contains");
@@ -155,9 +147,7 @@ fn test_file_contains_blocks() {
 }
 
 // count.index / each.key / self.* / path.module are builtins, not references.
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_meta_heads_not_emitted() {
     let body = r#"resource "aws_instance" "web" {
   count = 2
@@ -182,9 +172,8 @@ fn test_meta_heads_not_emitted() {
 // A resource defined in one file is referenced from another in the same
 // directory; directory-scoped IDs must let the edge resolve at build time. Go has no
 // `build_from_json` here: the merge is `Resolve`, which joins the per-file nodes and edges.
-// hcl test (ihc.31): needs resolve
 #[test]
-#[ignore = "graphify-rs-ihc.18"]
+#[ignore = "graphify-rs-ihc.18"] // hcl test (ihc.31): needs resolve
 fn test_cross_file_references_resolve_after_merge() {
     let defn = "resource \"azurerm_resource_group\" \"main\" { name = \"rg\" }\n";
     let user = r#"resource "azurerm_network_interface" "nic" {
@@ -220,9 +209,7 @@ fn test_cross_file_references_resolve_after_merge() {
     );
 }
 
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_empty_and_commentonly_files_are_safe() {
     let r = extract("a.tf", "");
     assert!(!r.over_budget);
@@ -233,9 +220,7 @@ fn test_empty_and_commentonly_files_are_safe() {
 
 // .tfvars files contain only key=value assignments (no block structure),
 // so extractTerraform produces zero block nodes — only the file node.
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_tfvars_key_value_is_safe() {
     let r = extract(
         "terraform.tfvars",
@@ -247,9 +232,7 @@ fn test_tfvars_key_value_is_safe() {
 
 // pins Go v0.12.0 (each value is its source text: "true", "false", "42", "3.14", "null");
 // upstream 0.9.107 emits True, False, 42, 3.14 and None -> P3
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_terraform_attributes_primitive_literals() {
     let body = r#"resource "aws_s3_bucket" "example" {
   bucket        = "my-test-bucket"
@@ -277,9 +260,7 @@ fn test_terraform_attributes_primitive_literals() {
 
 // pins Go v0.12.0 ("10.0.0.0/16, 192.168.1.0/24", and `tags` is dropped: Go keeps no object
 // attribute); upstream 0.9.107 emits a list and the map -> P3
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_terraform_attributes_collections() {
     let body = r#"resource "aws_security_group" "sg" {
   name          = "sg"
@@ -299,9 +280,7 @@ fn test_terraform_attributes_collections() {
     assert_eq!(get(attrs, "ingress_cidrs"), "10.0.0.0/16, 192.168.1.0/24");
 }
 
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_terraform_attributes_expressions_and_references() {
     let body = r#"variable "bucket_name" { default = "my-bucket" }
 data "aws_ami" "ubuntu" { most_recent = true }
@@ -327,9 +306,7 @@ resource "aws_s3_bucket" "example" {
     ));
 }
 
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_terraform_multiple_attributes_and_nested_block_isolation() {
     let body = r#"resource "aws_instance" "web" {
   ami           = "ami-12345"
@@ -352,9 +329,7 @@ fn test_terraform_multiple_attributes_and_nested_block_isolation() {
 
 // pins Go v0.12.0 (`tags`, an object, is dropped and so is nothing redacted inside it);
 // upstream 0.9.107 emits the map with `client_secret` redacted -> P3
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_terraform_sensitive_attribute_values_are_redacted() {
     let body = r#"resource "aws_db_instance" "main" {
   identifier    = "prod-db"
@@ -384,9 +359,7 @@ fn test_terraform_sensitive_attribute_values_are_redacted() {
 
 // pins Go v0.12.0 (`connections`, a list of objects, is dropped); upstream 0.9.107 emits the list
 // with each secret redacted -> P3
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_terraform_secret_in_list_of_objects_is_redacted() {
     let body = r#"resource "aws_x" "y" {
   name = "app"
@@ -405,9 +378,7 @@ fn test_terraform_secret_in_list_of_objects_is_redacted() {
 
 // pins Go v0.12.0 ("[redacted]" for var.db_password's `type`: a block whose label reads as a
 // secret redacts every value, not just the obvious one); upstream 0.9.107 emits "string" -> P3
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_terraform_secret_named_variable_default_and_output_value_are_redacted() {
     let body = r#"variable "db_password" {
   type    = string
@@ -459,9 +430,7 @@ output "bucket_name" {
 
 // pins Go v0.12.0 (`environment`, `env_refs` and `single`, lists of objects and an object, are
 // dropped); upstream 0.9.107 emits them with the secret values redacted -> P3
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_terraform_name_value_pair_secret_is_redacted() {
     let body = r#"resource "aws_ecs_task_definition" "app" {
   family = "app"
@@ -486,9 +455,7 @@ fn test_terraform_name_value_pair_secret_is_redacted() {
 // second block's attributes replace the first's.
 // pins Go v0.12.0 (one node `provider.aws`, holding the last block's attributes); upstream
 // 0.9.107 emits `provider.aws.west` and `provider.aws.east`, each with its own region -> P3 B07
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_aliased_providers_of_the_same_type_get_distinct_nodes() {
     let body = r#"provider "aws" {
   alias  = "west"
@@ -517,9 +484,7 @@ provider "aws" {
 // The common case, a single provider block for a type with no `alias`.
 // Without upstream's `("provider.aws", "var.region")` pair: Go emits no `references` edge from a
 // provider block.
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_unaliased_provider_keeps_its_plain_id() {
     let body = "variable \"region\" { default = \"us-east-1\" }\nprovider \"aws\" { region = var.region }\n";
     let r = extract("main.tf", body);
@@ -532,9 +497,7 @@ fn test_unaliased_provider_keeps_its_plain_id() {
 // pins Go v0.12.0 (a `references` edge from aws_instance.web to the id of `aws.west`, a node that
 // is never minted, and none to `provider.aws`); upstream 0.9.107 emits an edge to
 // `provider.aws.west` and no dangling target -> P3 B07
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_provider_reference_resolves_to_its_aliased_block() {
     let body = r#"provider "aws" {
   alias  = "west"
@@ -565,9 +528,7 @@ resource "aws_instance" "web" {
 
 // A local variable that happens to be NAMED `provider` is a local definition, not a provider
 // assignment; its own value resolves through the normal reference rules.
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_a_local_named_provider_is_not_misread_as_a_provider_reference() {
     let body = r#"locals {
   provider = data.aws_caller_identity.current.account_id

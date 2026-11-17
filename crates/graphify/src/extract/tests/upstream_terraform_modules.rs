@@ -72,9 +72,8 @@ fn out_edges(ext: &Extraction, src: &str, relation: Relation) -> usize {
 // pins Go v0.12.0 (references edges to the directory nodes `applications/app` and `base`, from the
 // module blocks, with the block's line); upstream 0.9.107 emits `module_source` edges to
 // `Terraform module: <dir>` nodes with the `source` attribute's line (`L2`) -> P3
-// hcl test (ihc.31): needs resolve
 #[test]
-#[ignore = "graphify-rs-ihc.18"]
+#[ignore = "graphify-rs-ihc.18"] // hcl test (ihc.31): needs resolve
 fn test_environment_application_base_topology_and_source_provenance() {
     let ext = run(&[
         (
@@ -140,9 +139,8 @@ fn test_environment_application_base_topology_and_source_provenance() {
 
 // Without upstream's `a-b/app` and `a_b/app`: the id of `var.name` is built by `MakeID`, which
 // turns `-` and `_` alike into `_`, so those two directories share one id (node id, by design).
-// hcl test (ihc.31): needs resolve
 #[test]
-#[ignore = "graphify-rs-ihc.18"]
+#[ignore = "graphify-rs-ihc.18"] // hcl test (ihc.31): needs resolve
 fn test_same_named_directories_and_cross_file_references_stay_separate() {
     let mut srcs = Vec::new();
     for dir in ["dev/app", "prod/app"] {
@@ -178,9 +176,7 @@ fn test_same_named_directories_and_cross_file_references_stay_separate() {
     }
 }
 
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_raw_extractor_scopes_ids_by_full_directory() {
     let ids: Vec<String> = ["dev/app/main.tf", "prod/app/main.tf"]
         .iter()
@@ -201,9 +197,8 @@ fn test_raw_extractor_scopes_ids_by_full_directory() {
 // `.` as the source `../` of `child/main.tf` cleans to the corpus root); upstream 0.9.107 labels
 // them `Terraform module: child` and `Terraform module: .`, counts them as 2 `module` nodes and
 // the `module_source` edges as 3 -> P3
-// hcl test (ihc.31): needs resolve
 #[test]
-#[ignore = "graphify-rs-ihc.18"]
+#[ignore = "graphify-rs-ihc.18"] // hcl test (ihc.31): needs resolve
 fn test_multiple_calls_share_one_module_and_cycles_are_finite() {
     let ext = run(&[
         (
@@ -248,9 +243,8 @@ const UNRESOLVED_SOURCES: [(&str, &[&str]); 7] = [
 // string literal is the source, so `"../app" + "suffix"` is `../app` and reaches the directory
 // node `app`, and an interpolated source is a path as written; `var.source` has no literal and
 // gives none); upstream 0.9.107 emits no `module_source` edge for any of them -> P3
-// hcl test (ihc.31): needs resolve
 #[test]
-#[ignore = "graphify-rs-ihc.18"]
+#[ignore = "graphify-rs-ihc.18"] // hcl test (ihc.31): needs resolve
 fn test_unresolved_sources_do_not_create_topology() {
     for (source, want) in UNRESOLVED_SOURCES {
         let caller = format!("module \"app\" {{ source = {source} }}\n");
@@ -268,9 +262,8 @@ fn test_unresolved_sources_do_not_create_topology() {
 // source outside the corpus, an excluded directory and one that only has a subdirectory of the
 // corpus are concept nodes of the cleaned path); upstream 0.9.107 follows none of the five
 // -> P3
-// hcl test (ihc.31): needs resolve
 #[test]
-#[ignore = "graphify-rs-ihc.18"]
+#[ignore = "graphify-rs-ihc.18"] // hcl test (ihc.31): needs resolve
 fn test_ignored_outside_and_non_tf_targets_are_not_followed() {
     let ext = run(&[
         (
@@ -315,9 +308,8 @@ module "nested" { source = "./nested" }
 // both are concept nodes of the cleaned path, and a `source` inside the `settings` object is not
 // read); upstream 0.9.107 decodes them to `./app` and `./${literal}`, resolves both to their
 // directories, and records `module_source` on the node -> P3
-// hcl test (ihc.31): needs resolve
 #[test]
-#[ignore = "graphify-rs-ihc.18"]
+#[ignore = "graphify-rs-ihc.18"] // hcl test (ihc.31): needs resolve
 fn test_source_literals_escapes_and_nested_source_attributes() {
     let ext = run(&[
         (

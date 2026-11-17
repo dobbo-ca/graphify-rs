@@ -49,9 +49,8 @@ fn get<'a>(m: &'a BTreeMap<String, String>, k: &str) -> &'a str {
     m.get(k).map_or("", String::as_str)
 }
 
-// hcl test (ihc.31): needs resolve
 #[test]
-#[ignore = "graphify-rs-ihc.18"]
+#[ignore = "graphify-rs-ihc.18"] // hcl test (ihc.31): needs resolve
 fn test_extract_terraform() {
     kinds::register_kinds();
     let root = testdata().join("extract").join("tf");
@@ -93,9 +92,7 @@ fn test_extract_terraform() {
 // Empty block bodies (e.g. `data "aws_region" "current" {}`) are pervasive in
 // real Terraform. tree-sitter yields a nil body for them, which previously
 // panicked when refsFrom walked it. The block node must still be extracted.
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_extract_terraform_empty_body() {
     let src = br#"data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
@@ -124,9 +121,8 @@ output "o" {}
 // collapse their addresses into one node — that fabricates cross-directory
 // references and drops real nodes. Scope is the full directory path, so the same
 // resource address in different directories yields distinct nodes.
-// hcl test (ihc.31): needs resolve
 #[test]
-#[ignore = "graphify-rs-ihc.18"]
+#[ignore = "graphify-rs-ihc.18"] // hcl test (ihc.31): needs resolve
 fn test_extract_terraform_scope_by_full_path() {
     kinds::register_kinds();
     let src = br#"resource "aws_x" "r" {}"#;
@@ -161,9 +157,8 @@ fn test_extract_terraform_scope_by_full_path() {
 // gains contains edges to the directory's files); a registry/private-registry
 // source becomes an external concept node. Without this every module node is an
 // island with no edge to its implementation.
-// hcl test (ihc.31): needs resolve
 #[test]
-#[ignore = "graphify-rs-ihc.18"]
+#[ignore = "graphify-rs-ihc.18"] // hcl test (ihc.31): needs resolve
 fn test_extract_terraform_module_source() {
     kinds::register_kinds();
     let files = ["workspaces/ws/main.tf", "modules/proscia/main.tf"];
@@ -208,9 +203,7 @@ module "vpc" {
     );
 }
 
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_extract_terraform_inherits_context() {
     let src = br#"
 module "this" {
@@ -234,9 +227,7 @@ module "label" {
     );
 }
 
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_extract_terraform_null_label_marker() {
     let src = br#"
 module "this" {
@@ -270,9 +261,7 @@ module "plain" {
 // is a graph query instead of a file read. Sensitive keys keep the key and
 // redact the value: graph.json is committed in CI, so a hardcoded secret must
 // never reach it.
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_extract_terraform_attributes() {
     let src = br#"resource "aws_instance" "web" {
   instance_type = "t3.large"
@@ -323,9 +312,7 @@ locals {
 
 // Redaction is keyed on the attribute NAME, so every common secret spelling is
 // caught regardless of where it appears.
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_extract_terraform_attribute_redaction() {
     let src = br#"resource "x" "y" {
   db_password           = "p"
@@ -414,9 +401,7 @@ resource "aws_instance" "web" {
 // A comment between `=` and the value is a named child of the attribute, so the
 // value must be found by skipping comments — otherwise the comment is stored as
 // the value and `sensitive = true` stops redacting.
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_extract_terraform_attribute_comment_before_value() {
     let src = br#"variable "thing" {
   sensitive = // yes
@@ -444,9 +429,7 @@ resource "aws_instance" "web" {
     );
 }
 
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_terraform_fallback_values_redacted() {
     let src = br#"resource "aws_ecs_task_definition" "t" {
   container_definitions = jsonencode([{ name = "x", environment = [{ name = "API_TOKEN", value = "hunter2json" }] }])
@@ -500,5 +483,641 @@ resource "x_thing" "s" {
                 "container_definitions"
             );
         }
+    }
+}
+
+/// The inline HCL sources of the hcl tests (`terraform.rs`, `nulllabel.rs`,
+/// `upstream_terraform.rs`, `upstream_terraform_modules.rs`), verbatim, each once, as
+/// (rel, src). The sources those tests build with `format!` are [`SMOKE_COMPOSE_BODIES`] and
+/// [`SMOKE_MODULE_SOURCES`].
+const SMOKE_SRCS: &[(&str, &str)] = &[
+    // terraform.rs
+    (
+        "empty.tf",
+        r#"data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
+resource "aws_x" "y" {}
+module "m" {}
+output "o" {}
+"#,
+    ),
+    ("a/dup/main.tf", r#"resource "aws_x" "r" {}"#),
+    (
+        "workspaces/ws/main.tf",
+        r#"
+module "p" {
+  source = "../../modules/proscia"
+}
+module "vpc" {
+  source  = "cloudposse/vpc/aws"
+  version = "2.2.0"
+}
+"#,
+    ),
+    ("modules/proscia/main.tf", r#"resource "aws_x" "y" {}"#),
+    (
+        "main.tf",
+        r#"
+module "this" {
+  source = "cloudposse/label/null"
+}
+module "label" {
+  source  = "cloudposse/label/null"
+  context = module.this.context
+}
+"#,
+    ),
+    (
+        "main.tf",
+        r#"
+module "this" {
+  source  = "cloudposse/label/null"
+  version = "0.25.0"
+}
+module "label" {
+  source = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.25.0"
+}
+module "plain" {
+  source = "../vpc"
+}
+"#,
+    ),
+    (
+        "main.tf",
+        r#"resource "aws_instance" "web" {
+  instance_type = "t3.large"
+  count         = 2
+  monitoring    = true
+  ami           = var.ami_id
+  vpc_security_group_ids = ["sg-1", "sg-2"]
+  tags = {
+    Name = "web"
+  }
+  db_password = "hunter2"
+}
+
+locals {
+  x = "y"
+}
+"#,
+    ),
+    (
+        "main.tf",
+        r#"resource "x" "y" {
+  db_password           = "p"
+  aws_secret_access_key = "s"
+  client_secret         = "c"
+  api_key               = "k"
+  connection_string     = "conn"
+  ami                   = "ami-123"
+}
+"#,
+    ),
+    (
+        "main.tf",
+        r#"variable "db_password" {
+  type      = string
+  sensitive = true
+  default   = "hunter2"
+}
+
+output "conn" {
+  sensitive = true
+  value     = "postgres://admin:hunter2@db"
+}
+
+output "api_token" {
+  value = "tok-abc"
+}
+
+resource "aws_instance" "web" {
+  instance_type = "t3.large"
+  user_data     = <<-EOT
+    #!/bin/bash
+    export AWS_SECRET=AKIAhunter2SECRET
+  EOT
+}
+"#,
+    ),
+    (
+        "main.tf",
+        r#"variable "thing" {
+  sensitive = // yes
+    true
+  default = "hunter2"
+}
+
+resource "aws_instance" "web" {
+  instance_type = /* c */ "t3.large"
+}
+"#,
+    ),
+    (
+        "main.tf",
+        r#"resource "aws_ecs_task_definition" "t" {
+  container_definitions = jsonencode([{ name = "x", environment = [{ name = "API_TOKEN", value = "hunter2json" }] }])
+  env                   = ["DB_PASSWORD=hunter2inline", "plain"]
+  instance_type         = "t3.large"
+  ami                   = data.aws_ami.x.id
+}
+output "conn" {
+  value = "postgres://u:hunter2out@h/db"
+}
+output "redis" {
+  value = "redis://:hunter2nouser@h:6379"
+}
+output "slash" {
+  value = "postgres://u:hunter2/slash@h/db"
+}
+resource "x_thing" "s" {
+  env_single = "DB_PASSWORD=hunter2single"
+  conn       = "Server=db;User=sa;Password=hunter2semi"
+  hdr        = "Authorization: Bearer hunter2hdr"
+  bare       = "Bearer hunter2bare"
+  plain      = "db-secret-name"
+}
+"#,
+    ),
+    // nulllabel.rs
+    (
+        "main.tf",
+        r#"
+module "this" {
+  source     = "cloudposse/label/null"
+  namespace  = "eg"
+  stage      = "prod"
+  name       = "app"
+  attributes = ["public"]
+}
+resource "aws_s3_bucket" "b" {
+  bucket = module.this.id
+}
+"#,
+    ),
+    (
+        "root/main.tf",
+        r#"
+module "label" {
+  source     = "../modules/label"
+  namespace  = "eg"
+  stage      = "prod"
+  name       = "app"
+  attributes = ["1"]
+}
+"#,
+    ),
+    (
+        "modules/label/main.tf",
+        r#"
+variable "namespace" {}
+variable "stage" {}
+variable "name" {}
+variable "attributes" { default = [] }
+
+module "this" {
+  source     = "cloudposse/label/null"
+  namespace  = var.namespace
+  stage      = var.stage
+  name       = var.name
+  attributes = var.attributes
+}
+"#,
+    ),
+    (
+        "root/main.tf",
+        r#"
+module "label" {
+  source     = "../modules/label"
+  namespace  = var.something
+  stage      = "prod"
+  name       = "app"
+  attributes = ["1"]
+}
+"#,
+    ),
+    (
+        "main.tf",
+        r#"
+variable "x" {}
+module "base" {
+  source      = "cloudposse/label/null"
+  namespace   = var.x
+  environment = "ue1"
+}
+module "this" {
+  source  = "cloudposse/label/null"
+  stage   = "prod"
+  name    = "app"
+  context = module.base.context
+}
+"#,
+    ),
+    (
+        "main.tf",
+        r#"
+module "base" {
+  source      = "cloudposse/label/null"
+  namespace   = "eg"
+  environment = "ue1"
+}
+module "this" {
+  source  = "cloudposse/label/null"
+  stage   = "prod"
+  name    = "app"
+  context = module.base.context
+}
+"#,
+    ),
+    (
+        "root/main.tf",
+        r#"
+module "label" {
+  source      = "../modules/label"
+  namespace   = "eg"
+  environment = "ue1"
+}
+"#,
+    ),
+    (
+        "modules/label/main.tf",
+        r#"
+variable "namespace" {}
+variable "environment" {}
+
+module "base" {
+  source      = "cloudposse/label/null"
+  namespace   = var.namespace
+  environment = var.environment
+}
+module "this" {
+  source  = "cloudposse/label/null"
+  stage   = "prod"
+  name    = "app"
+  context = module.base.context
+}
+"#,
+    ),
+    // upstream_terraform.rs
+    (
+        "main.tf",
+        r#"# leading comment so the body is not children[0]
+terraform {
+  required_providers { azurerm = { source = "hashicorp/azurerm" } }
+}
+
+variable "region" { default = "us-east-1" }
+
+provider "aws" { region = var.region }
+
+data "aws_ami" "ubuntu" { most_recent = true }
+
+resource "aws_instance" "web" {
+  ami       = data.aws_ami.ubuntu.id
+  subnet_id = var.region
+  depends_on = [aws_security_group.sg]
+}
+
+resource "aws_security_group" "sg" { name = "sg" }
+
+module "vpc" {
+  source = "./modules/vpc"
+  cidr   = local.cidr
+}
+
+locals { cidr = "10.0.0.0/16" }
+
+output "ip" { value = aws_instance.web.private_ip }
+"#,
+    ),
+    (
+        "main.tf",
+        r#"resource "aws_instance" "web" {
+  count = 2
+  name  = "web-${count.index}"
+  tags  = each.value
+  dir   = path.module
+}
+"#,
+    ),
+    (
+        "main.tf",
+        "resource \"azurerm_resource_group\" \"main\" { name = \"rg\" }\n",
+    ),
+    (
+        "nic.tf",
+        r#"resource "azurerm_network_interface" "nic" {
+  resource_group_name = azurerm_resource_group.main.name
+}
+"#,
+    ),
+    ("a.tf", ""),
+    ("b.tf", "# just a comment\n"),
+    (
+        "terraform.tfvars",
+        "region = \"us-east-1\"\nenv = \"prod\"\n",
+    ),
+    (
+        "main.tf",
+        r#"resource "aws_s3_bucket" "example" {
+  bucket        = "my-test-bucket"
+  force_destroy = true
+  versioning    = false
+  max_size      = 42
+  ratio         = 3.14
+  logging       = null
+}
+"#,
+    ),
+    (
+        "main.tf",
+        r#"resource "aws_security_group" "sg" {
+  name          = "sg"
+  tags          = { Environment = "production", ManagedBy = "terraform" }
+  ingress_cidrs = ["10.0.0.0/16", "192.168.1.0/24"]
+}
+"#,
+    ),
+    (
+        "main.tf",
+        r#"variable "bucket_name" { default = "my-bucket" }
+data "aws_ami" "ubuntu" { most_recent = true }
+
+resource "aws_s3_bucket" "example" {
+  bucket = var.bucket_name
+  ami    = data.aws_ami.ubuntu.id
+}
+"#,
+    ),
+    (
+        "main.tf",
+        r#"resource "aws_instance" "web" {
+  ami           = "ami-12345"
+  instance_type = "t3.micro"
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+"#,
+    ),
+    (
+        "db.tf",
+        r#"resource "aws_db_instance" "main" {
+  identifier    = "prod-db"
+  instance_class = "db.t3.medium"
+  password      = "hunter2-super-secret"
+  db_password   = "another-secret"
+  aws_secret_access_key = "AKIAWHATEVER"
+  tags = {
+    Name         = "prod"
+    client_secret = "leaky"
+  }
+}
+"#,
+    ),
+    (
+        "conns.tf",
+        r#"resource "aws_x" "y" {
+  name = "app"
+  connections = [
+    { host = "db1", password = "leaky-in-list" },
+    { host = "db2", token = "tok-in-list" },
+  ]
+}
+"#,
+    ),
+    (
+        "vars.tf",
+        r#"variable "db_password" {
+  type    = string
+  default = "hunter2-default"
+}
+
+variable "region" {
+  type    = string
+  default = "us-east-1"
+}
+
+variable "signing_material" {
+  type      = string
+  sensitive = true
+  default   = "marked-sensitive"
+}
+
+output "admin_token" {
+  value = "tok-in-output"
+}
+
+output "bucket_name" {
+  value = "my-bucket"
+}
+"#,
+    ),
+    (
+        "ecs.tf",
+        r#"resource "aws_ecs_task_definition" "app" {
+  family = "app"
+  environment = [
+    { name = "DB_PASSWORD", value = "hunter2" },
+    { name = "LOG_LEVEL", value = "debug" },
+  ]
+  env_refs = [{ name = "API_KEY", valueFrom = "arn:aws:ssm:us-east-1:1:parameter/api" }]
+  single = { name = "client_secret", value = "in-a-map" }
+}
+"#,
+    ),
+    (
+        "main.tf",
+        r#"provider "aws" {
+  alias  = "west"
+  region = "us-west-1"
+}
+
+provider "aws" {
+  alias  = "east"
+  region = "us-east-1"
+}
+"#,
+    ),
+    (
+        "main.tf",
+        "variable \"region\" { default = \"us-east-1\" }\nprovider \"aws\" { region = var.region }\n",
+    ),
+    (
+        "main.tf",
+        r#"provider "aws" {
+  alias  = "west"
+  region = "us-west-1"
+}
+
+resource "aws_instance" "web" {
+  provider = aws.west
+}
+"#,
+    ),
+    (
+        "main.tf",
+        r#"locals {
+  provider = data.aws_caller_identity.current.account_id
+}
+
+data "aws_caller_identity" "current" {}
+"#,
+    ),
+    // upstream_terraform_modules.rs
+    (
+        "envs/dev/main.tf",
+        "module \"app\" {\n  source = \"../../applications/app\"\n}\n",
+    ),
+    (
+        "applications/app/main.tf",
+        "module \"base\" { source = \"../../base\" }\n",
+    ),
+    (
+        "applications/app/outputs.tf",
+        "output \"id\" { value = \"app\" }\n",
+    ),
+    (
+        "base/storage.tf",
+        "resource \"aws_s3_bucket\" \"data\" {}\n",
+    ),
+    ("dev/app/main.tf", "variable \"name\" {}\n"),
+    ("dev/app/use.tf", "output \"name\" { value = var.name }\n"),
+    ("dev/app/main.tf", "variable \"x\" {}"),
+    (
+        "main.tf",
+        "module \"a\" { source = \"./child\" }\nmodule \"b\" { source = \"./child\" }\n",
+    ),
+    ("child/main.tf", "module \"parent\" { source = \"../\" }\n"),
+    (
+        "main.tf",
+        r#"
+module "outside" { source = "../outside" }
+module "excluded" { source = "./excluded" }
+module "hcl" { source = "./hcl" }
+module "vars" { source = "./vars" }
+module "nested" { source = "./nested" }
+"#,
+    ),
+    ("vars/main.tfvars", "x = 1"),
+    (
+        "main.tf",
+        r#"module "app" {
+  source = "./app"
+  settings = { source = "./wrong" }
+}
+module "escaped" { source = "./$${literal}" }
+"#,
+    ),
+];
+
+/// The module bodies `nulllabel.rs`'s `compose_from_hcl` wraps in a null-label module block:
+/// the `COMPOSE_ID_CASES` rows, then `test_compose_id_partial`, `_unresolved`, `_no_literals`.
+const SMOKE_COMPOSE_BODIES: &[&str] = &[
+    concat!(
+        r#"name = "asdf""#,
+        "\n",
+        r#"attributes = ["1","2"]"#,
+        "\n",
+        r#"delimiter = "!""#
+    ),
+    concat!(
+        r#"name = "asdf""#,
+        "\n",
+        r#"attributes = ["1","2"]"#,
+        "\n",
+        r#"delimiter = "!""#,
+        "\n",
+        r#"label_order = ["attributes","name"]"#
+    ),
+    concat!(
+        r#"namespace = "eg""#,
+        "\n",
+        r#"name = "app""#,
+        "\n",
+        r#"tenant = "acme""#,
+        "\n",
+        r#"label_order = ["tenant","namespace","name"]"#
+    ),
+    concat!(
+        r#"namespace = "eg""#,
+        "\n",
+        r#"stage = "prod""#,
+        "\n",
+        r#"name = "app""#
+    ),
+    concat!(
+        r#"namespace = "eg""#,
+        "\n",
+        r#"stage = """#,
+        "\n",
+        r#"name = "app""#
+    ),
+    concat!(r#"namespace = "EG""#, "\n", r#"name = "App""#),
+    concat!(r#"namespace = "eg_x""#, "\n", r#"name = "a.b""#),
+    concat!(
+        r#"namespace = "EG""#,
+        "\n",
+        r#"name = "App""#,
+        "\n",
+        r#"label_value_case = "none""#
+    ),
+    concat!(r#"name = "app""#, "\n", r#"attributes = ["a","a","b"]"#),
+    concat!(
+        "namespace = var.ns",
+        "\n",
+        r#"name = "app""#,
+        "\n",
+        "context = var.context"
+    ),
+    concat!(r#"name = "app""#, "\n", "label_order = var.order"),
+    concat!("namespace = var.ns", "\n", "name = var.name"),
+];
+
+/// The `source` expressions `upstream_terraform_modules.rs`'s `UNRESOLVED_SOURCES` puts in a
+/// module block of `env/main.tf`.
+const SMOKE_MODULE_SOURCES: &[&str] = &[
+    "\"hashicorp/consul/aws\"",
+    "\"git::https://example.com/module.git//sub?ref=v1\"",
+    "\"https://example.com/module.zip\"",
+    "\"../missing\"",
+    "\"../${var.name}\"",
+    "var.source",
+    "\"../app\" + \"suffix\"",
+];
+
+/// smoke; the real checks are the ihc.18-ignored tests. `extract_terraform` called directly on
+/// every HCL source the hcl tests use: the `testdata/extract/tf` files, then the inline sources
+/// (`None` is Go's parse-budget recover).
+#[test]
+fn smoke_extract_hcl_sources() {
+    kinds::register_kinds();
+    let root = testdata().join("extract").join("tf");
+    for f in ["main.tf", "outputs.tf", "label/main.tf"] {
+        let src = std::fs::read(root.join(f)).unwrap_or_else(|e| panic!("read {f}: {e}"));
+        assert!(
+            super::extract_terraform(f, &src).is_some(),
+            "testdata/extract/tf/{f}: parse over budget"
+        );
+    }
+    let inline = SMOKE_SRCS
+        .iter()
+        .map(|(rel, src)| ((*rel).to_string(), (*src).to_string()));
+    let composed = SMOKE_COMPOSE_BODIES.iter().map(|body| {
+        (
+            "main.tf".to_string(),
+            format!("module \"this\" {{\n  source = \"cloudposse/label/null\"\n{body}\n}}\n"),
+        )
+    });
+    let callers = SMOKE_MODULE_SOURCES.iter().map(|source| {
+        (
+            "env/main.tf".to_string(),
+            format!("module \"app\" {{ source = {source} }}\n"),
+        )
+    });
+    for (rel, src) in inline.chain(composed).chain(callers) {
+        assert!(
+            super::extract_terraform(&rel, src.as_bytes()).is_some(),
+            "{rel}: parse over budget:\n{src}"
+        );
     }
 }
