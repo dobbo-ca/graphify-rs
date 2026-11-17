@@ -67,7 +67,6 @@ pub(super) fn introspect(root: &Path, what: &str) -> Result {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_introspect_cargo_workspace_internal_dependency_only() {
     let root = TempDir::new();
     write_manifest(
@@ -130,7 +129,6 @@ edition = "2021"
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_introspect_cargo_malformed_toml_reports_error() {
     let root = TempDir::new();
     write_manifest(
@@ -148,7 +146,6 @@ name = "broken"
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_introspect_cargo_degenerate_manifests() {
     // Empty manifest: no package, no workspace -> nothing.
     let t1 = TempDir::new();
@@ -207,7 +204,6 @@ dependencies = "not-a-table"
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_introspect_cargo_virtual_and_root_package_workspaces() {
     // Virtual root: a glob member pattern + workspace.dependencies, deps via { workspace = true }.
     let virtual_root = TempDir::new();
@@ -308,7 +304,6 @@ root_pkg = { path = "../.." }
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_introspect_cargo_large_workspace_chain() {
     const CRATE_COUNT: usize = 200;
     let root = TempDir::new();
@@ -396,7 +391,6 @@ fn test_introspect_cargo_no_root_manifest() {
 // Go skips the test when symlinks are unavailable; Rust makes them on unix only.
 #[cfg(unix)]
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_introspect_cargo_inherited_path_symlink_and_absolute() {
     let root = TempDir::new();
     let abs = root.join("crates/abs");

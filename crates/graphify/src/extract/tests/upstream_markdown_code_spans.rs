@@ -121,7 +121,6 @@ fn set<S: AsRef<str>>(ids: &[S]) -> BTreeSet<String> {
 // pins Go v0.12.0 (the span is an MDRef of the document's concept node); upstream 0.9.107 owns
 // it by the heading -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_extract_markdown_heading_code_span_belongs_to_that_heading() {
     let r = extract_markdown("api.md", b"# API\n\n## `Widget`\n\nText.\n");
     assert!(
@@ -616,7 +615,6 @@ fn test_link_to_scanned_source_file_is_a_reference_and_licenses_bare_mentions() 
 // pins Go v0.12.0 (the link and the span are MDRefs of the document, targets as written);
 // upstream 0.9.107 records the link as a `file_link` citation raw call -> P3 (B47)
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_extract_markdown_records_a_source_file_link_as_a_citation() {
     let r = extract_markdown(
         "docs/guide.md",
