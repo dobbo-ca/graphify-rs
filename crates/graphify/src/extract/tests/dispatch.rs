@@ -8,7 +8,6 @@ use crate::extract::tests::util::extract_bytes;
 /// type-annotated function parse (the plain JS grammar would not), and their definitions surface
 /// as nodes.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
 fn test_file_from_bytes_mts_as_type_script() {
     let src = concat!(
         "export interface Widget { id: number; }\n",

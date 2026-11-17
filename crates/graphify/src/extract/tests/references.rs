@@ -614,7 +614,7 @@ geo::Point Shape::far(Other o) { return geo::Point(); }
 // stub; a decorator binds or gets a stub. Not copied: a type position bound
 // to a function, an aliased decorator left on a stub.
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_ts_references() {
     let (nodes, edges) = resolve_src(&[
         (

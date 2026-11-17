@@ -7,7 +7,7 @@ use crate::extract::{file_from_bytes, resolve};
 // numbers, so the function node keeps its true source location, and a template-
 // layer dynamic import is recovered by the regex fallback.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_extract_vue_component() {
     crate::extract::kinds::register_kinds();
     let src = r#"<template>

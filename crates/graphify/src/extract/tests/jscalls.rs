@@ -5,7 +5,6 @@ use crate::extract::file_from_bytes;
 // One walk over the file must attribute each call to the body it sits in, in
 // source order, and ignore calls outside every registered body.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
 fn test_js_calls_one_walk() {
     crate::extract::kinds::register_kinds();
     let src = r#"import x from "./x";

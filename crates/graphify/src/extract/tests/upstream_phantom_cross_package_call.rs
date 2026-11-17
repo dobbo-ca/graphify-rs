@@ -14,7 +14,7 @@ use crate::extract::kinds::register_kinds;
 use crate::extract::tests::util::want_edges;
 
 #[test]
-#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_same_file_call_unaffected() {
     register_kinds();
     want_edges(

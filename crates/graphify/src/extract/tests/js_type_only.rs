@@ -27,7 +27,7 @@ fn edges_of<'a>(ext: &'a Extraction, importer: &str, relations: &[Relation]) -> 
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_import_type_statement_is_stamped() {
     let ext = extract_ts(&[
         (
@@ -47,7 +47,7 @@ fn test_import_type_statement_is_stamped() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_export_type_reexport_is_stamped() {
     let ext = extract_ts(&[
         ("v1.ts", "export type RouterType = { v: number };\n"),
@@ -66,7 +66,7 @@ fn test_export_type_reexport_is_stamped() {
 
 /// `import type from './x.js'` imports a value whose name is `type`: erased by nothing.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_a_default_binding_named_type_is_a_runtime_import() {
     let ext = extract_ts(&[
         ("x.ts", "const type = 1;\nexport default type;\n"),
@@ -84,7 +84,7 @@ fn test_a_default_binding_named_type_is_a_runtime_import() {
 
 /// `import { type B, C }` still imports C at runtime.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_a_mixed_specifier_list_stays_a_runtime_edge() {
     let ext = extract_ts(&[
         ("b.ts", "export type B = number;\nexport const C = 1;\n"),
@@ -102,7 +102,7 @@ fn test_a_mixed_specifier_list_stays_a_runtime_edge() {
 
 /// Upstream checks that the key is absent; here the flag is a bit, so: not set.
 #[test]
-#[ignore = "graphify-rs-ihc.26"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_plain_imports_are_untouched() {
     let ext = extract_ts(&[
         ("b.ts", "export const C = 1;\n"),
