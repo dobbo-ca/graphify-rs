@@ -95,7 +95,7 @@ fn test_go_blank_func_keeps_its_node() {
 /// A call on an external module keeps its module edge when a definition of another language has
 /// the same qualified name.
 #[test]
-#[ignore = "graphify-rs-ihc.30"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_external_module_call_survives_cross_language_name() {
     let (_, edges) = resolve_src(&[
         (
@@ -112,7 +112,7 @@ fn test_external_module_call_survives_cross_language_name() {
 
 /// The owner of a method is a type of the same language, its own file first.
 #[test]
-#[ignore = "graphify-rs-ihc.30"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_sibling_owner_rules() {
     let (_, edges) = resolve_src(&[
         ("p.h", "class Msg;\nclass Msg { public: void run(); };\n"),
@@ -143,7 +143,7 @@ fn test_sibling_owner_rules() {
 
 /// An out-of-line C++ method stays under its class in the sibling header.
 #[test]
-#[ignore = "graphify-rs-ihc.30"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_cpp_out_of_line_method_owner_in_header() {
     let (nodes, edges) = resolve_src(&[
         (

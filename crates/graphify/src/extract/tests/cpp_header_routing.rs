@@ -17,7 +17,6 @@ fn labels(src: &str) -> BTreeSet<String> {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.30"]
 fn test_cpp_header_routes_to_cpp_extractor() {
     let got =
         labels("class Widget { public: void show(); virtual int area() const = 0; int count; };\n");

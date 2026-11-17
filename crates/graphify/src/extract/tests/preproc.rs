@@ -53,7 +53,7 @@ fn has_edge(edges: &Edges, e: [&str; 3]) -> bool {
 
 // C items behind a preprocessor conditional or an extern "C" block are extracted.
 #[test]
-#[ignore = "graphify-rs-ihc.30"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_c_items_inside_conditionals() {
     let guard = "#ifndef GUARD_H\n#define GUARD_H\n#include <stdio.h>\n#include \"other.h\"\n"
         .to_string()
@@ -88,7 +88,7 @@ fn test_c_items_inside_conditionals() {
 // C++ items behind a conditional, in an extern "C" block, and methods behind
 // a conditional in a class body are extracted.
 #[test]
-#[ignore = "graphify-rs-ihc.30"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_cpp_items_inside_conditionals() {
     let hpp = "#ifndef W_HPP\n#define W_HPP\n#include \"dep.hpp\"\nnamespace ns {\n#ifdef FEATURE\n"
         .to_string()
@@ -150,7 +150,7 @@ fn test_call_to_function_defined_in_both_branches() {
 // A struct without a body is a reference, and a typedef struct in a C++
 // header is a definition.
 #[test]
-#[ignore = "graphify-rs-ihc.30"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_struct_forward_decl_and_typedef() {
     let (nodes, _) = resolve_src(&[
         (
