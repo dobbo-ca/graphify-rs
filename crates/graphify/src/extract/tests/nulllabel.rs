@@ -133,9 +133,7 @@ const COMPOSE_ID_CASES: [(&str, &str, &str); 9] = [
     ),
 ];
 
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_compose_id() {
     for (name, body, want) in COMPOSE_ID_CASES {
         let got = compose_from_hcl(body);
@@ -143,9 +141,7 @@ fn test_compose_id() {
     }
 }
 
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_compose_id_partial() {
     let got = compose_from_hcl(concat!(
         "namespace = var.ns",
@@ -160,25 +156,19 @@ fn test_compose_id_partial() {
     );
 }
 
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_compose_id_unresolved() {
     let got = compose_from_hcl(concat!(r#"name = "app""#, "\n", "label_order = var.order"));
     assert_eq!(got, "", "unresolved id = {got:?}, want empty");
 }
 
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_compose_id_no_literals() {
     let got = compose_from_hcl(concat!("namespace = var.ns", "\n", "name = var.name"));
     assert_eq!(got, "", "no-literals id = {got:?}, want empty");
 }
 
-// hcl test (ihc.31): file runs the MCP-config check
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_null_label_computed_name_on_node() {
     let src = br#"
 module "this" {
@@ -236,9 +226,8 @@ module "this" {
 }
 "#;
 
-// hcl test (ihc.31): needs resolve
 #[test]
-#[ignore = "graphify-rs-ihc.18"]
+#[ignore = "graphify-rs-ihc.18"] // hcl test (ihc.31): needs resolve
 fn test_null_label_chain_resolved() {
     kinds::register_kinds();
     let root = br#"
@@ -263,9 +252,8 @@ module "label" {
     );
 }
 
-// hcl test (ihc.31): needs resolve
 #[test]
-#[ignore = "graphify-rs-ihc.18"]
+#[ignore = "graphify-rs-ihc.18"] // hcl test (ihc.31): needs resolve
 fn test_null_label_chain_partial_stop() {
     kinds::register_kinds();
     let root = br#"
@@ -294,9 +282,8 @@ module "label" {
     );
 }
 
-// hcl test (ihc.31): needs resolve
 #[test]
-#[ignore = "graphify-rs-ihc.18"]
+#[ignore = "graphify-rs-ihc.18"] // hcl test (ihc.31): needs resolve
 fn test_null_label_inherit_partial_parent() {
     kinds::register_kinds();
     let src = br#"
@@ -325,9 +312,8 @@ module "this" {
     );
 }
 
-// hcl test (ihc.31): needs resolve
 #[test]
-#[ignore = "graphify-rs-ihc.18"]
+#[ignore = "graphify-rs-ihc.18"] // hcl test (ihc.31): needs resolve
 fn test_null_label_inherit_exact_parent() {
     kinds::register_kinds();
     let src = br#"
@@ -351,9 +337,8 @@ module "this" {
     );
 }
 
-// hcl test (ihc.31): needs resolve
 #[test]
-#[ignore = "graphify-rs-ihc.18"]
+#[ignore = "graphify-rs-ihc.18"] // hcl test (ihc.31): needs resolve
 fn test_null_label_wrapper_context_child() {
     kinds::register_kinds();
     let root = br#"
@@ -392,9 +377,8 @@ module "this" {
     );
 }
 
-// hcl test (ihc.31): needs resolve
 #[test]
-#[ignore = "graphify-rs-ihc.18"]
+#[ignore = "graphify-rs-ihc.18"] // hcl test (ihc.31): needs resolve
 fn test_null_label_fixture() {
     kinds::register_kinds();
     let root = testdata().join("extract").join("tf").join("label");

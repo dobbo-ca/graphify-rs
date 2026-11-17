@@ -53,7 +53,6 @@ fn test_budget_setting() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.37"] // budget test: also parses a kotlin file
 fn test_budget_scales_with_size() {
     crate::extract::kinds::register_kinds();
     // About 98,000 steps in a row at the last byte, and no endless retry.

@@ -764,7 +764,7 @@ fn test_java_nested_type_no_bind() {
 // Not copied: a stub for a type parameter, an associated type or its name,
 // a type position bound to a function, a trait's arguments as its base.
 #[test]
-#[ignore = "graphify-rs-ihc.32"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // rust test (ihc.32, on main): needs resolve
 fn test_rust_references() {
     let (nodes, edges) = resolve_src(&[
         (
