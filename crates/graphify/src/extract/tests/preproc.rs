@@ -171,7 +171,7 @@ fn test_struct_forward_decl_and_typedef() {
 
 // An overload declared abstract and then defined keeps its concrete target.
 #[test]
-#[ignore = "graphify-rs-ihc.36"]
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_abstract_then_concrete_overload_still_binds() {
     let (_, edges) = resolve_src(&[
         (

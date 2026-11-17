@@ -95,7 +95,7 @@ fn test_gap_ts_abstract_method() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.36"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // scala test (ihc.36): needs resolve
 fn test_gap_scala_deferred_def() {
     let (edges, nodes) = gap_edges(
         "a.scala",
@@ -108,7 +108,7 @@ fn test_gap_scala_deferred_def() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.36"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
 fn test_gap_abstract_with_same_file_override() {
     let (edges, _) = gap_edges(
         "a.ts",
@@ -154,7 +154,7 @@ fn test_gap_ruby_locals_not_self_sends() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.36"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.26"] // also needs resolve (ihc.18)
 fn test_gap_abstract_does_not_block_single_impl() {
     // An untyped receiver binds nothing, so the calls go through a
     // qualifier (the file stem) and a bare name.
