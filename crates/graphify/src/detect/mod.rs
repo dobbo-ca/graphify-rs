@@ -6,5 +6,12 @@
 
 #[allow(clippy::module_inception)]
 mod detect;
+mod gitignore;
 
-pub use detect::{go_lossy, is_sensitive, shebang_ext};
+pub use detect::{
+    Error, SUPPORTED_EXTENSIONS, WalkReport, collect_files, collect_files_report,
+    collect_manifests, go_lossy, is_sensitive, shebang_ext,
+};
+
+#[cfg(test)]
+mod tests;
