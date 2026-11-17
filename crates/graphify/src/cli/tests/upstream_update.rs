@@ -150,7 +150,8 @@ fn add_caller_of_fa(root: &Path) {
 // pins Go v0.12.0 ("(0 reparsed, 4 reused, 0 removed)"); upstream 0.9.107 asserts its extract()
 // spy saw no batch -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_unchanged_copied_checkout_re_extracts_nothing() {
     let tmp = TempDir::new();
     let root = built(&tmp);
@@ -163,7 +164,8 @@ fn test_unchanged_copied_checkout_re_extracts_nothing() {
 // pins Go v0.12.0 ("(2 reparsed, 2 reused, 0 removed)"); upstream 0.9.107 asserts one extract()
 // batch of a.py and uses.py -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_only_changed_files_are_re_extracted() {
     let tmp = TempDir::new();
     let root = built(&tmp);
@@ -184,7 +186,8 @@ fn test_only_changed_files_are_re_extracted() {
 // pins Go v0.12.0 ("(0 reparsed, 4 reused, 0 removed)"); upstream 0.9.107 asserts its extract()
 // spy saw no batch -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_mtime_bump_with_identical_content_is_not_re_extracted() {
     let tmp = TempDir::new();
     let root = built(&tmp);
@@ -200,7 +203,8 @@ fn test_mtime_bump_with_identical_content_is_not_re_extracted() {
 // pins Go v0.12.0 ("(1 reparsed, 3 reused, 1 removed)"); upstream 0.9.107 asserts one extract()
 // batch of new.py -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_added_file_is_re_extracted_and_deleted_file_drops_its_nodes() {
     let tmp = TempDir::new();
     let root = built(&tmp);
@@ -220,7 +224,8 @@ fn test_added_file_is_re_extracted_and_deleted_file_drops_its_nodes() {
 // pins Go v0.12.0 ("(4 reparsed, 0 reused, 0 removed)"); upstream 0.9.107 asserts its
 // `incremental=True, force=True` run takes the full path -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_force_keeps_the_full_path() {
     let tmp = TempDir::new();
     let root = built(&tmp);
@@ -229,7 +234,8 @@ fn test_force_keeps_the_full_path() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_incremental_second_run_matches_a_full_rebuild() {
     let edit = |root: &Path| {
         write_tree(
@@ -259,7 +265,8 @@ fn test_incremental_second_run_matches_a_full_rebuild() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_cross_file_call_edge_survives_an_incremental_update() {
     let tmp = TempDir::new();
     let root = built(&tmp);
@@ -276,7 +283,8 @@ fn test_cross_file_call_edge_survives_an_incremental_update() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_cross_file_call_edge_survives_a_copied_checkout() {
     // graphify-out/.graphify_root of the copy still names the original tree.
     let tmp = TempDir::new();
@@ -297,7 +305,8 @@ fn test_cross_file_call_edge_survives_a_copied_checkout() {
 // Upstream `test_update_missing_graph.py`: a missing graph.json is rebuilt with every source,
 // with and without a changed source (its two parameters).
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_update_recreates_missing_graph_with_all_sources() {
     for change_one_source in [false, true] {
         let tmp = TempDir::new();

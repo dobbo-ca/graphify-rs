@@ -7,7 +7,6 @@ use crate::cli::maintenance::maint_util::args;
 // A non-positive --budget is rejected at parse time rather than panicking the engine on a
 // negative slice bound.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
 fn test_cmd_ask_negative_budget() {
     const CASES: [&[&str]; 4] = [
         &["q", "--budget", "-1"],

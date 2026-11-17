@@ -14,7 +14,6 @@ const WORKERS: usize = 8;
 // The large-file lane changes the parse order only: results come back in file order with the
 // same content.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
 fn test_assemble_large_first() {
     let root = TempDir::new();
     let body = |n: usize| format!("package p\n\nfunc F() {{}}\n{}", "// pad\n".repeat(n / 7));
@@ -54,7 +53,6 @@ fn test_assemble_large_first() {
 // Any two of these files are over BIG_IN_FLIGHT, so they must parse one at a time however many
 // workers reach the large-file lane.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
 fn test_assemble_large_files_in_flight() {
     let root = TempDir::new();
     let files: Vec<String> = ["big1.go", "big2.go", "big3.go"].map(String::from).to_vec();

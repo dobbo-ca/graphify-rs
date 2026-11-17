@@ -32,7 +32,8 @@ fn build_with(env: &[(&str, &str)]) -> String {
 
 // Go: both profiles are gzip pprof files. D-005: neither file exists.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_prof_writes_both_profiles() {
     let dir = TempDir::new();
     let (cpu, mem) = (dir.join("cpu.pprof"), dir.join("mem.pprof"));
@@ -46,7 +47,8 @@ fn test_prof_writes_both_profiles() {
 // Both unset (empty) is a no-op in Go too: nothing is created in the working directory beyond
 // the build's own graphify-out.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_prof_unset_is_no_op() {
     let src = TempDir::new();
     src.write("a.go", "package p\n\nfunc A() {}\n");
@@ -60,7 +62,8 @@ fn test_prof_unset_is_no_op() {
 
 // Go warns `[graphify] warning: no profile: ...` and goes on. D-005: no warning, no entry.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_prof_bad_path_does_not_panic() {
     let dir = TempDir::new();
     let stderr = build_with(&[
@@ -80,7 +83,8 @@ fn test_prof_bad_path_does_not_panic() {
 // Task 20 added test: with both variables naming a path, `build` and `update` exit 0 and no
 // profile file appears (R9).
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn prof_ignored_d005() {
     let dir = TempDir::new();
     let src = TempDir::new();

@@ -19,7 +19,6 @@ fn text<T>(op: &str, path: &Path, r: io::Result<T>) -> String {
 // Go prints `<op> <path>: <errno text>` with `syscall.Errno.Error()`'s lowercase text; Rust's
 // io::Error would print `No such file or directory (os error 2)`.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
 fn path_error_texts() {
     let dir = TempDir::new();
     let missing = dir.join("missing.json");
@@ -72,7 +71,6 @@ fn path_error_texts() {
 
 // graphify "a\tb" prints `graphify: unknown command "a\tb"` (Go `%q`: the tab is `\t`) and exits 1.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
 fn unknown_command_quoted() {
     let a = [OsString::from("graphify"), OsString::from("a\tb")];
     let (mut out, mut err) = (Vec::<u8>::new(), Vec::<u8>::new());

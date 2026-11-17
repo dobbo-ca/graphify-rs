@@ -34,7 +34,8 @@ fn build(root: &Path, workers: usize) -> (String, String, String) {
 // budget is Go's default, 65536, which `ts::budget` gives when GRAPHIFY_PARSE_BUDGET is unset.
 // Also needs julia (graphify-rs-ihc.38) for the stall.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_parse_budget_same_at_any_gomaxprocs() {
     let mut want: Option<(String, String)> = None;
     for procs in [1, 8] {
@@ -73,7 +74,8 @@ fn test_parse_budget_same_at_any_gomaxprocs() {
 // ruby (ihc.33), php (ihc.34), scala (ihc.36), kotlin (ihc.37), julia (ihc.38) and lua (ihc.39)
 // must have landed as well.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn build_output_independent_of_workers() {
     let root = TempDir::new();
     copy_tree(&testdata().join("extract"), root.path());

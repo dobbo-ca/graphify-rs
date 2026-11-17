@@ -13,7 +13,6 @@ const EPIPE: i32 = 32;
 // is_broken_pipe recognises a raw EPIPE and an EPIPE with a path (Go's `*os.PathError`), and
 // rejects unrelated errors, so only genuine broken-pipe writes take the exit-0 shortcut (#1807).
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
 fn test_is_broken_pipe() {
     let epipe = io::Error::from_raw_os_error(EPIPE);
     assert!(
