@@ -14,7 +14,6 @@ use crate::testutil::TempDir;
 /// Go `TestCollectFilesSkipsTerraform`: `.terraform` (the `terraform init` cache) is pruned with
 /// no `.gitignore` covering it.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_collect_files_skips_terraform() {
     let root = TempDir::new();
     must_write(&root.join("main.tf"), r#"resource "aws_x" "y" {}"#);
@@ -33,7 +32,6 @@ fn test_collect_files_skips_terraform() {
 /// Go `TestCollectFilesIncludesMCPConfigs`: MCP config files are matched by basename, and a
 /// plain `.json` is collected too.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_collect_files_includes_mcp_configs() {
     let root = TempDir::new();
     must_write(&root.join(".mcp.json"), r#"{"mcpServers": {}}"#);
@@ -61,7 +59,6 @@ fn test_collect_files_includes_mcp_configs() {
 /// Go `TestIsSensitiveSourceExemption`: a keyword in a source file's name does not drop it; the
 /// credential stores and secret-keyword documents still drop.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_is_sensitive_source_exemption() {
     let kept = [
         "password_reset.go",
@@ -98,7 +95,6 @@ fn test_is_sensitive_source_exemption() {
 /// Go `TestIsSensitiveAdjacentKeywords`: two keywords with only a separator between them are
 /// both seen, so the trailing one names the store.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_is_sensitive_adjacent_keywords() {
     let dropped = ["aws_secret_credentials.json", "foo_secret_password.txt"];
     for name in dropped {
@@ -118,7 +114,6 @@ fn test_is_sensitive_adjacent_keywords() {
 
 /// Go `TestCollectFilesKeepsKeywordNamedSource`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_collect_files_keeps_keyword_named_source() {
     let root = TempDir::new();
     must_write(&root.join("password_reset.go"), "package p");
@@ -154,7 +149,6 @@ fn test_collect_files_keeps_keyword_named_source() {
 /// Go `TestCollectFilesReportsWalkError`: an unreadable directory is a walk error, and the walk
 /// goes on to its siblings. Go skips as root (the permission bits do not bind).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_collect_files_reports_walk_error() {
     let root = TempDir::new();
     must_write(&root.join("main.go"), "package p");
@@ -189,7 +183,6 @@ fn test_collect_files_reports_walk_error() {
 /// Go `TestCollectFilesReportCountsSkipped`: files with no extractor are counted by extension;
 /// lock files are not.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_collect_files_report_counts_skipped() {
     let root = TempDir::new();
     must_write(&root.join("main.go"), "package p"); // collected
@@ -221,7 +214,6 @@ fn test_collect_files_report_counts_skipped() {
 /// Go `TestCollectFilesShebangAndMts`: `.mts`/`.cts` are collected, and an extensionless file
 /// only with a shebang naming an interpreter that has an extractor.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_collect_files_shebang_and_mts() {
     let root = TempDir::new();
     must_write(&root.join("mod.mts"), "export const x = 1;");
@@ -248,7 +240,6 @@ fn test_collect_files_shebang_and_mts() {
 
 /// Go `TestCollectFilesSkipsNoxVirtualenv` (#1804).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_collect_files_skips_nox_virtualenv() {
     let root = TempDir::new();
     must_write(&root.join(".nox/noxenv/pkg/widget.py"), "class Deck: pass");
@@ -269,7 +260,6 @@ fn test_collect_files_skips_nox_virtualenv() {
 
 /// Go `TestCollectFilesIncludesRakeAndSkill` (#1784, #1901).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_collect_files_includes_rake_and_skill() {
     let root = TempDir::new();
     must_write(&root.join("tasks/build.rake"), "task :run do\nend\n");
@@ -289,7 +279,6 @@ fn test_collect_files_includes_rake_and_skill() {
 
 /// Go `TestIsSensitiveSkillIsDocument` (#1901).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_is_sensitive_skill_is_document() {
     assert!(
         is_sensitive("credentials.skill"),
@@ -304,7 +293,6 @@ fn test_is_sensitive_skill_is_document() {
 /// Go `TestCollectFilesIncludesMemoryDir`: `graphify-out` is output, except its `memory/`
 /// subtree, which is collected even under a gitignore rule for the whole dir.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_collect_files_includes_memory_dir() {
     let root = TempDir::new();
     must_write(&root.join(".gitignore"), "graphify-out/\n");
@@ -332,7 +320,6 @@ fn test_collect_files_includes_memory_dir() {
 /// Go `TestCollectFilesSkipsRenamedGraphifyOut`: a renamed out dir (`GRAPHIFY_OUT`) inside the
 /// tree is pruned like `graphify-out`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_collect_files_skips_renamed_graphify_out() {
     let root = TempDir::new();
     must_write(&root.join("main.go"), "package main\n");
@@ -350,7 +337,6 @@ fn test_collect_files_skips_renamed_graphify_out() {
 /// Go `TestCollectFilesSkipsNestedWorktrees`: a dot-dir's `worktrees/` and a dir holding a `.git`
 /// file are pruned; other dot-dirs are not.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_collect_files_skips_nested_worktrees() {
     let root = TempDir::new();
     must_write(&root.join("main.go"), "package main\n");
@@ -372,7 +358,6 @@ fn test_collect_files_skips_nested_worktrees() {
 /// Go `TestCollectFilesKeepsTopLevelWorktreesRelativeRoot`: with root `.` (Go `t.Chdir(root)`),
 /// a top-level `worktrees/` is kept and `.claude/worktrees` is still pruned.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_collect_files_keeps_top_level_worktrees_relative_root() {
     let root = TempDir::new();
     must_write(&root.join("m.go"), "package m\n");

@@ -26,7 +26,6 @@ fn under_obj_or_bin(files: &BTreeSet<String>) -> bool {
 
 /// `test_built_sdk_project_prunes_obj_and_bin`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn built_sdk_project_prunes_obj_and_bin() {
     let t = TempDir::new();
     sdk_project(&t);
@@ -54,7 +53,6 @@ fn built_sdk_project_prunes_obj_and_bin() {
 
 /// `test_rid_specific_bin_is_pruned`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn rid_specific_bin_is_pruned() {
     let t = TempDir::new();
     sdk_project(&t);
@@ -74,7 +72,6 @@ fn rid_specific_bin_is_pruned() {
 
 /// `test_legacy_framework_project_prunes_obj_and_bin`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn legacy_framework_project_prunes_obj_and_bin() {
     let t = TempDir::new();
     must_write(
@@ -108,7 +105,6 @@ fn legacy_framework_project_prunes_obj_and_bin() {
 
 /// `test_source_dirs_named_bin_and_obj_are_scanned`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn source_dirs_named_bin_and_obj_are_scanned() {
     let t = TempDir::new();
     must_write(&t.join("src/bin/cli.rs"), "fn main() {}\n");

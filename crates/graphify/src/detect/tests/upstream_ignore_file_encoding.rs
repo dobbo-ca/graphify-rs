@@ -27,7 +27,6 @@ fn scanned(ignore_bytes: &[u8], dirname: &str) -> BTreeSet<String> {
 
 /// `test_ansi_encoded_rule_still_excludes`: a cp1252 rule (`ç` is the byte E7).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn ansi_encoded_rule_still_excludes() {
     let got = scanned(b"Or\xe7amento/\n", NAME);
     // pins Go v0.12.0 (contrato.py collected: the E7 byte matches nothing); upstream 0.9.107 excludes it -> P3
@@ -37,7 +36,6 @@ fn ansi_encoded_rule_still_excludes() {
 
 /// `test_utf8_rule_is_unaffected`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn utf8_rule_is_unaffected() {
     let got = scanned(format!("{NAME}/\n").as_bytes(), NAME);
     assert!(!got.contains("contrato.py"), "{got:?}");
@@ -45,7 +43,6 @@ fn utf8_rule_is_unaffected() {
 
 /// `test_ascii_rules_are_untouched`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn ascii_rules_are_untouched() {
     let t = TempDir::new();
     std::fs::write(t.join(".graphifyignore"), b"vendor/\n").expect("write");
@@ -57,7 +54,6 @@ fn ascii_rules_are_untouched() {
 /// `test_utf8_rules_still_match_across_normalisation_forms` (NFC pattern on an NFD dir, NFD
 /// pattern on an NFC dir).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn utf8_rules_still_match_across_normalisation_forms() {
     const NFD: &str = "Orc\u{327}amento";
     for (form, pattern, other) in [("NFC", NAME, NFD), ("NFD", NFD, NAME)] {
@@ -70,7 +66,6 @@ fn utf8_rules_still_match_across_normalisation_forms() {
 /// `test_utf16_bom_encoded_rule_still_excludes`: Python's `"utf-16"` codec writes a
 /// little-endian BOM.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn utf16_bom_encoded_rule_still_excludes() {
     let mut bytes = vec![0xff, 0xfe];
     for u in format!("{NAME}/\n").encode_utf16() {

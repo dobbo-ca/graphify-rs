@@ -7,7 +7,6 @@ use crate::testutil::TempDir;
 /// Go `TestCollectFilesGitignore`: `.gitignore` honoured as git does (the expected sets were
 /// checked against `git check-ignore`).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_collect_files_gitignore() {
     let root = TempDir::new();
     put(
@@ -63,7 +62,6 @@ fn test_collect_files_gitignore() {
 /// Go `TestCollectFilesGraphifyignore`: `.graphifyignore` layers on `.gitignore` (its rules come
 /// after, so its `!` wins), and applies in a directory with no `.gitignore`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_collect_files_graphifyignore() {
     let root = TempDir::new();
     put(root.path(), ".gitignore", "build/\n");
@@ -112,7 +110,6 @@ fn test_collect_files_graphifyignore() {
 /// Go `TestIgnoreRuleLiteralsNeverRejectAMatch`: the literal prefix and suffix checked before a
 /// rule's regexp hold for every path the regexp matches.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_ignore_rule_literals_never_reject_a_match() {
     let globs = [
         "logs",

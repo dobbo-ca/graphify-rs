@@ -5,7 +5,6 @@ use crate::testutil::TempDir;
 
 /// Go `TestInfoExcludeHonored`: a dir excluded only by `.git/info/exclude` is pruned (#1810).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_info_exclude_honored() {
     let root = TempDir::new();
     must_write(&root.join(".git/info/exclude"), "buildcache/\n");
@@ -26,7 +25,6 @@ fn test_info_exclude_honored() {
 /// Go `TestInfoExcludeWorktreeGitFile`: with a `.git` FILE (a linked worktree), `info/exclude`
 /// is found through `gitdir:` and `commondir` (#1809).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_info_exclude_worktree_git_file() {
     let tmp = TempDir::new();
     let main = tmp.join("main");
@@ -54,7 +52,6 @@ fn test_info_exclude_worktree_git_file() {
 /// Go `TestInfoExcludePrecedence`: `info/exclude` is the lowest precedence; a `.gitignore`
 /// negation re-includes.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_info_exclude_precedence() {
     let root = TempDir::new();
     must_write(

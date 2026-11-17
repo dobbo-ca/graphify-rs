@@ -54,7 +54,6 @@ fn walk_dir_report(root: &Path) -> WalkReport {
 /// `locked` dir is the one walk error; as root (the CI containers) it reads fine and there is
 /// none. The worker count alternates between 1 and 4 (Go: GOMAXPROCS).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_walk_tree_matches_walk_dir() {
     let root = TempDir::new();
     let mut rng = GoRand::new(1);

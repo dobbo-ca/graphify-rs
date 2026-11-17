@@ -38,7 +38,6 @@ fn ignored(root: &Path, rel: &str, is_dir: bool) -> bool {
 /// `test_classify_python`, `test_classify_typescript`, `test_classify_markdown`,
 /// `test_classify_skill` (#1901), `test_classify_unknown_returns_none`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn classify_by_extension() {
     for ext in [".py", ".ts", ".md", ".skill"] {
         assert!(SUPPORTED_EXTENSIONS.contains(&ext), "{ext} is supported");
@@ -48,7 +47,6 @@ fn classify_by_extension() {
 
 /// `test_detect_verilog_headers` (`.vh` and `.VH`: the extension is lowercased).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_verilog_headers() {
     for suffix in [".vh", ".VH"] {
         let t = TempDir::new();
@@ -63,7 +61,6 @@ fn detect_verilog_headers() {
 /// `test_detect_skips_obsidian_vault_metadata_dirs` (#2493): `.obsidian` and `.smart-env` are
 /// pruned, `.trash` is not, in walk order.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_skips_obsidian_vault_metadata_dirs() {
     let t = TempDir::new();
     for dir in [".obsidian", ".smart-env", ".trash"] {
@@ -78,7 +75,6 @@ fn detect_skips_obsidian_vault_metadata_dirs() {
 
 /// `test_detect_skips_coverage_dir` (#870).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_skips_coverage_dir() {
     let t = TempDir::new();
     must_write(
@@ -97,7 +93,6 @@ fn detect_skips_coverage_dir() {
 
 /// `test_detect_skips_coverage_dir_by_lcov_info` (#870, #2339).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_skips_coverage_dir_by_lcov_info() {
     let t = TempDir::new();
     must_write(
@@ -116,7 +111,6 @@ fn detect_skips_coverage_dir_by_lcov_info() {
 
 /// `test_detect_keeps_coverage_code_namespace` (#2339).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_keeps_coverage_code_namespace() {
     let t = TempDir::new();
     let pkg = "auditor_toolkit/assurance/coverage";
@@ -145,7 +139,6 @@ fn detect_keeps_coverage_code_namespace() {
 /// `test_collect_files_keeps_coverage_code_namespace` (#2339): as the walk root and below it; a
 /// real Istanbul report dir beside it is still pruned.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn collect_files_keeps_coverage_code_namespace() {
     let t = TempDir::new();
     let pkg = t.join("auditor_toolkit/assurance/coverage");
@@ -171,7 +164,6 @@ fn collect_files_keeps_coverage_code_namespace() {
 /// `test_is_noise_dir_coverage_is_evidence_gated`, through Go's `skipDir`. The no-parent call
 /// (`_is_noise_dir("coverage")`) has no Go form.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn is_noise_dir_coverage_is_evidence_gated() {
     let t = TempDir::new();
     let env = Env::process();
@@ -184,7 +176,6 @@ fn is_noise_dir_coverage_is_evidence_gated() {
 
 /// `test_detect_skips_visual_tests_dir` (#869).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_skips_visual_tests_dir() {
     let t = TempDir::new();
     must_write(
@@ -203,7 +194,6 @@ fn detect_skips_visual_tests_dir() {
 
 /// `test_detect_skips_snapshots_dir`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_skips_snapshots_dir() {
     let t = TempDir::new();
     must_write(
@@ -226,7 +216,6 @@ fn detect_skips_snapshots_dir() {
 
 /// `test_detect_keeps_snapshots_code_namespace` (#1666).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_keeps_snapshots_code_namespace() {
     let t = TempDir::new();
     must_write(
@@ -245,7 +234,6 @@ fn detect_keeps_snapshots_code_namespace() {
 
 /// `test_detect_skips_storybook_static_dir`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_skips_storybook_static_dir() {
     let t = TempDir::new();
     must_write(
@@ -267,7 +255,6 @@ fn detect_skips_storybook_static_dir() {
 
 /// `test_detect_allows_github_dir` (#873): `.github` is walked, but Go has no YAML extractor.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_allows_github_dir() {
     let t = TempDir::new();
     must_write(
@@ -282,7 +269,6 @@ fn detect_allows_github_dir() {
 
 /// `test_detect_skips_next_cache` (#873).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_skips_next_cache() {
     let t = TempDir::new();
     must_write(&t.join(".next/cache/build.js"), "(function(){var s=1;})()");
@@ -297,7 +283,6 @@ fn detect_skips_next_cache() {
 
 /// `test_detect_skips_nox_virtualenv` (#1804).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_skips_nox_virtualenv() {
     let t = TempDir::new();
     must_write(
@@ -312,7 +297,6 @@ fn detect_skips_nox_virtualenv() {
 
 /// `test_detect_skips_graphify_own_cache` (#873).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_skips_graphify_own_cache() {
     let t = TempDir::new();
     must_write(
@@ -327,7 +311,6 @@ fn detect_skips_graphify_own_cache() {
 
 /// `test_detect_skips_worktrees_dir` (#947).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_skips_worktrees_dir() {
     let t = TempDir::new();
     must_write(&t.join(".worktrees/feature-branch/main.py"), "x = 1");
@@ -339,7 +322,6 @@ fn detect_skips_worktrees_dir() {
 
 /// `test_detect_skips_nested_worktrees_dir` (#1023).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_skips_nested_worktrees_dir() {
     let t = TempDir::new();
     must_write(&t.join(".claude/worktrees/feature-branch/main.py"), "x = 1");
@@ -351,7 +333,6 @@ fn detect_skips_nested_worktrees_dir() {
 
 /// `test_detect_keeps_skills_graphify_source_layouts` (#2479).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_keeps_skills_graphify_source_layouts() {
     let keep = [
         "graphify/skill.md",
@@ -382,7 +363,6 @@ fn detect_keeps_skills_graphify_source_layouts() {
 
 /// `test_detect_keeps_files_named_like_graphify_installs`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_keeps_files_named_like_graphify_installs() {
     let keep = [
         "docs/graphify.md",
@@ -415,7 +395,6 @@ fn detect_keeps_files_named_like_graphify_installs() {
 
 /// `test_detect_keeps_env_source_dirs` (#2058): `env/` and `*_env/` without venv markers stay.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_keeps_env_source_dirs() {
     let t = TempDir::new();
     must_write(
@@ -445,7 +424,6 @@ fn detect_keeps_env_source_dirs() {
 /// `test_detect_still_prunes_real_env_venv` (#2058), without `pruned_noise_dirs` (no such
 /// report in Go).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_still_prunes_real_env_venv() {
     let t = TempDir::new();
     must_write(&t.join("env/pyvenv.cfg"), "home = /usr/bin\n");
@@ -461,7 +439,6 @@ fn detect_still_prunes_real_env_venv() {
 
 /// `test_detect_prunes_venv_names_without_markers` (#2058).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_prunes_venv_names_without_markers() {
     let t = TempDir::new();
     for name in ["venv", ".venv", "my_venv"] {
@@ -481,7 +458,6 @@ fn detect_prunes_venv_names_without_markers() {
 /// `test_nested_graphify_out_prunes_only_configured_path` (#2273, 4 params). Go's `skipDir`
 /// prunes every dir named like `$GRAPHIFY_OUT`'s base, and does not resolve a symlinked out dir.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn nested_graphify_out_prunes_only_configured_path() {
     // (id, configured_out, absolute, symlink_target, Go: source kept, Go: generated kept)
     type OutCase = (
@@ -555,7 +531,6 @@ fn nested_graphify_out_prunes_only_configured_path() {
 /// `test_detect_follows_symlinked_directory`, its `follow_symlinks=False` half (Go has no
 /// `follow_symlinks`).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_follows_symlinked_directory() {
     let t = TempDir::new();
     must_write(&t.join("real_lib/util.py"), "x = 1");
@@ -567,7 +542,6 @@ fn detect_follows_symlinked_directory() {
 
 /// `test_detect_follows_symlinked_file`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_follows_symlinked_file() {
     let t = TempDir::new();
     must_write(&t.join("real.py"), "x = 1");
@@ -582,7 +556,6 @@ fn detect_follows_symlinked_file() {
 
 /// `test_detect_handles_circular_symlinks`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_handles_circular_symlinks() {
     let t = TempDir::new();
     must_write(&t.join("a/main.py"), "x = 1");
@@ -593,7 +566,6 @@ fn detect_handles_circular_symlinks() {
 
 /// `test_detect_default_does_not_auto_follow_direct_symlink_child`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_default_does_not_auto_follow_direct_symlink_child() {
     let t = TempDir::new();
     must_write(&t.join("real_lib/util.py"), "x = 1");
@@ -605,7 +577,6 @@ fn detect_default_does_not_auto_follow_direct_symlink_child() {
 
 /// `test_detect_default_does_not_follow_when_no_symlinks`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_default_does_not_follow_when_no_symlinks() {
     let t = TempDir::new();
     must_write(&t.join("main.py"), "x = 1");
@@ -619,7 +590,6 @@ fn detect_default_does_not_follow_when_no_symlinks() {
 
 /// `test_detect_explicit_false_overrides_auto_detect`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_explicit_false_overrides_auto_detect() {
     let t = TempDir::new();
     must_write(&t.join("real_lib/util.py"), "x = 1");
@@ -630,7 +600,6 @@ fn detect_explicit_false_overrides_auto_detect() {
 /// `test_detect_skips_out_of_root_symlinked_directory_even_when_following`, without the
 /// `skipped_sensitive` message (no such report in Go).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_skips_out_of_root_symlinked_directory_even_when_following() {
     let t = TempDir::new();
     must_write(&t.join("outside/secret.py"), "token = 'outside'");
@@ -642,7 +611,6 @@ fn detect_skips_out_of_root_symlinked_directory_even_when_following() {
 /// `test_detect_skips_out_of_root_symlinked_file_by_default`, without the `skipped_sensitive`
 /// message.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_skips_out_of_root_symlinked_file_by_default() {
     let t = TempDir::new();
     must_write(&t.join("outside/secret.py"), "token = 'outside'");
@@ -655,7 +623,6 @@ fn detect_skips_out_of_root_symlinked_file_by_default() {
 
 /// `test_graphifyignore_excludes_file`, without `graphifyignore_patterns` (no count in Go).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn graphifyignore_excludes_file() {
     let t = TempDir::new();
     must_write(&t.join(".graphifyignore"), "vendor/\n*.generated.py\n");
@@ -671,7 +638,6 @@ fn graphifyignore_excludes_file() {
 /// `test_graphifyignore_matches_nfd_path_with_nfc_pattern`: Go compares bytes, with no Unicode
 /// normalization.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn graphifyignore_matches_nfd_path_with_nfc_pattern() {
     let t = TempDir::new();
     must_write(&t.join(".graphifyignore"), "Or\u{e7}amento/\n");
@@ -685,7 +651,6 @@ fn graphifyignore_matches_nfd_path_with_nfc_pattern() {
 
 /// `test_graphifyignore_matches_nfc_path_with_nfd_pattern`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn graphifyignore_matches_nfc_path_with_nfd_pattern() {
     let t = TempDir::new();
     must_write(&t.join(".graphifyignore"), "Orc\u{327}amento/\n");
@@ -699,7 +664,6 @@ fn graphifyignore_matches_nfc_path_with_nfd_pattern() {
 
 /// `test_graphifyignore_ascii_patterns_unaffected`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn graphifyignore_ascii_patterns_unaffected() {
     let t = TempDir::new();
     must_write(&t.join(".graphifyignore"), "vendor/\n");
@@ -712,7 +676,6 @@ fn graphifyignore_ascii_patterns_unaffected() {
 
 /// `test_graphifyignore_comments_ignored`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn graphifyignore_comments_ignored() {
     let t = TempDir::new();
     must_write(
@@ -736,7 +699,6 @@ fn graphifyignore_comments_ignored() {
 /// `test_graphifyignore_bom_only_file`, `test_graphifyignore_bom_then_comment`,
 /// `test_nested_gitignore_utf8_bom`, `test_git_info_exclude_utf8_bom`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn utf8_bom_ignore_files() {
     // pins Go v0.12.0; upstream 0.9.107 differs -> P3 (Go does not strip a leading BOM)
     let t = TempDir::new();
@@ -806,7 +768,6 @@ fn utf8_bom_ignore_files() {
 /// `test_graphifyignore_hermetic_without_vcs`: with no VCS root, a parent `.graphifyignore`
 /// does not apply.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn graphifyignore_hermetic_without_vcs() {
     let t = TempDir::new();
     must_write(&t.join(".graphifyignore"), "vendor/\n");
@@ -821,7 +782,6 @@ fn graphifyignore_hermetic_without_vcs() {
 
 /// `test_graphifyignore_discovered_from_parent_in_vcs`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn graphifyignore_discovered_from_parent_in_vcs() {
     let (_d, t) = resolved();
     mk_git(&t);
@@ -838,7 +798,6 @@ fn graphifyignore_discovered_from_parent_in_vcs() {
 
 /// `test_graphifyignore_stops_at_git_boundary`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn graphifyignore_stops_at_git_boundary() {
     let (_d, t) = resolved();
     must_write(&t.join(".graphifyignore"), "main.py\n");
@@ -850,7 +809,6 @@ fn graphifyignore_stops_at_git_boundary() {
 
 /// `test_graphifyignore_at_git_root_is_included`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn graphifyignore_at_git_root_is_included() {
     let (_d, t) = resolved();
     mk_git(&t.join("repo"));
@@ -867,7 +825,6 @@ fn graphifyignore_at_git_root_is_included() {
 
 /// `test_gitignore_nested_below_root_excludes_file` (#1206), without the pattern count.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn gitignore_nested_below_root_excludes_file() {
     let t = TempDir::new();
     must_write(&t.join(".gitignore"), "*.log\n");
@@ -888,7 +845,6 @@ fn gitignore_nested_below_root_excludes_file() {
 
 /// `test_gitignore_nested_below_root_prunes_whole_directory`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn gitignore_nested_below_root_prunes_whole_directory() {
     let t = TempDir::new();
     must_write(&t.join("vendor/sub/.gitignore"), "build/\n");
@@ -902,7 +858,6 @@ fn gitignore_nested_below_root_prunes_whole_directory() {
 
 /// `test_gitignore_nested_negation_overrides_broader_root_rule`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn gitignore_nested_negation_overrides_broader_root_rule() {
     let t = TempDir::new();
     must_write(&t.join(".gitignore"), "*.py\n");
@@ -921,7 +876,6 @@ fn gitignore_nested_negation_overrides_broader_root_rule() {
 
 /// `test_nested_ignore_overrides_git_info_exclude_and_root`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn nested_ignore_overrides_git_info_exclude_and_root() {
     let t = TempDir::new();
     must_write(&t.join(".git/info/exclude"), "*.py\n");
@@ -939,7 +893,6 @@ fn nested_ignore_overrides_git_info_exclude_and_root() {
 
 /// `test_global_git_ignore_needs_a_git_repo`: Go reads no global excludes file at all.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn global_git_ignore_needs_a_git_repo() {
     let t = TempDir::new();
     must_write(&t.join("home/.config/git/ignore"), "secret.py\n");
@@ -951,7 +904,6 @@ fn global_git_ignore_needs_a_git_repo() {
 
 /// `test_detect_honors_git_info_exclude` (#1810).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_honors_git_info_exclude() {
     let t = TempDir::new();
     must_write(&t.join(".git/info/exclude"), "worktrees/\n");
@@ -964,7 +916,6 @@ fn detect_honors_git_info_exclude() {
 
 /// `test_git_info_exclude_ranks_below_gitignore_negation` (#1810).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn git_info_exclude_ranks_below_gitignore_negation() {
     let t = TempDir::new();
     must_write(&t.join(".git/info/exclude"), "secret*.txt\n");
@@ -975,7 +926,6 @@ fn git_info_exclude_ranks_below_gitignore_negation() {
 
 /// `test_gitignore_fallback_when_no_graphifyignore` (#945).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn gitignore_fallback_when_no_graphifyignore() {
     let t = TempDir::new();
     std::fs::create_dir_all(t.join(".git")).expect("mkdir");
@@ -993,7 +943,6 @@ fn gitignore_fallback_when_no_graphifyignore() {
 
 /// `test_graphifyignore_and_gitignore_are_merged` (#1363).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn graphifyignore_and_gitignore_are_merged() {
     let t = TempDir::new();
     std::fs::create_dir_all(t.join(".git")).expect("mkdir");
@@ -1016,7 +965,6 @@ fn graphifyignore_and_gitignore_are_merged() {
 
 /// `test_graphifyignore_negation_overrides_gitignore` (#1363).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn graphifyignore_negation_overrides_gitignore() {
     let t = TempDir::new();
     std::fs::create_dir_all(t.join(".git")).expect("mkdir");
@@ -1033,7 +981,6 @@ fn graphifyignore_negation_overrides_gitignore() {
 
 /// `test_anchored_root_wildcard_negation_reincludes_subtree` (#1975).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn anchored_root_wildcard_negation_reincludes_subtree() {
     let t = TempDir::new();
     for rel in [
@@ -1050,7 +997,6 @@ fn anchored_root_wildcard_negation_reincludes_subtree() {
 
 /// `test_anchored_negation_cannot_skip_excluded_parent`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn anchored_negation_cannot_skip_excluded_parent() {
     let t = TempDir::new();
     must_write(&t.join("src/app/main.py"), "x\n");
@@ -1060,7 +1006,6 @@ fn anchored_negation_cannot_skip_excluded_parent() {
 
 /// `test_path_pattern_single_star_does_not_cross_segment`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn path_pattern_single_star_does_not_cross_segment() {
     let t = TempDir::new();
     must_write(&t.join("src/main.py"), "x\n");
@@ -1081,7 +1026,6 @@ fn path_pattern_single_star_does_not_cross_segment() {
 
 /// `test_directory_only_negation_does_not_reinclude_file`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn directory_only_negation_does_not_reinclude_file() {
     let t = TempDir::new();
     must_write(&t.join("README.md"), "# docs\n");
@@ -1091,7 +1035,6 @@ fn directory_only_negation_does_not_reinclude_file() {
 
 /// `test_anchored_double_star_crosses_path_segments`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn anchored_double_star_crosses_path_segments() {
     let t = TempDir::new();
     must_write(&t.join("src/generated.py"), "x\n");
@@ -1102,7 +1045,6 @@ fn anchored_double_star_crosses_path_segments() {
 
 /// `test_unanchored_pattern_in_nested_gitignore_matches_a_name`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn unanchored_pattern_in_nested_gitignore_matches_a_name() {
     let t = TempDir::new();
     for rel in [
@@ -1120,7 +1062,6 @@ fn unanchored_pattern_in_nested_gitignore_matches_a_name() {
 /// `test_unanchored_pattern_reaches_every_consumer_of_the_engine`: Go's one consumer is the walk
 /// (`detect` and `collect_files` are the same list); the ignorer gives the same verdicts.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn unanchored_pattern_reaches_every_consumer_of_the_engine() {
     let t = TempDir::new();
     for rel in [
@@ -1157,7 +1098,6 @@ fn unanchored_pattern_reaches_every_consumer_of_the_engine() {
 /// `test_unanchored_pattern_verdicts_do_not_depend_on_cache_order`: one ignorer (Go caches the
 /// parsed files per dir) gives the same verdicts in either order.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn unanchored_pattern_verdicts_do_not_depend_on_cache_order() {
     // (rel, is_dir, ignored)
     const EXPECTED: &[(&str, bool, bool)] = &[
@@ -1201,7 +1141,6 @@ fn unanchored_pattern_verdicts_do_not_depend_on_cache_order() {
 /// `test_negation_does_not_disable_directory_pruning`, its detection half (the walk-visit count
 /// patches `os.walk`).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn negation_does_not_disable_directory_pruning() {
     let t = TempDir::new();
     must_write(&t.join(".graphifyignore"), "myignored/\n*.md\n!docs/**\n");
@@ -1218,7 +1157,6 @@ fn negation_does_not_disable_directory_pruning() {
 
 /// `test_detect_does_not_ignore_scan_root_itself_via_parent_gitignore` (#2468).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_does_not_ignore_scan_root_itself_via_parent_gitignore() {
     let t = TempDir::new();
     std::fs::create_dir_all(t.join(".git")).expect("mkdir");
@@ -1233,7 +1171,6 @@ fn detect_does_not_ignore_scan_root_itself_via_parent_gitignore() {
 
 /// `test_detect_preserves_unrelated_parent_ignores_inside_scan_root` (#2468).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_preserves_unrelated_parent_ignores_inside_scan_root() {
     let t = TempDir::new();
     std::fs::create_dir_all(t.join(".git")).expect("mkdir");
@@ -1253,7 +1190,6 @@ fn detect_preserves_unrelated_parent_ignores_inside_scan_root() {
 /// `test_ignored_dir_pruned_walk_never_lists_contents`, its detection half (no `ignored` list or
 /// walk-visit count in Go).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn ignored_dir_pruned_walk_never_lists_contents() {
     let t = TempDir::new();
     must_write(&t.join(".graphifyignore"), "graphify-notes/\n");
@@ -1277,7 +1213,6 @@ fn ignored_dir_pruned_walk_never_lists_contents() {
 
 /// `test_nested_gitignore_star_does_not_ignore_outside_its_dir` (#1873).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn nested_gitignore_star_does_not_ignore_outside_its_dir() {
     let t = TempDir::new();
     must_write(&t.join("README.md"), "# hello");
@@ -1289,7 +1224,6 @@ fn nested_gitignore_star_does_not_ignore_outside_its_dir() {
 
 /// `test_nested_gitignore_patterns_still_apply_inside_their_dir`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn nested_gitignore_patterns_still_apply_inside_their_dir() {
     let t = TempDir::new();
     must_write(&t.join("main.py"), "x = 1");
@@ -1301,7 +1235,6 @@ fn nested_gitignore_patterns_still_apply_inside_their_dir() {
 
 /// `test_nested_gitignore_does_not_govern_sibling_project` (#1922), without the `ignored` list.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn nested_gitignore_does_not_govern_sibling_project() {
     let t = TempDir::new();
     must_write(&t.join("run.py"), "x = 1");
@@ -1317,7 +1250,6 @@ fn nested_gitignore_does_not_govern_sibling_project() {
 
 /// `test_negation_cannot_rescue_file_under_excluded_dir` (#882).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn negation_cannot_rescue_file_under_excluded_dir() {
     let t = TempDir::new();
     must_write(&t.join(".graphifyignore"), "android/\n!src/\n");
@@ -1326,7 +1258,6 @@ fn negation_cannot_rescue_file_under_excluded_dir() {
 
 /// `test_negation_works_when_no_ancestor_excluded` (#882).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn negation_works_when_no_ancestor_excluded() {
     let t = TempDir::new();
     must_write(&t.join(".graphifyignore"), "*.py\n!src/keep.py\n");
@@ -1335,7 +1266,6 @@ fn negation_works_when_no_ancestor_excluded() {
 
 /// `test_negation_ancestor_itself_reincluded` (#882).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn negation_ancestor_itself_reincluded() {
     let t = TempDir::new();
     must_write(&t.join(".graphifyignore"), "vendor/\n!vendor/\n");
@@ -1344,7 +1274,6 @@ fn negation_ancestor_itself_reincluded() {
 
 /// `test_reincluded_directory_brings_its_files_back` (3 params).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn reincluded_directory_brings_its_files_back() {
     // (id, ignore text, ignored, kept)
     const CASES: &[(&str, &str, &[&str], &[&str])] = &[
@@ -1381,7 +1310,6 @@ fn reincluded_directory_brings_its_files_back() {
 
 /// `test_unanchored_pattern_matches_a_name_not_a_path` (8 params).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn unanchored_pattern_matches_a_name_not_a_path() {
     // (id, pattern, ignored, kept)
     const CASES: &[(&str, &str, &[&str], &[&str])] = &[
@@ -1448,7 +1376,6 @@ fn unanchored_pattern_matches_a_name_not_a_path() {
 
 /// `test_anchored_dir_not_matched_at_depth` (#1087).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn anchored_dir_not_matched_at_depth() {
     let t = TempDir::new();
     must_write(&t.join(".graphifyignore"), "/inbox/\n");
@@ -1458,7 +1385,6 @@ fn anchored_dir_not_matched_at_depth() {
 
 /// `test_anchored_dir_matches_at_root` (#1087).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn anchored_dir_matches_at_root() {
     let t = TempDir::new();
     must_write(&t.join(".graphifyignore"), "/inbox/\n");
@@ -1468,7 +1394,6 @@ fn anchored_dir_matches_at_root() {
 
 /// `test_anchored_file_not_matched_at_depth` (#1087).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn anchored_file_not_matched_at_depth() {
     let t = TempDir::new();
     must_write(&t.join(".graphifyignore"), "/build\n");
@@ -1477,7 +1402,6 @@ fn anchored_file_not_matched_at_depth() {
 
 /// `test_unanchored_dir_still_matches_at_depth` (#1087).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn unanchored_dir_still_matches_at_depth() {
     let t = TempDir::new();
     must_write(&t.join(".graphifyignore"), "inbox/\n");
@@ -1486,7 +1410,6 @@ fn unanchored_dir_still_matches_at_depth() {
 
 /// `test_anchored_multi_segment_pattern` (#1087).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn anchored_multi_segment_pattern() {
     let t = TempDir::new();
     must_write(&t.join(".graphifyignore"), "/src/inbox/\n");
@@ -1497,7 +1420,6 @@ fn anchored_multi_segment_pattern() {
 /// `test_is_ignored_cache_matches_uncached_results` (#1235): one ignorer reused over the paths
 /// (Go caches each dir's rules) agrees with a fresh one per path, negation included.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn is_ignored_cache_matches_uncached_results() {
     // (rel, is_dir)
     const PATHS: &[(&str, bool)] = &[
@@ -1529,7 +1451,6 @@ fn is_ignored_cache_matches_uncached_results() {
 
 /// `test_string_matcher_preserves_pattern_forms`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn string_matcher_preserves_pattern_forms() {
     // (rel, is_dir, ignored)
     const CASES: &[(&str, bool, bool)] = &[
@@ -2050,7 +1971,6 @@ const SENSITIVE_PINNED: &[(&str, &str, bool)] = &[
 /// The 35 `_is_sensitive` tests (#920, #1666, #1943, #2106, #2184, #2232, #3527), one row per
 /// path.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn is_sensitive_cases() {
     for &(name, path, want) in SENSITIVE_HOLDS.iter().chain(SENSITIVE_PINNED) {
         assert_eq!(is_sensitive(path), want, "{name}: {path}");
@@ -2217,7 +2137,6 @@ const SHEBANG_PINNED: &[ShebangCase] = &[
 /// The 33 `_shebang_interpreter` tests that read a first line, one row per case (the five
 /// versions of `drops_version_suffix` are five rows).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn shebang_interpreter_cases() {
     for &(name, src, interp, ext) in SHEBANG_HOLDS.iter().chain(SHEBANG_PINNED) {
         if let Some(want) = interp {
@@ -2231,7 +2150,6 @@ fn shebang_interpreter_cases() {
 
 /// `test_shebang_interpreter_unreadable_returns_none`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn shebang_interpreter_unreadable_returns_none() {
     let t = TempDir::new();
     assert_eq!(shebang_ext_of_file(&t.join("does_not_exist")), "");
@@ -2242,7 +2160,6 @@ fn shebang_interpreter_unreadable_returns_none() {
 /// `test_detect_records_unclassified_extensionless_files` (#1692): Go counts them by extension
 /// instead of listing them.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_records_unclassified_extensionless_files() {
     let t = TempDir::new();
     must_write(&t.join("app.py"), "def f():\n    return 1\n");
@@ -2263,7 +2180,6 @@ fn detect_records_unclassified_extensionless_files() {
 
 /// `test_detect_unclassified_empty_when_all_supported`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_unclassified_empty_when_all_supported() {
     let t = TempDir::new();
     must_write(&t.join("a.py"), "x = 1\n");
@@ -2278,7 +2194,6 @@ fn detect_unclassified_empty_when_all_supported() {
 /// `test_unclassified_warning_silent_under_the_fraction_threshold`: the count; Go has no
 /// `unclassified_warning` (B67).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn unclassified_warning_counts() {
     // (upstream test, .xml files, .py files)
     const CASES: &[(&str, usize, usize)] = &[
@@ -2303,7 +2218,6 @@ fn unclassified_warning_counts() {
 /// `test_graphifyinclude_is_inert_and_not_unclassified` (#2112): a `.graphifyinclude` changes
 /// no collected file.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn graphifyinclude_is_inert_and_not_unclassified() {
     let t = TempDir::new();
     must_write(&t.join("main.py"), "x = 1\n");
@@ -2321,7 +2235,6 @@ fn graphifyinclude_is_inert_and_not_unclassified() {
 
 /// `test_detect_reports_walk_errors_key`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_reports_walk_errors_key() {
     let t = TempDir::new();
     must_write(&t.join("a.py"), "def f(): pass\n");
@@ -2332,7 +2245,6 @@ fn detect_reports_walk_errors_key() {
 /// `test_detect_surfaces_unreadable_dir_instead_of_silent_skip`, without the stderr line (the
 /// CLI prints it). Skipped as root, as upstream does.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_surfaces_unreadable_dir_instead_of_silent_skip() {
     let t = TempDir::new();
     must_write(&t.join("a.py"), "def f(): pass\n");
@@ -2366,7 +2278,6 @@ fn home_with_invalid_git() -> (TempDir, std::path::PathBuf, std::path::PathBuf) 
 
 /// `test_invalid_git_dir_is_not_a_vcs_root` (4 params), the `_find_vcs_root` half.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn invalid_git_dir_is_not_a_vcs_root() {
     let contents: [&[&str]; 4] = [&[], &["config"], &["HEAD"], &["HEAD", "objects"]];
     for c in contents {
@@ -2384,7 +2295,6 @@ fn invalid_git_dir_is_not_a_vcs_root() {
 
 /// `test_invalid_git_dir_walk_continues_to_valid_parent`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn invalid_git_dir_walk_continues_to_valid_parent() {
     let (_d, t) = resolved();
     mk_git(&t);
@@ -2398,7 +2308,6 @@ fn invalid_git_dir_walk_continues_to_valid_parent() {
 
 /// `test_valid_git_dir_is_a_vcs_root`: and its `.gitignore` reaches the project.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn valid_git_dir_is_a_vcs_root() {
     let (_d, home, proj) = home_with_invalid_git();
     std::fs::remove_dir_all(home.join(".git")).expect("rm");
@@ -2410,7 +2319,6 @@ fn valid_git_dir_is_a_vcs_root() {
 
 /// `test_git_file_with_gitdir_is_a_vcs_root`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn git_file_with_gitdir_is_a_vcs_root() {
     let (_d, t) = resolved();
     let wt = t.join("wt");
@@ -2424,7 +2332,6 @@ fn git_file_with_gitdir_is_a_vcs_root() {
 
 /// `test_git_file_without_gitdir_is_skipped`, the `_find_vcs_root` half.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn git_file_without_gitdir_is_skipped() {
     let (_d, home, proj) = home_with_invalid_git();
     std::fs::remove_dir_all(home.join(".git")).expect("rm");
@@ -2435,7 +2342,6 @@ fn git_file_without_gitdir_is_skipped() {
 /// `test_real_git_repo_and_worktree_are_vcs_roots`, with the layout `git init` and
 /// `git worktree add` leave written by hand (Go reads only the `.git` dir or file).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn real_git_repo_and_worktree_are_vcs_roots() {
     let (_d, t) = resolved();
     let repo = t.join("repo");
@@ -2470,7 +2376,6 @@ fn workspace_with_worktree(t: &Path) -> std::path::PathBuf {
 
 /// `test_detect_prunes_sibling_linked_worktree` (#4683), without `pruned_noise_dirs`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_prunes_sibling_linked_worktree() {
     let t = TempDir::new();
     let ws = workspace_with_worktree(t.path());
@@ -2484,7 +2389,6 @@ fn detect_prunes_sibling_linked_worktree() {
 
 /// `test_detect_indexes_worktree_as_scan_root` (#4683).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_indexes_worktree_as_scan_root() {
     let t = TempDir::new();
     let ws = workspace_with_worktree(t.path());
@@ -2494,7 +2398,6 @@ fn detect_indexes_worktree_as_scan_root() {
 /// `test_detect_keeps_worktree_whose_main_is_outside_root` (#4683): Go prunes every dir that
 /// holds a `.git` file.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_keeps_worktree_whose_main_is_outside_root() {
     let t = TempDir::new();
     mk_git(&t.join("main"));
@@ -2510,7 +2413,6 @@ fn detect_keeps_worktree_whose_main_is_outside_root() {
 
 /// `test_detect_keeps_submodule_gitdir_without_commondir` (#4683).
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn detect_keeps_submodule_gitdir_without_commondir() {
     let t = TempDir::new();
     let ws = t.join("ws");
@@ -2527,7 +2429,6 @@ fn detect_keeps_submodule_gitdir_without_commondir() {
 
 /// `test_git_dir_symlink_is_followed`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn git_dir_symlink_is_followed() {
     let (_d, t) = resolved();
     mk_git(&t.join("x"));
