@@ -2,9 +2,6 @@
 //! and call edges out of a .java file. Java has no top-level functions, so every method is scoped
 //! under its enclosing type. Methods are registered under their bare name so `x.method()` call
 //! sites resolve.
-//!
-//! Go's `resolveJavaChains` (`java.go:564`) is resolve-stage code and belongs to
-//! graphify-rs-ihc.18; it is not here.
 
 use std::collections::{HashMap, HashSet};
 use std::sync::OnceLock;
@@ -14,12 +11,13 @@ use gositter::Node;
 use super::builder::{
     Builder, base_type_name, bind_type, line, node_text, parse_root, recv_text, walk_kinds,
 };
-use super::extract::{Def, Result};
+use super::extract::{CallText, Def, Result};
 use super::golang::field_text;
 use super::lua::child_by_kind;
 use super::python::set;
+use super::resolve::{contains, keep};
 use crate::idutil::make_id;
-use crate::model::{Confidence, Edge, Relation};
+use crate::model::{Confidence, Edge, File, Relation, file_of};
 
 /// Go `extractJava`: `None` when the parse budget stops the parse (see `builder`).
 pub(crate) fn extract_java(rel: &str, src: &[u8]) -> Option<Result> {
@@ -855,6 +853,227 @@ fn java_class_literals(
             java_class_literals(b, id, c, skip, seen, src);
         }
     }
+}
+
+/// Go `resolveJavaChains` (`java.go:564`): binds the calls `java_chain` encoded, as upstream
+/// does. No Go map is ranged over: only slices, so the order of the returned edges is the
+/// order of `chains`.
+pub(crate) fn resolve_java_chains(
+    results: &[Result],
+    owner: &HashMap<String, String>,
+    id_file: &HashMap<String, String>,
+    methods: &HashMap<String, Vec<String>>,
+    supers: &HashMap<String, Vec<String>>,
+    edged_super: &HashSet<String>,
+    edges: &[Vec<Edge>],
+) -> Vec<Edge> {
+    struct ChainCall {
+        c: CallText,
+        file: File,
+    }
+    let mut chains: Vec<ChainCall> = Vec::new();
+    for r in results {
+        if !r.file.ends_with(".java") {
+            continue;
+        }
+        for n in &r.calls {
+            if r.call_text[n.recv as usize].starts_with('#') {
+                chains.push(ChainCall {
+                    c: r.call(n),
+                    file: file_of(&r.file),
+                });
+            }
+        }
+    }
+    if chains.is_empty() {
+        return Vec::new();
+    }
+
+    let mut rets: HashMap<String, String> = HashMap::new(); // method id -> declared return type
+    let mut types: HashMap<String, Vec<String>> = HashMap::new(); // type name -> its definitions
+    for r in results {
+        for s in &r.java_rets {
+            let (id, t) = s.split_once(' ').unwrap_or((s, ""));
+            if !id.is_empty() {
+                rets.insert(id.to_string(), t.to_string());
+                types.insert(t.to_string(), Vec::new());
+            }
+        }
+    }
+    for ch in &chains {
+        let rest = &ch.c.recv[1..];
+        let root = rest.split_once('.').map_or(rest, |(a, _)| a);
+        types.insert(root.to_string(), Vec::new());
+    }
+    let mut node_file: HashMap<String, String> = HashMap::new(); // candidate type node -> its file
+    let mut label: HashMap<String, String> = HashMap::new();
+    for r in results {
+        for n in &r.nodes {
+            if types.contains_key(&n.label)
+                && !n.label.is_empty()
+                && !n.source_file.is_empty()
+                && n.file_type == "code"
+            {
+                node_file.insert(n.id.clone(), n.source_file.clone());
+                label.insert(n.id.clone(), n.label.clone());
+            }
+        }
+    }
+    for p in edges {
+        for e in p {
+            if e.relation != Relation::CONTAINS {
+                continue;
+            }
+            if let Some(l) = label.get(&e.target)
+                && let Some(defs) = types.get_mut(l)
+                && !contains(defs, &e.target)
+            {
+                defs.push(e.target.clone());
+            }
+        }
+    }
+    for r in results {
+        for s in &r.java_rets {
+            if let Some(t) = s.strip_prefix(' ')
+                && let Some(defs) = types.get_mut(t)
+            {
+                node_file.insert(format!("#{}", r.file), r.file.clone());
+                defs.push(format!("#{}", r.file));
+            }
+        }
+    }
+    // A name defined twice is the near file's.
+    let type_named = |name: &str, near: &str| -> String {
+        let mut defs: Vec<String> = types.get(name).cloned().unwrap_or_default();
+        if defs.len() > 1 {
+            let near_file = id_file.get(near).map_or("", String::as_str);
+            defs = keep(&defs, |id| {
+                node_file.get(id).map_or("", String::as_str) == near_file
+            });
+        }
+        // A "#" def has no node to bind.
+        if defs.len() == 1 && !defs[0].starts_with('#') {
+            return defs.swap_remove(0);
+        }
+        String::new()
+    };
+    let jvm_bases = |t: &str| -> Option<Vec<String>> {
+        if edged_super.contains(t) {
+            return None;
+        }
+        let bases = supers.get(t).cloned().unwrap_or_default();
+        for b in &bases {
+            if b == t || crate::langfamily::of(id_file.get(b).map_or("", String::as_str)) != "jvm" {
+                return None;
+            }
+        }
+        Some(bases)
+    };
+    // Exactly one declaration across the bases.
+    let method_on = |t: &str, name: &str| -> String {
+        let mut hits: Vec<String> = Vec::new();
+        let mut seen: HashSet<String> = HashSet::new();
+        let mut frontier: Vec<String> = vec![t.to_string()];
+        while let Some(nid) = frontier.pop() {
+            if !seen.insert(nid.clone()) {
+                continue;
+            }
+            if let Some(declared) = methods.get(&format!("{nid}\x00{name}"))
+                && !declared.is_empty()
+            {
+                for id in declared {
+                    if !contains(&hits, id) {
+                        hits.push(id.clone());
+                    }
+                }
+                continue;
+            }
+            let Some(bases) = jvm_bases(&nid) else {
+                return String::new();
+            };
+            frontier.extend(bases);
+        }
+        if hits.len() == 1 {
+            return hits.swap_remove(0);
+        }
+        String::new()
+    };
+    let chain_type = |enc: &str, caller: &str| -> String {
+        let links: Vec<&str> = enc.split('.').collect();
+        let mut t = owner.get(caller).cloned().unwrap_or_default();
+        match links[0] {
+            "" | "this" => {}
+            "super" => {
+                let bases = jvm_bases(&t);
+                t = String::new();
+                if let Some(bases) = bases
+                    && bases.len() == 1
+                {
+                    t = bases[0].clone();
+                }
+            }
+            root => t = type_named(root, caller),
+        }
+        for call in &links[1..] {
+            if t.is_empty() {
+                return String::new();
+            }
+            let m = method_on(&t, call);
+            t = type_named(rets.get(&m).map_or("", String::as_str), &m);
+        }
+        t
+    };
+
+    let mut hits: Vec<(usize, String)> = Vec::new(); // chain index, target
+    let mut pairs: HashMap<(String, String), bool> = HashMap::new(); // caller, target -> already linked
+    for (i, ch) in chains.iter().enumerate() {
+        let t = chain_type(&ch.c.recv[1..], &ch.c.caller_id);
+        if t.is_empty() {
+            continue;
+        }
+        let m = method_on(&t, &ch.c.callee);
+        if !m.is_empty() && m != ch.c.caller_id {
+            pairs.insert((ch.c.caller_id.clone(), m.clone()), false);
+            hits.push((i, m));
+        }
+    }
+    if hits.is_empty() {
+        return Vec::new();
+    }
+    let callers: HashSet<&str> = hits
+        .iter()
+        .map(|(i, _)| chains[*i].c.caller_id.as_str())
+        .collect();
+    for p in edges {
+        for e in p {
+            if !callers.contains(e.source.as_str()) {
+                continue;
+            }
+            if let Some(v) = pairs.get_mut(&(e.source.clone(), e.target.clone())) {
+                *v = true;
+            }
+        }
+    }
+    let mut out: Vec<Edge> = Vec::new();
+    for (i, tgt) in &hits {
+        let ch = &chains[*i];
+        let k = (ch.c.caller_id.clone(), tgt.clone());
+        if pairs.get(&k).copied().unwrap_or(false) {
+            continue;
+        }
+        pairs.insert(k.clone(), true);
+        out.push(Edge {
+            source: k.0,
+            target: k.1,
+            relation: Relation::CALLS,
+            confidence: Confidence::INFERRED,
+            confidence_score: 0.85,
+            source_file: ch.file,
+            source_location: ch.c.loc,
+            ..Edge::default()
+        });
+    }
+    out
 }
 
 /// Names this language's kinds in Go's init order and stores its masks (see `kinds`).
