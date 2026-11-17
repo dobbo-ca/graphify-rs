@@ -7,7 +7,7 @@ use crate::extract::tests::util::{extract_all, want_edges};
 // Acceptance: `class B extends A implements I` yields inherits and implements
 // edges that resolve across files.
 #[test]
-#[ignore = "graphify-rs-ihc.27"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_java_inherits_implements() {
     register_kinds();
     want_edges(
@@ -33,7 +33,7 @@ fn test_java_inherits_implements() {
 
 // A generic, qualified supertype still binds to the bare type name.
 #[test]
-#[ignore = "graphify-rs-ihc.27"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_java_generic_qualified_base() {
     register_kinds();
     want_edges(
@@ -110,7 +110,7 @@ fn test_unresolved_base_drops() {
 // class, which must not make `extends A` ambiguous — same file, same package,
 // and cross-file.
 #[test]
-#[ignore = "graphify-rs-ihc.27"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_java_base_with_constructor() {
     register_kinds();
     want_edges(

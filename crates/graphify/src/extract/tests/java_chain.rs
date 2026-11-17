@@ -47,7 +47,7 @@ fn java_builder(client: &str) -> Srcs {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.27"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_java_chain_typed_from_return_types() {
     want_edges(
         &java_builder(
@@ -67,7 +67,7 @@ fn test_java_chain_typed_from_return_types() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.27"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_java_chain_new_cast_bare_this_super_receivers() {
     want_edges(
         &java_builder(
@@ -97,7 +97,7 @@ fn test_java_chain_new_cast_bare_this_super_receivers() {
 
 // Upstream nests each Builder; nested types have no node here.
 #[test]
-#[ignore = "graphify-rs-ihc.27"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_java_chain_return_type_named_in_several_files() {
     crate::extract::kinds::register_kinds();
     let srcs = srcs_of(&[
@@ -146,7 +146,7 @@ fn test_java_chain_return_type_named_in_several_files() {
 
 // A type parameter, a library type or an untyped local carries no type.
 #[test]
-#[ignore = "graphify-rs-ihc.27"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_java_chain_untyped_link_stays_unlinked() {
     let mut srcs = java_builder(
         "class Client<T> {\n\
@@ -178,7 +178,7 @@ fn test_java_chain_untyped_link_stays_unlinked() {
 
 // Upstream types this from the field; no local type table here yet.
 #[test]
-#[ignore = "graphify-rs-ihc.27"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_java_chain_lowercase_root_unlinked() {
     want_edges(
         &srcs_of(&[(
@@ -192,7 +192,7 @@ fn test_java_chain_lowercase_root_unlinked() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.27"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_java_chain_overloads_must_agree() {
     want_edges(
         &java_builder(
@@ -212,7 +212,7 @@ fn test_java_chain_overloads_must_agree() {
 
 // One base of another language stops the bases walk.
 #[test]
-#[ignore = "graphify-rs-ihc.27"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_java_chain_non_jvm_base_binds_nothing() {
     want_edges(
         &srcs_of(&[
@@ -238,7 +238,7 @@ fn test_java_chain_non_jvm_base_binds_nothing() {
 
 // A builtin base gets no upstream edge, so the walk goes on.
 #[test]
-#[ignore = "graphify-rs-ihc.27"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_java_chain_builtin_base_is_transparent() {
     want_edges(
         &srcs_of(&[
@@ -256,7 +256,7 @@ fn test_java_chain_builtin_base_is_transparent() {
 
 // Upstream's caller there is the inner method.
 #[test]
-#[ignore = "graphify-rs-ihc.27"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_java_chain_in_anonymous_class_unlinked() {
     want_edges(
         &srcs_of(&[
@@ -287,7 +287,7 @@ fn test_java_chain_in_anonymous_class_unlinked() {
 
 // An unchanged file comes back from the cache as JSON.
 #[test]
-#[ignore = "graphify-rs-ihc.27"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_java_chain_through_cached_result() {
     crate::extract::kinds::register_kinds();
     let srcs = java_builder("class Client { void run() { Factory.builder().size(3).build(); } }\n");
@@ -323,7 +323,7 @@ fn test_java_chain_through_cached_result() {
 
 // Upstream's nested and anonymous Items make the name ambiguous.
 #[test]
-#[ignore = "graphify-rs-ihc.27"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_java_chain_nested_namesake_unlinked() {
     for shadow in [
         "class Outer { static class Item { void run() {} } }\n",
@@ -350,7 +350,7 @@ fn test_java_chain_nested_namesake_unlinked() {
 
 // Upstream binds the nested Builder, which has no node here.
 #[test]
-#[ignore = "graphify-rs-ihc.27"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_java_chain_nested_return_type_unlinked() {
     want_edges(
         &srcs_of(&[
