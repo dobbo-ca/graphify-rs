@@ -6,7 +6,6 @@ use crate::cli::maintenance::maint_util::args;
 use crate::testutil::TempDir;
 
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
 fn test_parse_build_args() {
     // (args, root, cargo, no_manifests, force, no_cluster)
     type Case = (
@@ -67,7 +66,8 @@ fn test_parse_build_args() {
 // --cargo adds crate nodes/edges to graph.json and a plain build over the same corpus does not,
 // so the pass stays opt-in.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_build_cargo_flag() {
     let root = TempDir::new();
     // A real Rust source file so CollectFiles finds a corpus; the crate edges come from the

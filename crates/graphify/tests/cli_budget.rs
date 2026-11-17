@@ -29,7 +29,8 @@ fn run_out(root: &TempDir, cmd: &str, budget: &str) -> (String, String, String, 
 
 // Also needs julia (graphify-rs-ihc.38) for the stall.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_parse_budget_end_to_end() {
     let root = TempDir::new();
     root.write("s.jl", STALL_JULIA);

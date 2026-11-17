@@ -40,10 +40,12 @@ mod terraform;
 mod verilog;
 mod zig;
 
+pub use cargo::introspect_cargo;
 pub use extract::{
     Call, Def, Imp, ImportAlias, LabelInputs, MdRef, ModInvoke, ModRef, NullLabelRef, Result,
     SegVal, TypeRef, file, file_from_bytes,
 };
+pub use manifest::introspect_manifests;
 pub use mcpconfig::is_mcp_config_path;
 pub use resolve::{join, resolve, resolve_parts};
 

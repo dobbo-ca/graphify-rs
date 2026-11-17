@@ -55,7 +55,8 @@ fn file_id(path: &Path) -> Option<std::time::SystemTime> {
 // `update` reuses the cache and produces the same graph a full build would: byte-identical
 // output when nothing changed, and a single re-parse when one file changes.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_incremental_update() {
     let root = TempDir::new();
     let r = root.path();
@@ -133,7 +134,8 @@ fn test_incremental_update() {
 // shrinks the graph, and `update` must refresh graph.json rather than warn and keep the larger
 // stale one.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_update_allows_legit_shrink() {
     let root = TempDir::new();
     let r = root.path();
@@ -171,7 +173,8 @@ fn test_update_allows_legit_shrink() {
 // cache and the stat sidecar. With force set the same shrink is accepted and every output is
 // rewritten.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_refused_shrink_aborts_all_outputs() {
     let root = TempDir::new();
     let r = root.path();
@@ -269,7 +272,8 @@ fn test_refused_shrink_aborts_all_outputs() {
 // reused. A plain update keeps trusting it. The GRAPHIFY_FORCE=1 step runs the binary
 // (`cli_update.rs`, `test_force_bypasses_cache_env`).
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_force_bypasses_cache() {
     let root = TempDir::new();
     let r = root.path();
@@ -306,7 +310,8 @@ fn test_force_bypasses_cache() {
 
 // A removed file re-parses nothing, but its entry must still leave the cache.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_update_drops_removed_file_from_cache() {
     let root = TempDir::new();
     let r = root.path();
@@ -335,7 +340,8 @@ fn test_update_drops_removed_file_from_cache() {
 
 // A cache stamped by another version is rebuilt once, and update says so on stderr only.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_update_says_stale_cache_is_rebuilt() {
     let root = TempDir::new();
     let r = root.path();

@@ -13,7 +13,8 @@ const COVERAGE_LINE: &str = "Unclassified: 40 file(s) no extractor handles (.swi
 // A corpus written mostly in a language no extractor covers says so: the count and the
 // extension ride in graph.json's graph-level attributes.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve, then query (graphify-rs-ihc.13) for `validate`
+#[ignore = "graphify-rs-ihc.18"]
 fn test_build_records_unclassified_corpus() {
     let root = TempDir::new();
     for i in 0..40 {
@@ -30,7 +31,8 @@ fn test_build_records_unclassified_corpus() {
 
 // A fully-classified corpus reports no unclassified line at all.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve, then query (graphify-rs-ihc.13) for `validate`
+#[ignore = "graphify-rs-ihc.18"]
 fn test_build_fully_classified_corpus_has_no_unclassified_line() {
     let root = TempDir::new();
     root.write("main.go", "package p\n\nfunc A() {}\n");
@@ -45,7 +47,8 @@ fn test_build_fully_classified_corpus_has_no_unclassified_line() {
 // `graphify validate` prints the coverage line alongside its verdict, and a thinly-covered
 // corpus is still a structurally OK graph (exit 0).
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs query
+#[ignore = "graphify-rs-ihc.13"]
 fn test_cmd_validate_reports_unclassified() {
     let root = TempDir::new();
     root.write(

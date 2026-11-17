@@ -20,7 +20,8 @@ fn exists(p: &Path) -> bool {
 
 // Read commands find the repo's graph from a nested subdirectory.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs query
+#[ignore = "graphify-rs-ihc.13"]
 fn test_out_dir_walks_up_from_subdir() {
     let dir = TempDir::new();
     write(&dir.join("graphify-out/graph.json"), ALPHA);
@@ -31,7 +32,8 @@ fn test_out_dir_walks_up_from_subdir() {
 
 // GRAPHIFY_OUT overrides both the upward walk and the cwd-local default.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs query
+#[ignore = "graphify-rs-ihc.13"]
 fn test_out_dir_honours_env() {
     let dir = TempDir::new();
     write(&dir.join("graphify-out/graph.json"), ALPHA);
@@ -53,7 +55,8 @@ fn test_out_dir_honours_env() {
 // `update` with no path argument refreshes the graph the read commands load rather than building
 // a stray second one rooted at the cwd.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_update_from_subdir_updates_repo_graph() {
     let dir = TempDir::new();
     dir.write("a.go", "package a\n\nfunc Alpha() {}\n");
@@ -73,7 +76,8 @@ fn test_update_from_subdir_updates_repo_graph() {
 // A .graphify_root recording a tree that does not contain the cwd is ignored rather than
 // redirecting the scan (and clobbering) that unrelated tree.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_scan_root_ignores_foreign_marker() {
     let dir = TempDir::new();
     let victim = TempDir::new();
@@ -99,7 +103,8 @@ fn test_scan_root_ignores_foreign_marker() {
 // `build` writes under the tree it scanned instead of walking up and overwriting the repo's
 // graph with a subtree-only one.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_build_from_subdir_keeps_subdir_out() {
     let dir = TempDir::new();
     dir.write("a.go", "package a\n\nfunc Alpha() {}\n");
@@ -122,7 +127,8 @@ fn test_build_from_subdir_keeps_subdir_out() {
 // An explicit path inside the recorded scan root updates the repo graph instead of forking a
 // subdir one.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_update_explicit_subdir_redirects_to_root() {
     for env_on in [false, true] {
         let dir = TempDir::new();
@@ -161,7 +167,8 @@ fn test_update_explicit_subdir_redirects_to_root() {
 
 // `update .` never widens to the parent of GRAPHIFY_OUT when no trusted marker exists.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_update_dot_with_sibling_out_keeps_root() {
     for marker in ["", "."] {
         let base = TempDir::new();
@@ -188,7 +195,8 @@ fn test_update_dot_with_sibling_out_keeps_root() {
 // A committed .graphify_root naming an ancestor of the repository cannot widen an update above
 // the work tree.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_scan_root_stays_inside_git_work_tree() {
     for explicit in [false, true] {
         let base = TempDir::new();
@@ -224,7 +232,8 @@ fn test_scan_root_stays_inside_git_work_tree() {
 // from sub (the redirect), then a second `update` of dir reparses and removes nothing and writes
 // no stray sub/graphify-out.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_watch_tick_idle_after_redirect() {
     let dir = TempDir::new();
     dir.write("sub/a.go", "package a\n\nfunc Alpha() {}\n");

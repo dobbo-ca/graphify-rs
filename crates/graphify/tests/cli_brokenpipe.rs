@@ -44,7 +44,8 @@ fn run_closing_early(cwd: &std::path::Path, args: &[&str], read_lines: usize) ->
 
 // Go closes the read end before the child writes, so its stdout writes hit a broken pipe.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs query
+#[ignore = "graphify-rs-ihc.13"]
 fn test_query_exits_zero_on_broken_pipe() {
     let work = TempDir::new();
     write(&work.join("graphify-out/graph.json"), BROKEN_PIPE_GRAPH);
@@ -59,7 +60,6 @@ fn test_query_exits_zero_on_broken_pipe() {
 
 // Upstream: `graphify --help | head -n1` exits 0, not 255.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
 fn test_help_survives_reader_closing_pipe_early() {
     let dir = TempDir::new();
     assert_eq!(run_closing_early(dir.path(), &["--help"], 1), Some(0));
@@ -67,7 +67,6 @@ fn test_help_survives_reader_closing_pipe_early() {
 
 // Upstream: a short output whose reader reads nothing exits 0.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
 fn test_small_buffered_output_survives_reader_that_reads_nothing() {
     let dir = TempDir::new();
     assert_eq!(run_closing_early(dir.path(), &["--version"], 0), Some(0));

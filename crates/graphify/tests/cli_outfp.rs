@@ -48,7 +48,8 @@ fn run_out(root: &Path, cmd: &str, extra: &[&str]) -> (String, String, String, S
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_no_change_update_skips_writes() {
     let root = fp_root();
     let r = root.path();
@@ -78,7 +79,8 @@ fn test_no_change_update_skips_writes() {
 type Mutate = fn(&Path);
 
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_changed_inputs_take_full_path() {
     let tests: [(&str, Mutate, &[&str]); 10] = [
         (
@@ -159,7 +161,8 @@ fn test_changed_inputs_take_full_path() {
 
 // Also needs julia (graphify-rs-ihc.38) for the stall.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_over_budget_update_repeats_warning() {
     let root = fp_root();
     let r = root.path();

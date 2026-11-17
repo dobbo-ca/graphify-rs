@@ -10,7 +10,6 @@ use crate::testutil::TempDir;
 
 // Go `fpRoot` makes a committed git repo; `outFP` reads only its path here.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
 fn test_out_fp_changes_with_binary() {
     let root = TempDir::new();
     git_run(root.path(), &["init", "-q"]);
@@ -24,7 +23,6 @@ fn test_out_fp_changes_with_binary() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
 fn test_sig_of_sees_replaced_file() {
     let dir = TempDir::new();
     let p = dir.write("g", b"a");

@@ -79,7 +79,6 @@ impl Dirs {
 type Setup = fn(&mut Dirs) -> PathBuf;
 
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
 fn test_read_git_head_matches_git() {
     assert_git_env_unset();
     let tests: [(&str, Setup); 9] = [
@@ -148,7 +147,6 @@ fn test_read_git_head_matches_git() {
 
 // Odd layouts may fall back to git, but must never disagree with it.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
 fn test_read_git_head_never_disagrees() {
     assert_git_env_unset();
     let tests: [(&str, Setup); 15] = [
@@ -289,7 +287,6 @@ fn test_read_git_head_never_disagrees() {
 
 // Go sets GIT_REFERENCE_BACKEND=reftable; the reader is given that environment.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
 fn test_read_git_head_falls_back_on_ref_backend_env() {
     let dir = TempDir::new();
     let (_, ok) = read_git_head_with(dir.path(), &|k| k == "GIT_REFERENCE_BACKEND");
@@ -297,7 +294,6 @@ fn test_read_git_head_falls_back_on_ref_backend_env() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
 fn test_config_needs_git() {
     const CASES: [(&str, bool); 10] = [
         (

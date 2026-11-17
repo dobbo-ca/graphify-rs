@@ -12,7 +12,8 @@ use common::{TempDir, ok_in, read, s};
 // `update` titles the report like `build` does for the same root argument.
 #[cfg(unix)]
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_report_title_matches_between_build_and_update() {
     let holder = TempDir::new();
     let dir = holder.join("d");
@@ -67,7 +68,8 @@ fn test_report_title_matches_between_build_and_update() {
 // The GRAPHIFY_FORCE=1 step of TestForceBypassesCache: with the cache poisoned (a.go's entry
 // holds the result of a version without C), the env var makes update re-parse and restore C.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_force_bypasses_cache_env() {
     use graphify::cache;
     let root = TempDir::new();

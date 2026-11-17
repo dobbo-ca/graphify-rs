@@ -18,7 +18,8 @@ pub(crate) fn any_node_clustered(path: &Path) -> bool {
 // --no-cluster writes the raw extraction: every node lands with a null community, whereas a
 // plain build over the same corpus assigns communities.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_build_no_cluster() {
     let root = TempDir::new();
     write_tree(

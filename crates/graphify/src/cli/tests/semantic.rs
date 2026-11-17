@@ -6,7 +6,6 @@ use crate::cli::maintenance::maint_util::args;
 use crate::testutil::TempDir;
 
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
 fn test_parse_build_args_semantic() {
     // (args, root, semantic, backend, want_err)
     type Case = (
@@ -51,7 +50,8 @@ fn test_parse_build_args_semantic() {
 // A build WITHOUT --semantic produces byte-identical graph.json across runs (the
 // deterministic-core invariant the semantic stage must never disturb).
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_build_off_is_deterministic() {
     let root = TempDir::new();
     write_tree(

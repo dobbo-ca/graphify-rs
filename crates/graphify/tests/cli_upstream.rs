@@ -67,7 +67,6 @@ fn keys_and_null_communities(root: &Path) -> (Vec<String>, bool) {
 // no such file or directory`, exit 1, no graph.json); upstream 0.9.107 reports the skip and still
 // writes the graph -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
 fn test_cargo_flag_without_a_manifest_still_writes_the_graph() {
     let repo = TempDir::new();
     repo.write("app.py", "def hello():\n    return 1\n");
@@ -84,7 +83,8 @@ fn test_cargo_flag_without_a_manifest_still_writes_the_graph() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_cargo_flag_with_a_manifest_still_adds_crate_nodes() {
     let repo = TempDir::new();
     repo.write("app.py", "def hello():\n    return 1\n");
@@ -107,7 +107,6 @@ fn test_cargo_flag_with_a_manifest_still_adds_crate_nodes() {
 const SMALL_GRAPH: &str = r#"{"directed":false,"multigraph":false,"graph":{},"nodes":[{"id":"transformer","label":"Transformer","file_type":"code","source_file":"model.py","source_location":"L1","community":0,"norm_label":"transformer"},{"id":"attention","label":"Attention","file_type":"code","source_file":"model.py","source_location":"L9","community":0,"norm_label":"attention"}],"links":[{"source":"transformer","target":"attention","relation":"calls","confidence":"EXTRACTED"}]}"#;
 
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
 fn test_export_graphml_creates_file() {
     let dir = TempDir::new();
     dir.write("graphify-out/graph.json", SMALL_GRAPH);
@@ -117,7 +116,8 @@ fn test_export_graphml_creates_file() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs query
+#[ignore = "graphify-rs-ihc.13"]
 fn test_missing_graph_fails() {
     // test_query_missing_graph_fails, test_path_missing_graph_fails,
     // test_explain_missing_graph_fails
@@ -137,7 +137,8 @@ fn test_missing_graph_fails() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs query
+#[ignore = "graphify-rs-ihc.13"]
 fn test_uses_graphify_out_env() {
     // test_query_uses_graphify_out_env, test_explain_uses_graphify_out_env: the graph lives in
     // `custom-graph`, named by a relative GRAPHIFY_OUT.
@@ -150,7 +151,6 @@ fn test_uses_graphify_out_env() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
 fn test_export_unknown_format_fails() {
     let dir = TempDir::new();
     assert_ne!(run_in(dir.path(), &["export", "pdf"], &[]).code, Some(0));
@@ -158,7 +158,8 @@ fn test_export_unknown_format_fails() {
 
 // pins Go v0.12.0 (every node has `"community": null`); upstream 0.9.107 omits the key -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_update_no_cluster_writes_raw_graph() {
     let dir = TempDir::new();
     dir.write("sample.py", "def f():\n    return 1\n");
@@ -190,7 +191,8 @@ fn corpus(root: &Path) {
 // `(1 reparsed, 3 reused, 0 removed)`); upstream 0.9.107 prints `Incremental: re-extracting 1 of
 // 4 scanned files` -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_cli_update_re_extracts_only_changed_files() {
     let tmp = TempDir::new();
     let root = tmp.join("tree");
@@ -224,7 +226,8 @@ fn test_cli_update_re_extracts_only_changed_files() {
 // pins Go v0.12.0 (`(4 reparsed, 0 reused, 0 removed)`); upstream 0.9.107 asserts no
 // `Incremental:` line -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_cli_update_force_keeps_the_full_path() {
     let tmp = TempDir::new();
     let root = tmp.join("tree");
@@ -244,7 +247,8 @@ fn test_cli_update_force_keeps_the_full_path() {
 // checkout path into graph.json; a first `update . --no-cluster` has the keys of a forced
 // rebuild.
 #[test]
-#[ignore = "graphify-rs-ihc.20"]
+// cli test (ihc.20): needs resolve
+#[ignore = "graphify-rs-ihc.18"]
 fn test_update_no_cluster_first_build_matches_a_rebuild() {
     let tmp = TempDir::new();
     let root = tmp.join("alice_home/proj");
