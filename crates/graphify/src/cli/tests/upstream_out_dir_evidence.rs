@@ -20,7 +20,6 @@ fn scanned(root: &TempDir) -> Vec<String> {
 
 // adapter/out/ and port/out/ holding only source stay in the corpus.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_hexagonal_out_layers_are_scanned() {
     let root = TempDir::new();
     write_tree(
@@ -54,7 +53,6 @@ fn test_hexagonal_out_layers_are_scanned() {
 // out/production/... (IntelliJ compile output) stays out of the corpus. Go collects no `.class`
 // file anyway; the `production` marker is what prunes `out`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_intellij_out_production_is_pruned() {
     let root = TempDir::new();
     root.write("out/production/demo/Order.class", b"\xca\xfe\xba\xbe");
@@ -70,7 +68,6 @@ fn test_intellij_out_production_is_pruned() {
 // A `next export` static-site out/ (marked by _next/) stays out. Go collects no `.html` file
 // anyway; the `_next` marker is what prunes `out`.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_next_export_out_is_pruned() {
     let root = TempDir::new();
     std::fs::create_dir_all(root.join("out/_next")).expect("mkdir out/_next");
@@ -92,7 +89,6 @@ fn test_next_export_out_is_pruned() {
 
 // A TS outDir shape (compiled .js.map one level inside out/) is pruned.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_compiled_artifacts_one_level_down_prune_out() {
     let root = TempDir::new();
     root.write("out/lib/index.js", b"module.exports = {};\n");
@@ -109,7 +105,6 @@ fn test_compiled_artifacts_one_level_down_prune_out() {
 // A wide outDir whose compiled files sit only under a late-sorted subdirectory is still
 // recognized as build output. (Go collects no `.txt` file, so `/out/` stays absent either way.)
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_wide_out_dir_markers_beyond_twenty_subdirs_still_prune() {
     let root = TempDir::new();
     for i in 0..30 {
@@ -127,7 +122,6 @@ fn test_wide_out_dir_markers_beyond_twenty_subdirs_still_prune() {
 
 // The gate is scoped to `out`: build/, dist/, target/ prune by name.
 #[test]
-#[ignore = "graphify-rs-ihc.14"]
 fn test_other_skip_dirs_stay_unconditional() {
     let root = TempDir::new();
     for name in ["build", "dist", "target"] {
