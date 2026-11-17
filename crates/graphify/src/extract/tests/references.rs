@@ -564,7 +564,7 @@ Pt (*getfp(Arg a))(Inner) { return 0; }
 // field types and the template arguments of a base give references; an
 // unresolved base gets a stub. Not copied: a stub for a template parameter.
 #[test]
-#[ignore = "graphify-rs-ihc.30"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_cpp_references() {
     let (nodes, edges) = resolve_src(&[
         (

@@ -8,7 +8,7 @@ use crate::extract::{file_from_bytes, resolve};
 use crate::testutil::testdata;
 
 #[test]
-#[ignore = "graphify-rs-ihc.30"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_extract_cpp() {
     crate::extract::kinds::register_kinds();
     let root = testdata().join("extract").join("cppproj");
@@ -76,7 +76,6 @@ fn test_extract_cpp() {
 
 // An export macro between `class`/`struct` and the name must not hide the type.
 #[test]
-#[ignore = "graphify-rs-ihc.30"]
 fn test_cpp_export_macro_class() {
     crate::extract::kinds::register_kinds();
     let src = "class Base {};\n".to_string()
@@ -124,7 +123,6 @@ fn test_cpp_export_macro_class() {
 // test is a property over the same token set, so the source does not matter. Go's
 // `strings.TrimSpace` is `trim_ascii` here: no token holds a non-ASCII space.)
 #[test]
-#[ignore = "graphify-rs-ihc.30"]
 fn test_cpp_export_macro_scan_matches_regexp() {
     let re = gostd::regexp::Regexp::must_compile(
         r"\b(?:class|struct)\s+((?:[A-Z][A-Z0-9_]*\s+)+)([A-Za-z_]\w*(?:\s+final)?\s*)([:{])",
@@ -144,11 +142,11 @@ fn test_cpp_export_macro_scan_matches_regexp() {
             let mut end = m3;
             if src[m4..m5].trim_ascii() == b"final" {
                 let t = src[m2..m3].trim_ascii();
+                // Go `m[2] + strings.LastIndexAny(..) + 1`: -1 (no space) gives m[2].
                 end = m2
                     + t.iter()
                         .rposition(|c| b" \t\r\n".contains(c))
-                        .expect("space")
-                    + 1;
+                        .map_or(0, |i| i + 1);
             }
             for c in &mut out[m2..end] {
                 if *c != b'\r' && *c != b'\n' {
@@ -201,4 +199,49 @@ fn test_cpp_export_macro_scan_matches_regexp() {
         blanked >= 100,
         "only {blanked} inputs blanked: the generator no longer reaches the match"
     );
+}
+
+/// smoke; the real checks are the ihc.18-ignored tests
+#[test]
+fn test_extract_cpp_smoke() {
+    crate::extract::kinds::register_kinds();
+    let root = testdata().join("extract").join("cppproj");
+    let mut srcs: Vec<(String, Vec<u8>)> = ["util/math.cpp", "web/server.cpp"]
+        .iter()
+        .map(|f| (f.to_string(), std::fs::read(root.join(f)).unwrap()))
+        .collect();
+    for (rel, src) in [
+        (
+            "w.hpp",
+            "#ifndef W_HPP\n#include \"dep.hpp\"\nnamespace ns {\n#ifdef FEATURE\nclass Widget : public Base {\npublic:\n  void draw() {}\n#if EXTRA\n  void extra() { draw(); }\n#endif\n};\ntemplate <typename T> T tmpl(T v) { return v; }\n#endif\n}\nextern \"C\" {\nint c_api(void) { return 0; }\n}\n#endif\n",
+        ),
+        ("dep.hpp", "class Base {};\n"),
+        (
+            "e.cpp",
+            "extern \"C\" int single_extern(void) { return plain_extern(); }\n",
+        ),
+        ("n.hpp", "typedef struct Named { int a; } NamedT;\n"),
+        ("src/shape.cpp", "void cv::fitEllipse(int a) {}\n"),
+        ("p.h", "class Msg;\nclass Msg { public: void run(); };\n"),
+        ("p.cc", "void Msg::run() {}\n"),
+        (
+            "lib/foo.cpp",
+            "#include \"foo.h\"\nvoid Foo::bar() { baz(); }\n",
+        ),
+        (
+            "shape.cpp",
+            "#include \"types.hpp\"\n#include <vector>\nclass Shape : public geo::Base<geo::Dep>, public Missing {\n  std::vector<geo::Point> pts;\n  Unknown (*cb)(int);\n  geo::Point center(const geo::Point &p, std::string s) { return p; }\n};\ntemplate <typename T, class U = geo::Dep>\nT ident(T v, geo::Point q, U u) { return v; }\n",
+        ),
+        (
+            "w.h",
+            "class Q_CORE_EXPORT\nWidget : public Base { public: void show() {} };\n",
+        ),
+    ] {
+        srcs.push((rel.to_string(), src.as_bytes().to_vec()));
+    }
+    for (rel, src) in &srcs {
+        assert!(extract_cpp(rel, src).is_some(), "extract_cpp({rel})");
+        let res = file_from_bytes(rel, src);
+        assert!(!res.nodes.is_empty(), "{rel}: no file node");
+    }
 }
