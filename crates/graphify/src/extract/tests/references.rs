@@ -425,7 +425,7 @@ fn test_python_plain_import_and_qualified_name() {
 // with it. Not copied: the same-package Dup left on a stub, no edge for a
 // variadic parameter.
 #[test]
-#[ignore = "graphify-rs-ihc.24"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // also needs resolve (ihc.18)
 fn test_go_references() {
     let (nodes, edges) = resolve_src(&[
         ("go.mod", "example.com/m"),

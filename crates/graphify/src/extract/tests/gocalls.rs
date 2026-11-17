@@ -7,7 +7,6 @@ use crate::extract::{Call, Result, file_from_bytes};
 // goCalls types receivers from the whole function in one walk: a local declared
 // after the call still types it, and only calls inside the body count.
 #[test]
-#[ignore = "graphify-rs-ihc.24"]
 fn test_go_calls_one_walk() {
     kinds::register_kinds();
     let src = concat!(
@@ -60,7 +59,6 @@ fn test_go_calls_one_walk() {
 // A text is held once per file, and a call that numbers a text the result
 // does not have is found.
 #[test]
-#[ignore = "graphify-rs-ihc.24"]
 fn test_call_text() {
     kinds::register_kinds();
     let res = file_from_bytes(
@@ -103,5 +101,23 @@ fn test_call_text() {
     ];
     for b in &bad {
         assert!(!b.calls_ok(), "CallsOK = true for {b:?}");
+    }
+}
+
+/// smoke; the real checks are the ihc.18-ignored tests
+#[test]
+fn test_extract_golang_smoke() {
+    kinds::register_kinds();
+    let srcs: [(&str, &[u8]); 2] = [
+        (
+            "p/a.go",
+            b"package p\n\ntype Foo struct{}\n\nfunc newFoo() *Foo { return &Foo{} }\n\nfunc (s *Foo) run(a [len(\"xy\")]int, w Writer) {\n\tearly.Do()\n\ts.step()\n\tvar early Foo\n\tlate := newFoo()\n\tfor _, w := range a {\n\t\tw.Skip()\n\t}\n}\n",
+        ),
+        ("p/b.go", b"package p\n\nfunc f() {\n\tx.g()\n\tx.g()\n\tg()\n}\n"),
+    ];
+    for (rel, src) in srcs {
+        assert!(super::extract_go(rel, src).is_some(), "{rel}");
+        let res = file_from_bytes(rel, src);
+        assert!(!res.nodes.is_empty(), "{rel}: no file node");
     }
 }

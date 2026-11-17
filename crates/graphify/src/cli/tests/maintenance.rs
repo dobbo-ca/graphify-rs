@@ -157,7 +157,7 @@ fn test_hook_unknown_subcommand() {
 // Go calls `cmdBuild([]string{root})` and `cmdUpdate([]string{root})` (maintenance_test.go:140,
 // :153). It needs `.go` extraction: the golang grammar (graphify-rs-ihc.24).
 #[test]
-#[ignore = "graphify-rs-ihc.24"]
+#[ignore = "graphify-rs-ihc.18"]
 fn test_watch_tick() {
     let root = TempDir::new();
     let write = |rel: &str, content: &str| {
