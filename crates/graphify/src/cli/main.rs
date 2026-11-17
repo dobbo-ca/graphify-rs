@@ -38,7 +38,8 @@ pub(crate) const BIG_IN_FLIGHT: usize = 8 << 20;
 /// watch what parses side by side; a parameter of [`assemble_with`] here).
 // graphify-rs-ihc.20: stubs until the code PR
 #[allow(dead_code)]
-pub(crate) type ParseFn = dyn Fn(&str, &[u8]) -> ExtractResult + Sync;
+/// `'a` lets a test's closure borrow local state (a bare `dyn` alias would be `'static`).
+pub(crate) type ParseFn<'a> = dyn Fn(&str, &[u8]) -> ExtractResult + Sync + 'a;
 
 /// Go `assembleStats`: how an assemble run used the cache.
 // graphify-rs-ihc.20: stubs until the code PR
@@ -74,7 +75,7 @@ pub(crate) fn assemble_with(
     prev: Option<&Cache>,
     prev_stat: &StatIndex,
     workers: usize,
-    parse: &ParseFn,
+    parse: &ParseFn<'_>,
 ) -> (Vec<ExtractResult>, Cache, StatIndex, AssembleStats) {
     todo!("graphify-rs-ihc.20")
 }
