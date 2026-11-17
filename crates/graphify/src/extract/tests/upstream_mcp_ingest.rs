@@ -109,7 +109,6 @@ fn test_is_mcp_config_path_rejects_generic_json() {
 // ── Happy path with the bundled fixture ──────────────────────────────────────
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_fixture_parses_without_error() {
     let r = sample();
     assert!(!r.nodes.is_empty());
@@ -117,7 +116,6 @@ fn test_fixture_parses_without_error() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_fixture_emits_every_server() {
     let r = sample();
     let server_labels = set(label_by_kind(&r, "sample.mcp.json", "mcp_server"));
@@ -128,7 +126,6 @@ fn test_fixture_emits_every_server() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_fixture_emits_commands_as_global_nodes() {
     let r = sample();
     let commands = set(label_by_kind(&r, "sample.mcp.json", "mcp_command"));
@@ -136,7 +133,6 @@ fn test_fixture_emits_commands_as_global_nodes() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_fixture_emits_npm_packages() {
     let r = sample();
     let packages = set(label_by_kind(&r, "sample.mcp.json", "mcp_package"));
@@ -145,7 +141,6 @@ fn test_fixture_emits_npm_packages() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_fixture_emits_python_packages() {
     let r = sample();
     let packages = set(label_by_kind(&r, "sample.mcp.json", "mcp_package"));
@@ -154,7 +149,6 @@ fn test_fixture_emits_python_packages() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_fixture_strips_version_from_npm_package() {
     let r = sample();
     let packages = set(label_by_kind(&r, "sample.mcp.json", "mcp_package"));
@@ -164,7 +158,6 @@ fn test_fixture_strips_version_from_npm_package() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_fixture_emits_env_var_names() {
     let r = sample();
     let env_vars = set(label_by_kind(&r, "sample.mcp.json", "env_var"));
@@ -173,7 +166,6 @@ fn test_fixture_emits_env_var_names() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_env_var_values_never_appear_anywhere() {
     // The fixture has GITHUB_PERSONAL_ACCESS_TOKEN = "ghp_PLACEHOLDER_NOT_A_REAL_TOKEN".
     // That string must not appear in any node field or edge field (Go has no metadata).
@@ -195,7 +187,6 @@ fn test_env_var_values_never_appear_anywhere() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_filesystem_path_not_persisted_as_node() {
     // `args` contains "/tmp/workspace" — args are intentionally NOT persisted
     // as nodes/edges to avoid leaking local filesystem paths.
@@ -206,7 +197,6 @@ fn test_filesystem_path_not_persisted_as_node() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_fixture_relations_include_contains_references_requires_env() {
     let r = sample();
     let rels: BTreeSet<&str> = r.edges.iter().map(|e| e.relation.as_str()).collect();
@@ -216,7 +206,6 @@ fn test_fixture_relations_include_contains_references_requires_env() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_no_dangling_edges() {
     let r = sample();
     let node_ids: BTreeSet<&str> = r.nodes.iter().map(|n| n.id.as_str()).collect();
@@ -229,7 +218,6 @@ fn test_no_dangling_edges() {
 // pins Go v0.12.0 (weight and confidence_score unset, 0, in the extract result:
 // `mcpconfig.go:79`); upstream 0.9.107 writes 1.0 for both -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_every_edge_has_confidence_score() {
     let r = sample();
     for e in &r.edges {
@@ -242,7 +230,6 @@ fn test_every_edge_has_confidence_score() {
 // ── Cross-config emergent edges (global node IDs) ────────────────────────────
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_same_command_collapses_to_one_node_across_configs() {
     // Two configs both use "npx". The mcp_command node should be shared.
     let a = ".mcp.json";
@@ -262,7 +249,6 @@ fn test_same_command_collapses_to_one_node_across_configs() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_same_env_var_collapses_to_one_node_across_configs() {
     // Two configs both require OPENAI_API_KEY. The env_var node ID must be identical.
     let a = ".mcp.json";
@@ -282,7 +268,6 @@ fn test_same_env_var_collapses_to_one_node_across_configs() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_same_server_name_in_different_dirs_does_not_collide() {
     // Two .mcp.json files in different dirs both declare a "filesystem" server.
     // The server nodes should NOT collide (stem-scoped via the path).
@@ -307,7 +292,6 @@ fn test_same_server_name_in_different_dirs_does_not_collide() {
 // pins Go v0.12.0 (empty result, no error text); upstream 0.9.107 also reports
 // "no mcpServers map" -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_missing_mcp_servers_key() {
     let r = extract_mcp_config(".mcp.json", br#"{"unrelated": "shape"}"#);
     assert!(r.nodes.is_empty());
@@ -315,7 +299,6 @@ fn test_missing_mcp_servers_key() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_nested_mcp_servers_shape() {
     // Some tools wrap the map: {"mcp": {"servers": {...}}}
     let r = extract_mcp_config(
@@ -329,7 +312,6 @@ fn test_nested_mcp_servers_shape() {
 // pins Go v0.12.0 (empty result, no error text); upstream 0.9.107 also reports "json error"
 // -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_malformed_json_returns_error() {
     let r = extract_mcp_config(".mcp.json", b"{not valid json");
     assert!(r.nodes.is_empty());
@@ -339,7 +321,6 @@ fn test_malformed_json_returns_error() {
 // pins Go v0.12.0 (extractMCPConfig has no size cap: the 2 MB arg is no package, and the
 // server and its command are extracted); upstream 0.9.107 skips the file as "too large" -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_oversize_file_skipped() {
     let payload = format!(
         r#"{{"mcpServers":{{"x":{{"command":"npx","args":["{}"]}}}}}}"#,
@@ -354,14 +335,12 @@ fn test_oversize_file_skipped() {
 // pins Go v0.12.0 (empty result, no error text); upstream 0.9.107 also reports "root is not an
 // object" -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_root_not_an_object() {
     let r = extract_mcp_config(".mcp.json", b"[1, 2, 3]");
     assert!(r.nodes.is_empty() && r.edges.is_empty());
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_non_dict_server_entry_skipped() {
     let r = extract_mcp_config(
         ".mcp.json",
@@ -375,7 +354,6 @@ fn test_non_dict_server_entry_skipped() {
 // ── Edge case: package detection ─────────────────────────────────────────────
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_package_detection_skips_flags() {
     // First arg is -y (flag); second is the package. Detection should skip the flag.
     let r = extract_mcp_config(
@@ -386,7 +364,6 @@ fn test_package_detection_skips_flags() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_no_package_detected_for_unknown_arg_shape() {
     // Args don't look like any known package pattern => no package node.
     let r = extract_mcp_config(
@@ -397,7 +374,6 @@ fn test_no_package_detected_for_unknown_arg_shape() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_server_without_command_still_emits_server_node() {
     let r = extract_mcp_config(
         ".mcp.json",

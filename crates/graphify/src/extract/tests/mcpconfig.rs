@@ -9,7 +9,6 @@ use crate::extract::{Result, file_from_bytes};
 use crate::idutil::make_id;
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_extract_mcp_config() {
     let src = br#"{
   "mcpServers": {
@@ -96,7 +95,6 @@ fn id_of<'a>(res: &'a Result, label: &str) -> &'a str {
 // nodes (so an agent can ask "which configs use this package?"), while their
 // server nodes stay stem-scoped and distinct.
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_extract_mcp_config_global_nodes_shared() {
     let cfg = br#"{"mcpServers": {"fs": {"command": "npx", "args": ["@scope/pkg"], "env": {"TOK": "x"}}}}"#;
     let a = file_from_bytes("a/.mcp.json", cfg);
@@ -124,7 +122,6 @@ fn test_extract_mcp_config_global_nodes_shared() {
 
 // The nested {"mcp": {"servers": {...}}} shape some tools emit is also accepted.
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_extract_mcp_config_nested_shape() {
     let src = br#"{"mcp": {"servers": {"time": {"command": "uvx", "args": ["mcp-server-time", "--local-timezone=UTC"]}}}}"#;
     let res = file_from_bytes("mcp.json", src);
@@ -141,7 +138,6 @@ fn test_extract_mcp_config_nested_shape() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_extract_mcp_config_empty_results() {
     // Go ranges a map of these cases; the order does not matter.
     const CASES: [(&str, &str); 4] = [
@@ -162,7 +158,6 @@ fn test_extract_mcp_config_empty_results() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_detect_package_from_args() {
     const CASES: [(&[&str], &str); 7] = [
         (&["-y", "@org/pkg@1.2.3"], "@org/pkg"), // scoped npm, version stripped
@@ -184,7 +179,6 @@ fn test_detect_package_from_args() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_strip_version() {
     // Go ranges a map of these cases; the order does not matter.
     const CASES: [(&str, &str); 4] = [
@@ -236,7 +230,6 @@ fn test_is_mcp_config_path() {
 // Added (plan Task 16, D-001): Go ranges `spec.Env` (`mcpconfig.go:113`), so the order of the
 // env_var nodes and requires_env edges is random in Go; Rust takes the keys sorted.
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn mcp_env_sorted_d001() {
     let src = br#"{"mcpServers": {"s": {"command": "npx", "env": {"ZED": "1", "ALPHA": "2", "MID": "3"}}}}"#;
     let res = file_from_bytes(".mcp.json", src);

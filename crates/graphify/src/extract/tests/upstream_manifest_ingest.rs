@@ -82,7 +82,6 @@ fn module_label(res: &Result) -> &str {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_pom_namespace_spellings_preserve_identity_properties_and_scopes() {
     for (declaration, prefix) in pom_namespace_forms() {
         let case = format!("{declaration:?} {prefix:?}");
@@ -129,7 +128,6 @@ fn test_pom_namespace_spellings_preserve_identity_properties_and_scopes() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_namespaced_pom_dependencies_survive_extract_build_and_cache() {
     // _POM_NAMESPACE_FORMS[2::2]. Upstream runs extract twice through its cache and builds the
     // graph; Go's manifest pass has no cache, so one run asserts the same node and edge.
@@ -170,7 +168,6 @@ fn test_namespaced_pom_dependencies_survive_extract_build_and_cache() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_pyproject_parses_pep508_deps() {
     let root = TempDir::new();
     write_manifest_file(
@@ -191,7 +188,6 @@ fn test_pyproject_parses_pep508_deps() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_gomod_parses_module_and_requires() {
     let root = TempDir::new();
     write_manifest_file(
@@ -212,7 +208,6 @@ fn test_gomod_parses_module_and_requires() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_pom_parses_artifact_and_deps() {
     let root = TempDir::new();
     write_manifest_file(
@@ -234,7 +229,6 @@ fn test_pom_parses_artifact_and_deps() {
 // <dependencies>/<dependency>, manifest.go:363); upstream 0.9.107 emits the project and profile
 // dependencies only -> P3 (B06)
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_pom_deps_exclude_managed_and_plugin_dependencies() {
     let dep = |g: &str, a: &str| {
         format!("<dependency><groupId>{g}</groupId><artifactId>{a}</artifactId></dependency>")
@@ -278,7 +272,6 @@ fn test_pom_deps_exclude_managed_and_plugin_dependencies() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_malformed_manifest_does_not_crash() {
     let root = TempDir::new();
     write_manifest_file(&root, "pom.xml", "<project><not closed");
@@ -287,7 +280,6 @@ fn test_malformed_manifest_does_not_crash() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_cargo_parses_name_version_and_deps() {
     // A crate declares its name/version under [package]; deps appear both as a
     // bare version string and as an inline table (version + features).
@@ -310,7 +302,6 @@ fn test_cargo_parses_name_version_and_deps() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_cargo_virtual_workspace_manifest_emits_no_package() {
     // A virtual workspace root has no [package] table, so it declares no package
     // of its own — it must not fabricate a node. Upstream also checks its `skipped` reason,
@@ -326,7 +317,6 @@ fn test_cargo_virtual_workspace_manifest_emits_no_package() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_cargo_target_conditional_deps_are_collected() {
     // Platform-gated deps under [target.'cfg(...)'.dependencies] are common in
     // real crates and must not be dropped just because they are conditional.
@@ -346,7 +336,6 @@ fn test_cargo_target_conditional_deps_are_collected() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_cargo_workspace_inherited_version_does_not_crash() {
     // `version.workspace = true` yields a table, not a string. It must be ignored
     // rather than crash the parse (Go reads no version at all).
@@ -361,7 +350,6 @@ fn test_cargo_workspace_inherited_version_does_not_crash() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_pom_inherits_groupid_and_resolves_properties() {
     let root = TempDir::new();
     write_manifest_file(

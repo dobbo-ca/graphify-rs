@@ -30,7 +30,6 @@ fn pairs(res: &Result) -> Vec<(&str, &str)> {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_cargo_introspect_workspace_internal_dependency_only() {
     let root = TempDir::new();
     write(
@@ -80,7 +79,6 @@ edition = "2021"
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_cargo_introspect_malformed_toml_reports_parser_error() {
     let root = TempDir::new();
     write(&root, "Cargo.toml", "\n[package\nname = \"broken\"\n");
@@ -90,7 +88,6 @@ fn test_cargo_introspect_malformed_toml_reports_parser_error() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_cargo_introspect_degenerate_manifests_return_empty_or_skip_bad_deps() {
     let root = TempDir::new();
     write(&root, "empty/Cargo.toml", "");
@@ -125,7 +122,6 @@ dependencies = "not-a-table"
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_cargo_introspect_old_manifest_keeps_internal_path_dep_and_skips_external() {
     let root = TempDir::new();
     write(
@@ -164,7 +160,6 @@ internal = { path = "../internal" }
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_cargo_introspect_modern_virtual_and_root_package_workspaces() {
     let root = TempDir::new();
     write(
@@ -254,7 +249,6 @@ root_pkg = { path = "../.." }
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_cargo_introspect_large_workspace_dependency_chain() {
     const CRATE_COUNT: usize = 200;
     let root = TempDir::new();
@@ -311,7 +305,6 @@ fn test_cargo_introspect_large_workspace_dependency_chain() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_cargo_introspect_honors_package_rename_on_internal_dep() {
     let root = TempDir::new();
     write(
@@ -352,7 +345,6 @@ db = { path = "../storage", package = "internal-storage" }
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_cargo_introspect_package_rename_falls_through_when_unresolved() {
     let root = TempDir::new();
     write(&root, "Cargo.toml", "\n[workspace]\nmembers = [\"app\"]\n");
@@ -465,7 +457,6 @@ fn test_cargo_introspect_discovery_does_not_search_past_the_depth_cap() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_cargo_inherited_rename_uses_workspace_dependency_identity() {
     // ids=["virtual", "root-package"]
     for (case, root_package) in [("virtual", false), ("root-package", true)] {
@@ -534,7 +525,6 @@ fn test_cargo_inherited_rename_uses_workspace_dependency_identity() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_cargo_inherited_dependency_requires_matching_local_path() {
     const CASES: [(&str, &str, bool); 12] = [
         (r#"db = { path = "db" }"#, "db.workspace = true", true),
@@ -597,7 +587,6 @@ fn test_cargo_inherited_dependency_requires_matching_local_path() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_cargo_inherited_dependency_can_target_root_package() {
     // pins Go v0.12.0 for `""` (no edge: `cargo.go:117` reads an empty path as a registry
     // dep); upstream 0.9.107 emits crate:app -> crate:db -> P3
@@ -627,7 +616,6 @@ fn test_cargo_inherited_dependency_can_target_root_package() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_cargo_missing_or_malformed_workspace_dependencies_are_ignored() {
     const CASES: [&str; 4] = [
         "",

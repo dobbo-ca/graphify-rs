@@ -88,7 +88,6 @@ fn assert_package_graph(root: &Path, files: &[&str], module: &str, deps: &[&str]
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_introspect_manifests_go_mod() {
     let root = TempDir::new();
     write_manifest_file(
@@ -108,7 +107,6 @@ fn test_introspect_manifests_go_mod() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_introspect_manifests_pyproject() {
     let root = TempDir::new();
     write_manifest_file(
@@ -125,7 +123,6 @@ fn test_introspect_manifests_pyproject() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_introspect_manifests_pom() {
     let root = TempDir::new();
     // A default xmlns exercises the namespace-agnostic (local-name) matching.
@@ -161,7 +158,6 @@ fn test_introspect_manifests_pom() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_introspect_manifests_cargo() {
     let root = TempDir::new();
     // Registry deps in both forms (bare version, inline table) plus a
@@ -193,7 +189,6 @@ criterion = "0.5"
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_introspect_manifests_cargo_virtual_workspace() {
     let root = TempDir::new();
     write_manifest_file(&root, "Cargo.toml", "[workspace]\nmembers = [\"a\"]\n");
@@ -207,7 +202,6 @@ fn test_introspect_manifests_cargo_virtual_workspace() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_introspect_manifests_pom_inherited_group_and_properties() {
     let root = TempDir::new();
     write_manifest_file(
@@ -251,7 +245,6 @@ fn test_introspect_manifests_pom_inherited_group_and_properties() {
 // and keeps the first name that gives a package id (`manifest.go:88-99`), so of `Foo-Bar` and
 // `foo_bar` (one id) Go labels the stub with either; Rust takes the sorted-first key.
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn poetry_deps_sorted_d002() {
     let root = TempDir::new();
     write_manifest_file(

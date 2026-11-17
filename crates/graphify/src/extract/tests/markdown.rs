@@ -169,7 +169,6 @@ fn test_extract_markdown() {
 // well-formed block, quoted scalars, and an unterminated block (whole source is
 // body, no keys).
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_split_frontmatter() {
     const TESTS: [(&str, &str, &str, &str); 4] = [
         ("no frontmatter", "# Title\n\nbody", "", "# Title\n\nbody"),
@@ -456,7 +455,6 @@ fn test_markdown_spaced_and_escaped_links() {
 // From rake_skill_test.go. A .skill file is Markdown (+YAML frontmatter) and must route through
 // the markdown extractor, emitting heading nodes (#1901).
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_extract_skill_uses_markdown() {
     let src = "---\nname: orch\n---\n# Orchestrator\n\n## Step One\n";
     let root = TempDir::new();

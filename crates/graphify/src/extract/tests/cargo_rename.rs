@@ -12,7 +12,6 @@ use crate::testutil::TempDir;
 // that real name, not the dep-table key. Before the fix the edge was dropped
 // because the lookup used the key "db" (#1858).
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_introspect_cargo_honors_package_rename() {
     let root = TempDir::new();
     write_manifest(
@@ -62,7 +61,6 @@ version = "0.1.0"
 // A rename pointing at a registry/external crate (no workspace member of that
 // name) must stay a no-op — no edge (#1858).
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_introspect_cargo_rename_to_external_is_no_edge() {
     let root = TempDir::new();
     write_manifest(
@@ -94,7 +92,6 @@ tokio_rt = { version = "1", package = "tokio" }
 // A member inheriting `db = { workspace = true }` takes its package rename from
 // the root [workspace.dependencies] table.
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_introspect_cargo_inherited_rename() {
     let root = TempDir::new();
     write_manifest(
@@ -137,7 +134,6 @@ version = "0.1.0"
 
 // An inherited registry dep sharing a workspace crate's name is not internal.
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_introspect_cargo_inherited_registry_name_is_no_edge() {
     let root = TempDir::new();
     write_manifest(
@@ -190,7 +186,6 @@ fn relative_to_cwd(p: &Path) -> PathBuf {
 // Relative roots (`build .`) must compare paths like absolute ones.
 #[cfg(unix)]
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_introspect_cargo_inherited_relative_root() {
     let base = TempDir::new();
     let root = base.join("E");

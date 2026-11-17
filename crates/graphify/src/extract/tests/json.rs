@@ -265,10 +265,8 @@ fn test_extract_json_malformed_skipped() {
 }
 
 /// `.mcp.json` must reach `extractMCPConfig` (server nodes), NOT `extractJSON` (config-key
-/// nodes). Guards against the general extractor stealing it. It never parses with a grammar, so
-/// it waits for the extractor of `mcpconfig.go` (ihc.17).
+/// nodes). Guards against the general extractor stealing it.
 #[test]
-#[ignore = "graphify-rs-ihc.17"]
 fn test_extract_json_mcp_config_still_routed_to_mcp_extractor() {
     let src = r#"{"mcpServers": {"fs": {"command": "npx", "args": ["-y", "@scope/server-fs"]}}}"#;
     let res = extract_bytes(".mcp.json", src.as_bytes());
