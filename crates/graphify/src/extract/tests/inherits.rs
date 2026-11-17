@@ -47,7 +47,7 @@ fn test_java_generic_qualified_base() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_c_sharp_bases() {
     register_kinds();
     want_edges(

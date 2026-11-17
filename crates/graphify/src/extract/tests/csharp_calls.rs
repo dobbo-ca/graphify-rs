@@ -59,13 +59,13 @@ pub(super) fn cs_call_edges(files: &[(&str, &str)]) -> Vec<String> {
 }
 
 /// One `TestCSharpTypedCalls` case: its files and the calls edges it wants.
-struct Case {
+pub(super) struct Case {
     name: &'static str,
-    files: &'static [(&'static str, &'static str)],
+    pub(super) files: &'static [(&'static str, &'static str)],
     want: &'static [&'static str],
 }
 
-const CASES: &[Case] = &[
+pub(super) const CASES: &[Case] = &[
     Case {
         name: "builtins",
         files: &[
@@ -1763,7 +1763,7 @@ public class Use {
 /// Where Go differs on purpose the case says why. The case "fallback-counts-other-languages"
 /// also parses a Python file (`svc.py`, graphify-rs-ihc.25).
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.25"] // csharp test (ihc.28): a case parses Python; also needs resolve (ihc.18)
 fn test_c_sharp_typed_calls() {
     for tc in CASES {
         let got = cs_call_edges(tc.files);
@@ -1794,7 +1794,7 @@ const ODD_TYPES: [&str; 15] = [
 ];
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_c_sharp_odd_type_spellings() {
     for (i, typ) in ODD_TYPES.iter().enumerate() {
         let src = format!(

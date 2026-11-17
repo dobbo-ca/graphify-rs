@@ -839,7 +839,7 @@ pub fn d(f: &dyn Fn(Early) -> Late, g: Box<dyn Tr<Item = Late>>, c: fn(M) -> N) 
 // bound to a function, an enum constant or a nested type, the head of a
 // qualified Kotlin type.
 #[test]
-#[ignore = "graphify-rs-ihc.28"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_c_sharp_references() {
     let (nodes, edges) = resolve_src(&[
         (

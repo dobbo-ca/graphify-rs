@@ -83,7 +83,7 @@ fn refs(ext: &Extraction) -> BTreeSet<(String, String)> {
 
 // ---- test_csharp_member_calls.py ----
 
-const AMBIG: &str = "public class Server { public bool Save() => true; }\n\
+pub(super) const AMBIG: &str = "public class Server { public bool Save() => true; }\n\
 public class Cache  { public bool Save() => false; }\n\
 public class Repo {\n\
     private Server _server = new Server();\n\
@@ -91,7 +91,7 @@ public class Repo {\n\
 }\n";
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_field_receiver_resolves_to_declared_type_not_bare_match() {
     let c = calls(&run(&[("S.cs", AMBIG)]));
     assert_call(&c, "Repo.Commit()[S.cs]", "Server.Save()[S.cs]");
@@ -99,7 +99,7 @@ fn test_field_receiver_resolves_to_declared_type_not_bare_match() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_parameter_receiver_resolves() {
     let c = calls(&run(&[(
         "S.cs",
@@ -112,7 +112,7 @@ fn test_parameter_receiver_resolves() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_local_var_receiver_resolves() {
     let c = calls(&run(&[(
         "S.cs",
@@ -127,7 +127,7 @@ fn test_local_var_receiver_resolves() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_cross_file_receiver_resolves() {
     let c = calls(&run(&[
         (
@@ -146,7 +146,7 @@ fn test_cross_file_receiver_resolves() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_this_and_static_receivers() {
     let c = calls(&run(&[(
         "S.cs",
@@ -162,7 +162,7 @@ fn test_this_and_static_receivers() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_untyped_receiver_emits_no_edge() {
     let c = calls(&run(&[(
         "S.cs",
@@ -173,7 +173,7 @@ fn test_untyped_receiver_emits_no_edge() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_method_absent_on_type_emits_no_edge() {
     let c = calls(&run(&[(
         "S.cs",
@@ -185,7 +185,7 @@ fn test_method_absent_on_type_emits_no_edge() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_unqualified_call_still_resolves() {
     let c = calls(&run(&[(
         "S.cs",
@@ -195,11 +195,11 @@ fn test_unqualified_call_still_resolves() {
     assert_call(&c, "R.A()[S.cs]", "R.Helper()[S.cs]");
 }
 
-const NS_A: &str = "namespace A { public class Svc { public bool Do() => true; } }\n";
-const NS_B: &str = "namespace B { public class Svc { public bool Do() => false; } }\n";
+pub(super) const NS_A: &str = "namespace A { public class Svc { public bool Do() => true; } }\n";
+pub(super) const NS_B: &str = "namespace B { public class Svc { public bool Do() => false; } }\n";
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_namespace_using_directive_disambiguates_receiver_type() {
     let c = calls(&run(&[
         ("A.cs", NS_A),
@@ -217,7 +217,7 @@ fn test_namespace_using_directive_disambiguates_receiver_type() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_namespace_using_directive_resolves_to_other_namespace() {
     let c = calls(&run(&[
         ("A.cs", NS_A),
@@ -235,7 +235,7 @@ fn test_namespace_using_directive_resolves_to_other_namespace() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_namespace_ambiguous_without_using_bails() {
     let c = calls(&run(&[
         ("A.cs", NS_A),
@@ -251,7 +251,7 @@ fn test_namespace_ambiguous_without_using_bails() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_same_namespace_receiver_resolves_without_using() {
     let c = calls(&run(&[
         ("A.cs", NS_A),
@@ -268,7 +268,7 @@ fn test_same_namespace_receiver_resolves_without_using() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_local_shadowing_field_of_different_type_poisons_name() {
     let c = calls(&run(&[(
         "S.cs",
@@ -284,7 +284,7 @@ fn test_local_shadowing_field_of_different_type_poisons_name() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_untyped_redeclaration_poisons_typed_field() {
     let c = calls(&run(&[(
         "S.cs",
@@ -299,7 +299,7 @@ fn test_untyped_redeclaration_poisons_typed_field() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_this_field_receiver_resolves() {
     let c = calls(&run(&[(
         "S.cs",
@@ -315,7 +315,7 @@ fn test_this_field_receiver_resolves() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_null_conditional_field_receiver_resolves() {
     let c = calls(&run(&[(
         "S.cs",
@@ -331,7 +331,7 @@ fn test_null_conditional_field_receiver_resolves() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_null_conditional_this_field_receiver_resolves() {
     let c = calls(&run(&[(
         "S.cs",
@@ -347,7 +347,7 @@ fn test_null_conditional_this_field_receiver_resolves() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_null_conditional_bare_this_receiver_resolves() {
     let c = calls(&run(&[(
         "S.cs",
@@ -362,7 +362,7 @@ fn test_null_conditional_bare_this_receiver_resolves() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_null_conditional_cross_file_receiver_resolves() {
     let c = calls(&run(&[
         (
@@ -398,7 +398,7 @@ fn store_call(body: &str) -> Calls {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_cast_receiver_resolves_to_cast_type() {
     let c = store_call("((IStore)_obj).Save();");
     assert_call(&c, "Editor.Run()[Editor.cs]", "IStore.Save()[Store.cs]");
@@ -406,7 +406,7 @@ fn test_cast_receiver_resolves_to_cast_type() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_as_cast_receiver_resolves_to_cast_type() {
     let c = store_call("(_obj as IStore).Save();");
     assert_call(&c, "Editor.Run()[Editor.cs]", "IStore.Save()[Store.cs]");
@@ -414,7 +414,7 @@ fn test_as_cast_receiver_resolves_to_cast_type() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_property_receiver_shadows_same_named_type() {
     let c = store_call("Store.Save();");
     assert_call(&c, "Editor.Run()[Editor.cs]", "IStore.Save()[Store.cs]");
@@ -422,7 +422,7 @@ fn test_property_receiver_shadows_same_named_type() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_base_receiver_resolves_to_base_class_method() {
     let c = calls(&run(&[
         (
@@ -440,7 +440,7 @@ fn test_base_receiver_resolves_to_base_class_method() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_inherited_method_resolves_through_base_chain() {
     let c = calls(&run(&[(
         "S.cs",
@@ -454,7 +454,7 @@ fn test_inherited_method_resolves_through_base_chain() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_unresolved_base_poisons_inherited_member_lookup() {
     let c = calls(&run(&[(
         "S.cs",
@@ -468,7 +468,7 @@ fn test_unresolved_base_poisons_inherited_member_lookup() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_cross_method_name_reuse_does_not_poison() {
     let c = calls(&run(&[
         (
@@ -499,7 +499,7 @@ fn test_cross_method_name_reuse_does_not_poison() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_per_method_locals_resolve_independently() {
     let c = calls(&run(&[(
         "S.cs",
@@ -517,7 +517,7 @@ fn test_per_method_locals_resolve_independently() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_same_method_shadow_still_poisons() {
     let c = calls(&run(&[(
         "S.cs",
@@ -532,7 +532,7 @@ fn test_same_method_shadow_still_poisons() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_file_scoped_namespace_receiver_resolves() {
     let c = calls(&run(&[
         (
@@ -551,7 +551,7 @@ fn test_file_scoped_namespace_receiver_resolves() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_method_chained_off_new_expression_resolves() {
     let c = calls(&run(&[(
         "S.cs",
@@ -577,7 +577,7 @@ fn two_go(rest: &str) -> Calls {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_out_declared_receiver_resolves() {
     let c = two_go(
         "public class Box { public bool TryGet(out Sect s) { s = new Sect(); return true; } }\n\
@@ -590,7 +590,7 @@ fn test_out_declared_receiver_resolves() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_out_var_receiver_stays_unbound() {
     let c = two_go(
         "public class Box { public bool TryGet(out Sect s) { s = new Sect(); return true; } }\n\
@@ -602,7 +602,7 @@ fn test_out_var_receiver_stays_unbound() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_is_pattern_receiver_resolves() {
     let c = two_go(
         "public class R {\n\
@@ -614,7 +614,7 @@ fn test_is_pattern_receiver_resolves() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_is_not_pattern_receiver_resolves() {
     let c = two_go(
         "public class R {\n\
@@ -626,7 +626,7 @@ fn test_is_not_pattern_receiver_resolves() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_case_pattern_receiver_resolves() {
     let c = two_go(
         "public class R {\n\
@@ -641,7 +641,7 @@ fn test_case_pattern_receiver_resolves() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_switch_arm_pattern_receiver_resolves() {
     let c = two_go(
         "public class R {\n\
@@ -655,7 +655,7 @@ fn test_switch_arm_pattern_receiver_resolves() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_static_local_function_param_survives_out_var_reuse() {
     let c = calls(&run(&[(
         "S.cs",
@@ -683,7 +683,7 @@ fn test_static_local_function_param_survives_out_var_reuse() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_untypeable_out_var_in_sibling_block_does_not_poison() {
     let c = calls(&run(&[(
         "S.cs",
@@ -707,7 +707,7 @@ fn test_untypeable_out_var_in_sibling_block_does_not_poison() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_sibling_pattern_rebind_conflict_poisons() {
     let c = two_go(
         "public class R {\n\
@@ -722,13 +722,13 @@ fn test_sibling_pattern_rebind_conflict_poisons() {
     refute_call(&c, "R.A()[S.cs]", "Twig.Go()[S.cs]");
 }
 
-const PRIMARY_CTOR: &str = "public interface IDep { bool Plain(); }\n\
+pub(super) const PRIMARY_CTOR: &str = "public interface IDep { bool Plain(); }\n\
 public class Holder(IDep dep) {\n\
     public bool Run() { return dep.Plain(); }\n\
 }\n";
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_primary_constructor_parameter_emits_references_edge() {
     let r = refs(&run(&[("S.cs", PRIMARY_CTOR)]));
     assert!(
@@ -738,14 +738,14 @@ fn test_primary_constructor_parameter_emits_references_edge() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_primary_constructor_parameter_resolves_member_calls() {
     let c = calls(&run(&[("S.cs", PRIMARY_CTOR)]));
     assert_call(&c, "Holder.Run()[S.cs]", "IDep.Plain()[S.cs]");
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_record_positional_parameter_emits_references_edge() {
     let r = refs(&run(&[(
         "S.cs",
@@ -761,7 +761,7 @@ fn test_record_positional_parameter_emits_references_edge() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_primary_constructor_type_parameter_is_not_referenced() {
     let r = refs(&run(&[(
         "S.cs",
@@ -778,7 +778,7 @@ fn test_primary_constructor_type_parameter_is_not_referenced() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_primary_constructor_builtin_param_is_not_fabricated() {
     let r = refs(&run(&[(
         "S.cs",
@@ -799,7 +799,7 @@ fn test_primary_constructor_builtin_param_is_not_fabricated() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_struct_primary_constructor_parameter_emits_references_edge() {
     let r = refs(&run(&[(
         "S.cs",
@@ -816,7 +816,7 @@ fn test_struct_primary_constructor_parameter_emits_references_edge() {
 
 // ---- test_csharp_member_chain_calls.py ----
 
-const CHAIN_MODEL: &str = "namespace Demo\n{\n\
+pub(super) const CHAIN_MODEL: &str = "namespace Demo\n{\n\
     public class Sequence { public void Apply() { } }\n\
     public class Decoy { public void Apply() { } }\n\
     public class Run { public Sequence Sequence; public Decoy[] Decoys; }\n\
@@ -838,7 +838,7 @@ fn chain(body: &str, extra: &str) -> Calls {
 const TICK: &str = "Controller.Tick()[Controller.cs]";
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_member_chain_on_parameter_field_resolves() {
     let c = chain("run.Sequence.Apply();", "");
     assert_call(&c, TICK, "Sequence.Apply()[Model.cs]");
@@ -846,33 +846,33 @@ fn test_member_chain_on_parameter_field_resolves() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_member_chain_on_field_receiver_resolves() {
     let c = chain("_run.Sequence.Apply();", "private Run _run;");
     assert_call(&c, TICK, "Sequence.Apply()[Model.cs]");
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_member_chain_with_unknown_field_gives_no_edge() {
     let c = chain("run.Missing.Apply(); run.Decoys.Apply();", "");
     refute_from(&c, TICK);
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_member_chain_with_untyped_root_gives_no_edge() {
     let c = chain("var x = Make(); x.Sequence.Apply();", "");
     refute_from(&c, TICK);
 }
 
-const CONFIG: &str = "namespace Demo\n{\n\
+pub(super) const CONFIG: &str = "namespace Demo\n{\n\
     public class Config { public void WriteIds() { } }\n\
     public class Other { public void WriteIds() { } }\n\
 }\n";
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_element_access_on_array_field_resolves_to_element_type() {
     let c = calls(&run(&[
         ("Config.cs", CONFIG),
@@ -891,7 +891,7 @@ fn test_element_access_on_array_field_resolves_to_element_type() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_element_access_on_list_local_resolves() {
     let c = calls(&run(&[
         ("Config.cs", CONFIG),
@@ -909,7 +909,7 @@ fn test_element_access_on_list_local_resolves() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_element_access_without_element_type_gives_no_edge() {
     // a non-collection local shadows the array field; object[] has no class
     let c = calls(&run(&[
@@ -929,7 +929,7 @@ fn test_element_access_without_element_type_gives_no_edge() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_issue_3797_shapes_still_resolve() {
     let c = calls(&run(&[
         (
@@ -952,13 +952,13 @@ fn test_issue_3797_shapes_still_resolve() {
     }
 }
 
-const CONFIGS: &str = "namespace Demo\n{\n\
+pub(super) const CONFIGS: &str = "namespace Demo\n{\n\
     public class Config { public void WriteIds() { } }\n\
     public class List { public void WriteIds() { } }\n\
 }\n";
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_element_of_type_parameter_list_stays_unresolved() {
     // `Config` here is the class's type parameter, not Demo.Config.
     let c = calls(&run(&[
@@ -980,7 +980,7 @@ fn test_element_of_type_parameter_list_stays_unresolved() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_element_of_nested_list_stays_unresolved() {
     let c = calls(&run(&[
         ("Config.cs", CONFIGS),
@@ -1000,7 +1000,7 @@ fn test_element_of_nested_list_stays_unresolved() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_member_chain_never_binds_to_the_callers_same_named_method() {
     let c = chain("run.Sequence.Apply();", "public void Apply() { }");
     refute_call(&c, TICK, "Controller.Apply()[Controller.cs]");
@@ -1008,7 +1008,7 @@ fn test_member_chain_never_binds_to_the_callers_same_named_method() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_chained_receiver_in_one_file_gives_no_self_loop() {
     let c = calls(&run(&[(
         "Crowd.cs",
@@ -1026,7 +1026,7 @@ fn test_chained_receiver_in_one_file_gives_no_self_loop() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_untyped_chain_never_binds_to_a_same_file_method() {
     let c = calls(&run(&[(
         "Inventory.cs",
@@ -1050,7 +1050,7 @@ fn test_untyped_chain_never_binds_to_a_same_file_method() {
 // generic_list_return_type) are not ported: Go leaves such a `var` untyped. The negative ones
 // below hold in Go because the `var` is never typed.
 
-const LIB: &str = "namespace Demo\n{\n\
+pub(super) const LIB: &str = "namespace Demo\n{\n\
     public interface IReport { string Build(string name); }\n\
     public class Report : IReport { public string Build(string name) => name; }\n\
     public class Widget { public void Spin() { } }\n\
@@ -1083,7 +1083,7 @@ const SPIN: &str = "Widget.Spin()[Lib.cs]";
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_ambiguous_overload_no_edge() {
     let c = consumer("var w = ServiceFactory.Pick(1); w.Spin();");
     refute_call(&c, RUN, SPIN);
@@ -1091,7 +1091,7 @@ fn test_ambiguous_overload_no_edge() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_missing_declaration_no_edge() {
     let c = consumer(
         "var w = ServiceFactory.Unknown<Widget>(); w.Spin(); var v = Elsewhere.Get<Widget>(scope); v.Spin();",
@@ -1101,7 +1101,7 @@ fn test_missing_declaration_no_edge() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_inferred_generic_no_edge() {
     let c = consumer("var w = ServiceFactory.Infer(new Widget()); w.Spin();");
     refute_call(&c, RUN, SPIN);
@@ -1109,7 +1109,7 @@ fn test_inferred_generic_no_edge() {
 
 // pins Go v0.12.0; upstream 0.9.107 differs -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_class_type_parameter_return_no_edge() {
     let c = consumer("var box = new Box<Widget>(); var w = box.Value(); w.Spin();");
     assert_call(&c, RUN, "Box.Value()[Lib.cs]");
@@ -1117,7 +1117,7 @@ fn test_class_type_parameter_return_no_edge() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_explicit_type_and_new_still_resolve() {
     let c = consumer(
         "IReport a = ServiceFactory.Get<IReport>(scope); a.Build(\"x\"); var w = new Widget(); w.Spin();",
@@ -1128,7 +1128,7 @@ fn test_explicit_type_and_new_still_resolve() {
 
 // ---- test_csharp_foreach_loop_variable.py ----
 
-const FOREACH_MODEL: &str = "namespace Demo\n{\n\
+pub(super) const FOREACH_MODEL: &str = "namespace Demo\n{\n\
     public class Look { public void Animate() { } }\n\
     public class Agent { public Look look; public void Step() { } }\n\
     public class Decoy { public void Step() { } public void Animate() { } }\n\
@@ -1153,7 +1153,7 @@ fn crowd(methods: &str) -> Calls {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_var_over_dictionary_values_types_the_chain() {
     let c = crowd("public void Tick() { foreach (var a in agents.Values) a.look.Animate(); }");
     assert_call(&c, "Crowd.Tick()[Crowd.cs]", "Look.Animate()[Model.cs]");
@@ -1161,14 +1161,14 @@ fn test_var_over_dictionary_values_types_the_chain() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_var_over_dictionary_keys_takes_the_key_type() {
     let c = crowd("public void Tick() { foreach (var a in scores.Keys) a.Step(); }");
     assert_call(&c, "Crowd.Tick()[Crowd.cs]", "Agent.Step()[Model.cs]");
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_var_over_sequences_takes_the_element_type() {
     let c = crowd(
         "public void Listed() { foreach (var a in list) a.Step(); }\n\
@@ -1184,21 +1184,21 @@ fn test_var_over_sequences_takes_the_element_type() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_explicitly_typed_loop_variable_binds_its_type() {
     let c = crowd("public void Tick(IEnumerable<object> xs) { foreach (Agent a in xs) a.Step(); }");
     assert_call(&c, "Crowd.Tick()[Crowd.cs]", "Agent.Step()[Model.cs]");
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_iterating_a_dictionary_itself_stays_untyped() {
     let c = crowd("public void Tick() { foreach (var kv in agents) kv.Step(); }");
     refute_from(&c, "Crowd.Tick()[Crowd.cs]");
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_a_local_shadowing_the_field_leaves_the_loop_untyped() {
     let c = crowd(
         "public void Tick() { var list = new List<Decoy>(); foreach (var a in list) a.Step(); }",
@@ -1207,7 +1207,7 @@ fn test_a_local_shadowing_the_field_leaves_the_loop_untyped() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_the_loop_variable_does_not_leak_past_its_loop() {
     let c = crowd("public void Tick(Decoy a) { foreach (var b in list) { } a.Step(); }");
     assert_call(&c, "Crowd.Tick()[Crowd.cs]", "Decoy.Step()[Model.cs]");
@@ -1244,21 +1244,21 @@ fn generic_callsites() -> Calls {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_this_qualified_generic_call_resolves() {
     let c = generic_callsites();
     assert_call(&c, "Reader.B()[Reader.cs]", "Settings.Get()[Settings.cs]");
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_generic_call_never_targets_the_bracketed_text() {
     let c = generic_callsites();
     assert!(!c.keys().any(|k| k.1.contains('<')), "{c:?}");
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_non_generic_controls_unchanged() {
     let c = generic_callsites();
     assert_call(
@@ -1277,7 +1277,7 @@ fn test_non_generic_controls_unchanged() {
 // Upstream writes some of these probes with an expression body (`=> r.Do<IThing>();`); they are
 // block bodies here so the test does not depend on the grammar's `body` field for `=>`.
 
-const GA_TYPES: &str = "public interface IThing { }\n\
+pub(super) const GA_TYPES: &str = "public interface IThing { }\n\
 public interface IService { }\n\
 public interface IImpl { }\n\
 public class Box<T> { }\n\
@@ -1297,14 +1297,14 @@ fn has_ref(r: &BTreeSet<(String, String)>, s: &str, t: &str) -> bool {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_member_call_with_one_type_argument() {
     let r = ga_refs("public class Probe { public void A(Registry r) { r.Do<IThing>(); } }\n");
     assert!(has_ref(&r, "Probe.A()", "IThing"), "{r:?}");
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_member_call_with_multiple_type_arguments() {
     let r = ga_refs(
         "public interface IServiceCollection { }\n\
@@ -1322,28 +1322,28 @@ fn test_member_call_with_multiple_type_arguments() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_null_conditional_member_call_with_type_argument() {
     let r = ga_refs("public class Probe { public void A(Registry r) { r?.Do<IThing>(); } }\n");
     assert!(has_ref(&r, "Probe.A()", "IThing"), "{r:?}");
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_nested_type_argument_in_call_site() {
     let r = ga_refs("public class Probe { public void A(Registry r) { r.Do<Box<IThing>>(); } }\n");
     assert!(has_ref(&r, "Probe.A()", "IThing"), "{r:?}");
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_call_without_type_argument_is_unchanged() {
     let r = ga_refs("public class Probe { public void A(Registry r) { r.Do(); } }\n");
     assert!(!has_ref(&r, "Probe.A()", "IThing"), "{r:?}");
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_type_parameter_in_call_site_arg_is_not_fabricated() {
     let r = ga_refs(
         "public class Holder<T>\n\
@@ -1355,7 +1355,7 @@ fn test_type_parameter_in_call_site_arg_is_not_fabricated() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.28"]
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_call_site_generic_args_appear_in_issue_repro() {
     let types = "public interface IAlpha { }\n\
         public interface IBeta { }\n\

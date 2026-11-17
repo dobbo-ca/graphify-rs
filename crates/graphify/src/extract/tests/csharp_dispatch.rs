@@ -58,7 +58,7 @@ fn csharp(rel: &str, src: &str) -> Result {
 /// One implementer owning one same-named method: the interface method dispatches to the
 /// implementation.
 #[test]
-#[ignore = "graphify-rs-ihc.28"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_c_sharp_dispatch_single_implementer() {
     kinds::register_kinds();
     let files = ["IReport.cs", "Report.cs"];
@@ -80,7 +80,7 @@ fn test_c_sharp_dispatch_single_implementer() {
 
 /// Two implementers: the runtime target is ambiguous, so nothing is emitted.
 #[test]
-#[ignore = "graphify-rs-ihc.28"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_c_sharp_dispatch_two_implementers() {
     kinds::register_kinds();
     let files = ["IReport.cs", "Report.cs", "Audit.cs"];
@@ -104,7 +104,7 @@ fn test_c_sharp_dispatch_two_implementers() {
 /// A non-C# implementer is a name collision, not an implementation. Parses Java too
 /// (graphify-rs-ihc.27).
 #[test]
-#[ignore = "graphify-rs-ihc.28"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.27"] // csharp test (ihc.28): parses Java; also needs resolve (ihc.18)
 fn test_c_sharp_dispatch_cross_language() {
     kinds::register_kinds();
     let files = ["IReport.cs", "Report.java"];
@@ -127,7 +127,7 @@ fn test_c_sharp_dispatch_cross_language() {
 /// A later node of another language under the implementing method's id takes the id, as in the
 /// graph, so the method is no C# candidate any more.
 #[test]
-#[ignore = "graphify-rs-ihc.28"] // also needs resolve (ihc.18)
+#[ignore = "graphify-rs-ihc.18"] // csharp test (ihc.28): needs resolve
 fn test_c_sharp_dispatch_id_taken_by_other_language() {
     kinds::register_kinds();
     let files = ["IReport.cs", "Report.cs", "report.ts"];
