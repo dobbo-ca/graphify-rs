@@ -142,11 +142,11 @@ fn test_cpp_export_macro_scan_matches_regexp() {
             let mut end = m3;
             if src[m4..m5].trim_ascii() == b"final" {
                 let t = src[m2..m3].trim_ascii();
+                // Go `m[2] + strings.LastIndexAny(..) + 1`: -1 (no space) gives m[2].
                 end = m2
                     + t.iter()
                         .rposition(|c| b" \t\r\n".contains(c))
-                        .expect("space")
-                    + 1;
+                        .map_or(0, |i| i + 1);
             }
             for c in &mut out[m2..end] {
                 if *c != b'\r' && *c != b'\n' {
