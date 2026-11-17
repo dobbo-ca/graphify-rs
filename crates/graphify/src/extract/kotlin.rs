@@ -14,3 +14,7 @@ pub(super) fn register_kinds() {}
 #[cfg(test)]
 #[path = "tests/kotlin.rs"]
 mod kotlin_tests;
+
+#[cfg(test)]
+#[path = "tests/upstream_kotlin_java.rs"]
+mod upstream_kotlin_java_tests;
