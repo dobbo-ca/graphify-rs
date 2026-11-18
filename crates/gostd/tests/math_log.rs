@@ -63,7 +63,6 @@ fn alike(a: f64, b: f64) -> bool {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.21"]
 fn test_log() {
     for (i, &v) in VF.iter().enumerate() {
         let a = v.abs();
@@ -83,7 +82,6 @@ fn test_log() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.21"]
 fn special_values() {
     assert_eq!(log(1.0).to_bits(), 0.0f64.to_bits());
     assert_eq!(log(0.0), f64::NEG_INFINITY);
