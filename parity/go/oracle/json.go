@@ -12,6 +12,8 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+
+	"gostd-oracle/query"
 )
 
 // json: encoding/json against gostd::json. Inputs: "strings" (length-prefixed records, 4-byte
@@ -37,43 +39,8 @@ func init() {
 	register("json", 1230, jsGen, jsRun)
 }
 
-// graphify-go internal/query/query.go:22-97: graph.json as query.Load and Validate read it
-// (Unmarshal at query.go:113 and validate.go:27, error "parsing %s: %w"). The unexported fields
-// (byID, adj, edge) are left out: encoding/json ignores them.
-type Graph struct {
-	Nodes []Node     `json:"nodes"`
-	Links []Link     `json:"links"`
-	Attrs GraphAttrs `json:"graph"`
-
-	BuiltAtCommit string `json:"built_at_commit,omitempty"`
-	Path          string `json:"-"` // file Load read, for git lookups
-}
-
-type GraphAttrs struct {
-	UnclassifiedFiles int            `json:"unclassified_files"`
-	UnclassifiedExts  map[string]int `json:"unclassified_extensions"`
-}
-
-type Node struct {
-	ID             string            `json:"id"`
-	Label          string            `json:"label"`
-	FileType       string            `json:"file_type"`
-	SourceFile     string            `json:"source_file"`
-	SourceLocation string            `json:"source_location"`
-	Community      *int              `json:"community"`
-	NormLabel      string            `json:"norm_label"`
-	ComputedName   string            `json:"computed_name"`
-	Attributes     map[string]string `json:"attributes"`
-}
-
-type Link struct {
-	Source         string `json:"source"`
-	Target         string `json:"target"`
-	Relation       string `json:"relation"`
-	Confidence     string `json:"confidence"`
-	SourceFile     string `json:"source_file"`
-	SourceLocation string `json:"source_location"`
-}
+// The query.Graph types (graphify-go internal/query/query.go:22-97) are in the query
+// subpackage, so error texts name them `query.Graph` as graphify-go's do.
 
 // graphify-go internal/export/export.go:39-78: graph.json as ToJSON writes it (MarshalIndent
 // at export.go:141).
@@ -171,7 +138,7 @@ var jsShapes = []struct {
 	zero func() any // a pointer to a new value
 }{
 	{"export", func() any { return new(jsonGraph) }},
-	{"graph", func() any { return new(Graph) }},
+	{"graph", func() any { return new(query.Graph) }},
 	{"mcp", func() any { return new(map[string]json.RawMessage) }},
 	{"rawgraph", func() any { return new(rawGraph) }},
 	{"rpc", func() any { return new(rpcRequest) }},
@@ -324,7 +291,7 @@ func jsGraphFiles() []string {
 // (validate.go:27) do: the error text (they wrap it in "parsing <path>: "), or "ok" and the
 // node and link counts. The load op strips a UTF-8 BOM first (query.go:111), validate does not.
 func jsGraphLine(d []byte) string {
-	var g Graph
+	var g query.Graph
 	if err := json.Unmarshal(d, &g); err != nil {
 		return err.Error()
 	}

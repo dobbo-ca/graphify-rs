@@ -88,13 +88,11 @@ fn same_answer_three_times(dfs: bool) {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.21"]
 fn upstream_test_bfs_query_output_does_not_depend_on_hash_seed() {
     same_answer_three_times(false);
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.21"]
 fn upstream_test_dfs_query_output_does_not_depend_on_hash_seed() {
     same_answer_three_times(true);
 }
@@ -107,7 +105,6 @@ fn upstream_test_dfs_query_output_does_not_depend_on_hash_seed() {
 // pins Go v0.12.0 (Start: [alpha, bravo, zebra]); upstream 0.9.107 also seeds charlie and apple
 // through the per-term guarantee, charlie first -> P3 (B65)
 #[test]
-#[ignore = "graphify-rs-aa6.21"]
 fn upstream_test_query_prints_the_stronger_guaranteed_seed_first_and_is_deterministic() {
     let mut nodes = Vec::new();
     for name in ["alpha", "bravo", "charlie", "zebra", "apple"] {
@@ -349,7 +346,6 @@ fn upstream_test_directed_graph_keeps_both_directions_of_a_mutual_edge() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.21"]
 fn upstream_test_directed_graph_renders_the_seed_to_seed_edge() {
     let (mut nodes, mut links) = (Vec::new(), Vec::new());
     add(&mut nodes, &["checkout", "discounted_total"]);
@@ -363,7 +359,6 @@ fn upstream_test_directed_graph_renders_the_seed_to_seed_edge() {
 /// `test_query_cli_renders_the_edge_between_two_seeds`: upstream's CLI `query` is Go's `ask`
 /// (depth 2, budget 2000, as `cmd_ask` passes them).
 #[test]
-#[ignore = "graphify-rs-aa6.21"]
 fn upstream_test_query_cli_renders_the_edge_between_two_seeds() {
     let nodes = [
         r#"{"id": "app.py::checkout", "label": "checkout", "source_file": "app.py", "source_location": "L4", "community": 0}"#.to_string(),
@@ -420,7 +415,6 @@ fn nodes_in_order(text: &str) -> Vec<&str> {
 // pins Go v0.12.0 (docs/auth.md first); upstream 0.9.107 leads with pkg/auth/validators.py,
 // weighting tests and docs down -> P3 (B51)
 #[test]
-#[ignore = "graphify-rs-aa6.21"]
 fn upstream_test_query_answer_leads_with_source_not_test() {
     let g = source_first_graph(&[]);
     let text = ask(
@@ -439,7 +433,6 @@ fn upstream_test_query_answer_leads_with_source_not_test() {
 }
 
 #[test]
-#[ignore = "graphify-rs-aa6.21"]
 fn upstream_test_per_term_seed_guarantee_still_seeds_a_term_only_tests_match() {
     let g = source_first_graph(&[nx_node("fx", "fixture_loader()", "tests/helpers.py", "L3")]);
     let text = ask(&g, "validate_username fixture_loader", false, 1, 2000, &[]);
@@ -456,7 +449,6 @@ fn upstream_test_per_term_seed_guarantee_still_seeds_a_term_only_tests_match() {
 /// `test_path_and_explain_scoring_is_unchanged`, the `_score_nodes` half (Go has no
 /// `_score_query`): names alone cannot tell the source from its test.
 #[test]
-#[ignore = "graphify-rs-aa6.21"]
 fn upstream_test_path_and_explain_scoring_is_unchanged() {
     let g = source_first_graph(&[]);
     let scored = score_nodes(&g, &query_terms("validate_username"));
