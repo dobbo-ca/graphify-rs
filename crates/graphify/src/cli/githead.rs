@@ -336,16 +336,35 @@ fn owned_by_me(path: &str) -> bool {
 
 /// Go `os.Getuid()`. std has no `getuid` and graphify makes no FFI call, so it is read from
 /// `/proc/self/status` (the real uid, the first of the `Uid:` line). Where that is missing
-/// (macOS) it is `None` and every repo asks git, as Go's `githead_other.go` does: the same
-/// answer, one `git` run slower.
+/// (macOS; Go builds `githead_unix.go` there too) it is the owner of a file this process
+/// creates. `None` (both fail) makes every repo ask git: the same answer, one `git` run slower.
 #[cfg(unix)]
 fn getuid() -> Option<u32> {
     static UID: std::sync::OnceLock<Option<u32>> = std::sync::OnceLock::new();
-    *UID.get_or_init(|| {
-        let status = fs::read_to_string("/proc/self/status").ok()?;
-        let line = status.split('\n').find(|l| l.starts_with("Uid:"))?;
-        gostd::strings::fields(line).get(1)?.parse().ok()
-    })
+    *UID.get_or_init(|| proc_uid().or_else(new_file_owner))
+}
+
+#[cfg(unix)]
+fn proc_uid() -> Option<u32> {
+    let status = fs::read_to_string("/proc/self/status").ok()?;
+    let line = status.split('\n').find(|l| l.starts_with("Uid:"))?;
+    gostd::strings::fields(line).get(1)?.parse().ok()
+}
+
+/// The owner of a new file is the effective uid. Go reads the real uid; the two differ only in
+/// a set-uid process, which graphify is not.
+#[cfg(unix)]
+fn new_file_owner() -> Option<u32> {
+    use std::os::unix::fs::MetadataExt;
+    let p = std::env::temp_dir().join(format!(".graphify-uid-{}", std::process::id()));
+    let f = fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&p)
+        .ok()?;
+    let uid = f.metadata().ok().map(|m| m.uid());
+    let _ = fs::remove_file(&p);
+    uid
 }
 
 /// Go `githead_other.go`: no owner check here, always ask git.
