@@ -55,8 +55,6 @@ fn gods(out: &str) -> Vec<(String, String, f64)> {
 }
 
 #[test]
-// cli test (ihc.20): needs query
-#[ignore = "graphify-rs-ihc.13"]
 fn test_cmd_god_nodes() {
     let dir = TempDir::new();
     write(&dir.join("graphify-out/graph.json"), GOD_TEST_GRAPH);
@@ -97,8 +95,6 @@ fn test_cmd_god_nodes() {
 
 // --graph selects an alternate graph and stays contained to graphify-out.
 #[test]
-// cli test (ihc.20): needs query
-#[ignore = "graphify-rs-ihc.13"]
 fn test_cmd_god_nodes_graph_override() {
     let dir = TempDir::new();
     write(
@@ -124,8 +120,6 @@ fn test_cmd_god_nodes_graph_override() {
 
 // A graph.json may carry any number of distinct confidence values.
 #[test]
-// cli test (ihc.20): needs query
-#[ignore = "graphify-rs-ihc.13"]
 fn test_cmd_god_nodes_many_confidences() {
     let mut sb = String::from(
         r#"{"nodes":[{"id":"hub","label":"hub","file_type":"go","source_file":"f.go","source_location":"L1"},{"id":"leaf","label":"leaf","file_type":"go","source_file":"f.go","source_location":"L2"}],"links":["#,
@@ -174,8 +168,6 @@ fn auth_dir() -> TempDir {
 }
 
 #[test]
-// cli test (ihc.20): needs query
-#[ignore = "graphify-rs-ihc.13"]
 fn test_god_nodes_cli_text_output() {
     let dir = auth_dir();
     let r = god(&dir, &["--graph", "graphify-out/graph.json"]);
@@ -195,8 +187,6 @@ fn test_god_nodes_cli_text_output() {
 }
 
 #[test]
-// cli test (ihc.20): needs query
-#[ignore = "graphify-rs-ihc.13"]
 fn test_god_nodes_cli_top_limits() {
     let dir = auth_dir();
     let r = god(&dir, &["--graph", "graphify-out/graph.json", "--top", "1"]);
@@ -205,8 +195,6 @@ fn test_god_nodes_cli_top_limits() {
 }
 
 #[test]
-// cli test (ihc.20): needs query
-#[ignore = "graphify-rs-ihc.13"]
 fn test_god_nodes_cli_json() {
     let dir = auth_dir();
     let r = god(&dir, &["--graph", "graphify-out/graph.json", "--json"]);

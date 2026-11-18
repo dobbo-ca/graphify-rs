@@ -20,8 +20,6 @@ fn exists(p: &Path) -> bool {
 
 // Read commands find the repo's graph from a nested subdirectory.
 #[test]
-// cli test (ihc.20): needs query
-#[ignore = "graphify-rs-ihc.13"]
 fn test_out_dir_walks_up_from_subdir() {
     let dir = TempDir::new();
     write(&dir.join("graphify-out/graph.json"), ALPHA);
@@ -32,8 +30,6 @@ fn test_out_dir_walks_up_from_subdir() {
 
 // GRAPHIFY_OUT overrides both the upward walk and the cwd-local default.
 #[test]
-// cli test (ihc.20): needs query
-#[ignore = "graphify-rs-ihc.13"]
 fn test_out_dir_honours_env() {
     let dir = TempDir::new();
     write(&dir.join("graphify-out/graph.json"), ALPHA);

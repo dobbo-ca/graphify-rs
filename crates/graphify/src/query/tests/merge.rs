@@ -22,7 +22,6 @@ fn load_merged(path: &Path) -> Graph {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_merge_unions_nodes_and_edges() {
     let (_c, current) = write_file(
         r#"{"directed":true,"multigraph":false,"graph":{},
@@ -52,7 +51,6 @@ fn test_merge_unions_nodes_and_edges() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_merge_keeps_both_directions_and_relations() {
     // a->b calls and b->a calls are distinct edges; a->b calls and a->b imports are also
     // distinct. None should collapse.
@@ -82,7 +80,6 @@ fn test_merge_keeps_both_directions_and_relations() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_merge_preserves_node_attributes() {
     let (_c, current) = write_file(
         r#"{"directed":true,"multigraph":false,"graph":{},
@@ -102,7 +99,6 @@ fn test_merge_preserves_node_attributes() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_merge_preserves_provenance_and_hyperedges() {
     // built_at_commit and hyperedges are top-level fields the canonical writer emits and the
     // spec promises to preserve. They must survive a merge.
@@ -131,7 +127,6 @@ fn test_merge_preserves_provenance_and_hyperedges() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_merge_rejects_corrupt_input() {
     let (_c, current) = write_file(r#"{"directed":true,"nodes":[],"links":[]}"#);
     let (_o, other) = write_file("{not json");
@@ -142,7 +137,6 @@ fn test_merge_rejects_corrupt_input() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_merge_missing_file() {
     let (_c, current) = write_file(r#"{"directed":true,"nodes":[],"links":[]}"#);
     let missing = TempDir::new();
@@ -153,7 +147,6 @@ fn test_merge_missing_file() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_merge_rejects_too_many_nodes() {
     let mut b = String::from(r#"{"directed":true,"multigraph":false,"graph":{},"nodes":["#);
     for i in 0..=MERGE_MAX_NODES {

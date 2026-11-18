@@ -25,7 +25,6 @@ const CHAIN: usize = 100_000;
 /// own file), on the production stack: Go grows a goroutine stack to 1 GB, a Rust thread's is
 /// fixed.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn deep_path_chain() {
     let mut body = String::from(r#"{"directed":true,"multigraph":false,"graph":{},"nodes":["#);
     for i in 0..CHAIN {
@@ -76,7 +75,6 @@ fn deep_path_chain() {
 /// Review Focus 3: `load` strips a UTF-8 BOM (`query.go:111`), `validate` does not
 /// (`validate.go:27`), so `validate` reports Go's decode error for it.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn validate_bom_error_text() {
     let mut data = b"\xef\xbb\xbf".to_vec();
     data.extend_from_slice(AFFECTED_JSON.as_bytes());
@@ -99,7 +97,6 @@ fn validate_bom_error_text() {
 /// Go's texts for the three ways `load` fails: `os.ReadFile`'s `*PathError` (the size check
 /// passes a file it cannot stat), a truncated file and a value of the wrong type.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn load_error_texts() {
     let dir = TempDir::new();
     let missing = dir.join("graphify-out/graph.json");
@@ -143,7 +140,6 @@ fn graph_of(nodes: &[String], links: &[String]) -> String {
 
 /// `query.go:159`: `sort.Slice(out, label)` of the matches, many of them with one label.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn query_ties_use_go_pdqsort() {
     let keys = tie_keys();
     let nodes: Vec<String> = keys
@@ -183,7 +179,6 @@ fn query_ties_use_go_pdqsort() {
 /// `query.go:215`: `sort.Slice(nbrs, degree desc, relation, label, direction)` of a hub's
 /// neighbours, many of them equal on all four.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn explain_ties_use_go_pdqsort() {
     let keys = tie_keys();
     let mut nodes = vec![
@@ -243,7 +238,6 @@ fn explain_ties_use_go_pdqsort() {
 /// `affected.go:140`: `collect`'s `sort.Slice(out, source file, label)`, many nodes with one
 /// file and label.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn affected_ties_use_go_pdqsort() {
     let keys = tie_keys();
     let nodes: Vec<String> = keys

@@ -29,7 +29,6 @@ fn impacted(res: &AffectedResult) -> BTreeSet<String> {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_affected_transitive() {
     let g = load_json(AFFECTED_JSON);
     let res = affected(&g, &files(&["util.go"]), &AffectedOptions::default());
@@ -50,7 +49,6 @@ fn test_affected_transitive() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_affected_inherits_context() {
     let g = load_json(INHERITS_JSON);
     let res = affected(&g, &files(&["child.tf"]), &AffectedOptions::default());
@@ -68,7 +66,6 @@ fn test_affected_inherits_context() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_affected_no_match() {
     let g = load_json(AFFECTED_JSON);
     let res = affected(&g, &files(&["nonexistent.go"]), &AffectedOptions::default());
@@ -81,7 +78,6 @@ fn test_affected_no_match() {
 /// Go `TestAffectedDepth`: changing util.go (add) reaches compute at depth 1 and run at depth 2.
 /// Depth 1 keeps only the direct dependent; depth 2 (and unbounded) reach the transitive caller.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_affected_depth() {
     let g = load_json(AFFECTED_JSON);
     let depth = |depth| AffectedOptions {
@@ -110,7 +106,6 @@ fn test_affected_depth() {
 /// followed. Filtering to "imports" (an unused relation here) yields no impact even though
 /// "calls" edges exist.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_affected_relation() {
     let g = load_json(AFFECTED_JSON);
     let rel = |r: &str| AffectedOptions {
@@ -134,7 +129,6 @@ fn test_affected_relation() {
 /// Go `TestAffectedDynamicImport`: a dynamic import() is a dependency: changing the target
 /// reaches the importer.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_affected_dynamic_import() {
     let g = load_json(
         r#"{"directed":true,"multigraph":false,"graph":{},
@@ -161,7 +155,6 @@ fn test_affected_dynamic_import() {
 /// working directory; the cwd is process-global in Rust (other tests run in parallel), so this
 /// reads the test process's own cwd instead, which `affected` sees the same way.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_affected_seed_path_forms() {
     let g = load_json(AFFECTED_JSON);
     let cwd = std::env::current_dir().expect("getwd");
@@ -198,7 +191,6 @@ fn test_affected_seed_path_forms() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_affected_default_follows_inherits() {
     let g = load_json(&graph_json(
         &[

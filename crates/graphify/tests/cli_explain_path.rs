@@ -39,8 +39,6 @@ fn go(cwd: &Path, args: &[&str]) -> Run {
 // --graph makes explain and path load an alternate graph.json (whose nodes exist only there),
 // while the default graphify-out/graph.json backs the commands without --graph.
 #[test]
-// cli test (ihc.20): needs query
-#[ignore = "graphify-rs-ihc.13"]
 fn test_cmd_explain_path_graph_override() {
     let dir = TempDir::new();
     graph(
@@ -111,8 +109,6 @@ fn test_cmd_explain_path_graph_traversal() {
 // path follows edge direction by default and only traverses backwards with --undirected,
 // pointing the user at the flag.
 #[test]
-// cli test (ihc.20): needs query
-#[ignore = "graphify-rs-ihc.13"]
 fn test_cmd_path_undirected() {
     let dir = TempDir::new();
     graph(
@@ -135,8 +131,6 @@ fn test_cmd_path_undirected() {
 // path prints each hop's relation and confidence, and flips the arrow when the stored edge runs
 // against the direction of travel.
 #[test]
-// cli test (ihc.20): needs query
-#[ignore = "graphify-rs-ihc.13"]
 fn test_cmd_path_annotates_hops() {
     let dir = TempDir::new();
     graph(
@@ -158,8 +152,6 @@ fn test_cmd_path_annotates_hops() {
 
 // explain and path accept a repo-relative file path, with or without a leading "./".
 #[test]
-// cli test (ihc.20): needs query
-#[ignore = "graphify-rs-ihc.13"]
 fn test_cmd_explain_path_source_file() {
     let dir = TempDir::new();
     graph(
@@ -187,8 +179,6 @@ fn test_cmd_explain_path_source_file() {
 
 // A directed path may step from a symbol back out to its containing file over a contains edge.
 #[test]
-// cli test (ihc.20): needs query
-#[ignore = "graphify-rs-ihc.13"]
 fn test_cmd_path_directed_contains_reverse() {
     let dir = TempDir::new();
     graph(
@@ -220,8 +210,6 @@ const PATCH_GRAPH: &str = concat!(
 // pins Go v0.12.0 (the chain line only); upstream 0.9.107 also prints `Shortest path (1 hops):`
 // -> P3
 #[test]
-// cli test (ihc.20): needs query
-#[ignore = "graphify-rs-ihc.13"]
 fn test_forward_arrow() {
     let dir = TempDir::new();
     graph(&dir, "graphify-out/graph.json", PATCH_GRAPH);
@@ -239,8 +227,6 @@ fn test_forward_arrow() {
 // pins Go v0.12.0 (the chain line only); upstream 0.9.107 also prints `Shortest path (1 hops):`
 // -> P3
 #[test]
-// cli test (ihc.20): needs query
-#[ignore = "graphify-rs-ihc.13"]
 fn test_reverse_arrow() {
     let dir = TempDir::new();
     graph(&dir, "graphify-out/graph.json", PATCH_GRAPH);
@@ -263,8 +249,6 @@ fn test_reverse_arrow() {
 // Upstream varies PYTHONHASHSEED over 8 runs; Go's BFS visits neighbours in sorted order, so 8
 // runs of the binary give one route over the diamond.
 #[test]
-// cli test (ihc.20): needs query
-#[ignore = "graphify-rs-ihc.13"]
 fn test_path_deterministic_across_hash_seeds() {
     let dir = TempDir::new();
     graph(
@@ -296,8 +280,6 @@ fn test_path_deterministic_across_hash_seeds() {
 // pins Go v0.12.0 (the chain line only); upstream 0.9.107 also prints `Shortest path (2 hops):`
 // -> P3
 #[test]
-// cli test (ihc.20): needs query
-#[ignore = "graphify-rs-ihc.13"]
 fn test_path_routes_through_a_contains_edge_to_reach_the_file() {
     let dir = TempDir::new();
     graph(

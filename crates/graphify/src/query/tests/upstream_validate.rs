@@ -210,7 +210,6 @@ const ROWS: &[(&str, &str, Want)] = &[
 
 /// `tests/test_validate.py`, one row per upstream case (pytest parameters in brackets).
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_validate() {
     for (name, body, want) in ROWS {
         let (_d, p) = write_graph_json(body.as_bytes());
@@ -235,7 +234,6 @@ const CORRUPT: &str = r#"{"nodes": [{"id": "a", "labe"#;
 // pins Go v0.12.0 ("parsing <path>: unexpected end of JSON input"); upstream 0.9.107 raises
 // "Cannot read graph file ... regenerate" -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_affected_load_graph_corrupt_raises_runtimeerror() {
     let (_d, p) = write_graph_json(CORRUPT.as_bytes());
     match load(&p) {
@@ -250,7 +248,6 @@ fn upstream_test_affected_load_graph_corrupt_raises_runtimeerror() {
 /// `tests/test_corrupt_graph_json.py` `test_valid_graph_still_loads` (the `load_graph` half: Go
 /// has no `build_merge` over graph.json in `query`, and no `diagnose`).
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_valid_graph_still_loads() {
     let (_d, p) = write_graph_json(
         br#"{"nodes": [{"id": "a", "label": "a", "file_type": "code"}], "edges": []}"#,

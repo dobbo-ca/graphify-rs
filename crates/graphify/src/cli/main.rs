@@ -3,9 +3,8 @@
 //! signatures are shared API.
 //!
 //! The query-side commands (`query`, `ask`, `explain`, `path`, `god-nodes`, `affected`, `diff`,
-//! `merge-driver`, `validate`) read the graph through the `query` package, which is
-//! graphify-rs-ihc.13 (plan Task 12) and not on main yet: each is ported up to its first `query`
-//! call, which is [`query_load`] or a `todo!` naming the Go lines left.
+//! `merge-driver`, `validate`) read the graph through the `query` package (graphify-rs-ihc.13);
+//! `path` and `god-nodes` use `renderPathChain` and `modelOf` of `serve.go`, ported here.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::ffi::OsString;
@@ -29,7 +28,7 @@ use crate::cache::{self, Cache, Entry, Output, StatEntry, StatIndex};
 use crate::detect::{self, WalkReport, go_lossy};
 use crate::extract::{self, Result as ExtractResult};
 use crate::model::Graph;
-use crate::{STACK_BYTES, cluster, export, fsutil, graph, report, security, ts};
+use crate::{STACK_BYTES, analyze, cluster, export, fsutil, graph, query, report, security, ts};
 
 /// Go `version`: build metadata, injected via `-ldflags` at release time.
 pub(crate) const VERSION: &str = "dev";
@@ -981,17 +980,41 @@ pub fn cmd_update(args: &[OsString], stdout: Out<'_>, stderr: Out<'_>) -> Result
     )
 }
 
-/// Go `query.Load`. The query package is graphify-rs-ihc.13 (plan Task 12) and not on main yet:
-/// this stands where Go loads the graph.
-fn query_load(_path: &str) -> Result<(), Error> {
-    todo!("graphify-rs-ihc.13: query.Load")
+/// Go `query.Load`.
+fn query_load(path: &str) -> Result<query::Graph, Error> {
+    query::load(Path::new(path)).map_err(msg)
+}
+
+/// Go `locOf`.
+fn loc_of(n: &query::Node) -> String {
+    if n.source_file.is_empty() {
+        return "(external)".to_string();
+    }
+    format!("{} {}", n.source_file, n.source_location)
+}
+
+/// Go `json.NewEncoder(os.Stdout)` with `SetIndent("", "  ")`, then `Encode(v)`.
+fn encode_indented(stdout: Out<'_>, v: &impl gostd::json::Marshal) -> Result<(), Error> {
+    let mut buf = Vec::new();
+    let mut enc = gostd::json::Encoder::new(&mut buf);
+    enc.set_indent("", "  ");
+    enc.encode(v).map_err(msg)?;
+    // The encoder writes valid UTF-8.
+    w!(stdout, "{}", String::from_utf8_lossy(&buf))
 }
 
 /// Go `cmdQuery`: `query <pattern>` (`run` checks the pattern is there).
-pub fn cmd_query(args: &[OsString], _stdout: Out<'_>, _stderr: Out<'_>) -> Result<(), Error> {
-    let _pattern = go_lossy(args[0].as_encoded_bytes());
-    query_load(&default_graph_path())?;
-    todo!("graphify-rs-ihc.13: query.Query and the printout (main.go:860-871)")
+pub fn cmd_query(args: &[OsString], stdout: Out<'_>, _stderr: Out<'_>) -> Result<(), Error> {
+    let pattern = go_lossy(args[0].as_encoded_bytes());
+    let g = query_load(&default_graph_path())?;
+    let matches = query::query(&g, &pattern).map_err(msg)?;
+    if matches.is_empty() {
+        return w!(stdout, "no matches\n");
+    }
+    for m in &matches {
+        w!(stdout, "{:<40} {}\n", m.label, m.location)?;
+    }
+    Ok(())
 }
 
 /// Go `strconv.Atoi` of a `--budget` value: a positive integer.
@@ -1006,7 +1029,7 @@ fn ask_budget(s: &str) -> Result<i64, Error> {
 }
 
 /// Go `cmdAsk`: `ask "<question>" [--dfs] [--budget N] [--context REL] [--graph path]`.
-pub fn cmd_ask(args: &[OsString], _stdout: Out<'_>, _stderr: Out<'_>) -> Result<(), Error> {
+pub fn cmd_ask(args: &[OsString], stdout: Out<'_>, _stderr: Out<'_>) -> Result<(), Error> {
     let args = strs(args);
     let Some(question) = args.first() else {
         return Err(Error::Msg(
@@ -1044,9 +1067,12 @@ pub fn cmd_ask(args: &[OsString], _stdout: Out<'_>, _stderr: Out<'_>) -> Result<
     if graph_path != default_graph_path() {
         graph_path = safe_graph_path(&graph_path)?;
     }
-    query_load(&graph_path)?;
-    let _ = (question, dfs, budget, relations);
-    todo!("graphify-rs-ihc.13: query.Ask and the printout (main.go:934)")
+    let g = query_load(&graph_path)?;
+    w!(
+        stdout,
+        "{}\n",
+        query::ask(&g, question, dfs, 2, budget, &relations)
+    )
 }
 
 /// Go `safeGraphPath`: a user-supplied `--graph` path must resolve inside the graphify-out
@@ -1056,32 +1082,138 @@ fn safe_graph_path(path: &str) -> Result<String, Error> {
 }
 
 /// Go `cmdExplain`: `explain <node> [--graph path]`.
-pub fn cmd_explain(args: &[OsString], _stdout: Out<'_>, _stderr: Out<'_>) -> Result<(), Error> {
+pub fn cmd_explain(args: &[OsString], stdout: Out<'_>, _stderr: Out<'_>) -> Result<(), Error> {
     let (positionals, graph_path) = parse_graph_flag(strs(args));
     if positionals.len() != 1 {
         return Err(Error::Msg(
             "usage: graphify explain <node> [--graph path]".to_string(),
         ));
     }
-    load_graph_at(graph_path)?;
-    todo!("graphify-rs-ihc.13: query.Explain, explainLines and the printout (main.go:954-1025)")
+    let g = load_graph_at(graph_path)?;
+    let ex = query::explain(&g, &positionals[0]).map_err(msg)?;
+    w!(
+        stdout,
+        "{}  [{}]\n  {}\n",
+        ex.node.label,
+        ex.node.file_type,
+        loc_of(&ex.node)
+    )?;
+    for line in explain_lines(&ex.neighbors) {
+        w!(stdout, "{line}\n")?;
+    }
+    Ok(())
 }
 
 /// Go `explainConnCap`: how many connections `explain` lists in full.
-// graphify-rs-ihc.13: stubs until the code PR
-#[allow(dead_code, unused_variables)]
 pub(crate) const EXPLAIN_CONN_CAP: usize = 20;
+
+/// Go `explainFileCap`: how many (direction, file) groups `explain` lists.
+const EXPLAIN_FILE_CAP: usize = 20;
 
 /// Go `explainLines`: the first [`EXPLAIN_CONN_CAP`] neighbours in full, then the rest folded
 /// into (direction, source file) counts (`main.go:976-1016`).
-// graphify-rs-ihc.13: stubs until the code PR
-#[allow(dead_code, unused_variables)]
-pub(crate) fn explain_lines(nbrs: &[crate::query::Neighbor]) -> Vec<String> {
-    todo!("graphify-rs-ihc.13")
+pub(crate) fn explain_lines(nbrs: &[query::Neighbor]) -> Vec<String> {
+    if nbrs.is_empty() {
+        return vec!["  (no connections)".to_string()];
+    }
+    let (head, tail) = nbrs.split_at(nbrs.len().min(EXPLAIN_CONN_CAP));
+    let mut out: Vec<String> = head
+        .iter()
+        .map(|n| {
+            format!(
+                "  {} {:<12} {:<32} {}",
+                n.direction, n.relation, n.label, n.location
+            )
+        })
+        .collect();
+    if tail.is_empty() {
+        return out;
+    }
+    let mut counts: BTreeMap<(&str, &str), i64> = BTreeMap::new();
+    for n in tail {
+        let file = if n.file.is_empty() {
+            "(unknown file)"
+        } else {
+            n.file.as_str()
+        };
+        *counts.entry((n.direction.as_str(), file)).or_default() += 1;
+    }
+    let mut keys: Vec<(&str, &str)> = counts.keys().copied().collect();
+    gostd::sort::slice(&mut keys, |a, b| {
+        if counts[a] != counts[b] {
+            return counts[a] > counts[b];
+        }
+        if a.1 != b.1 {
+            return a.1 < b.1;
+        }
+        a.0 < b.0
+    });
+    out.push(format!(
+        "  ... {} more connections. Grouped by file:",
+        tail.len()
+    ));
+    let shown = &keys[..keys.len().min(EXPLAIN_FILE_CAP)];
+    for k in shown {
+        out.push(format!("    {} {:<48} {}", k.0, k.1, counts[k]));
+    }
+    let rest = keys.len() - shown.len();
+    if rest > 0 {
+        out.push(format!("    ... and {rest} more files"));
+    }
+    out
+}
+
+/// Go `renderPathChain` (`serve.go:512`): the path as `a --calls [INFERRED]--> b`, with
+/// `<--rel--` for a hop whose stored edge points against the direction of travel.
+fn render_path_chain(res: &query::PathResult) -> String {
+    let label_or_id = |n: &query::Node| {
+        security::sanitize_label(if n.label.is_empty() { &n.id } else { &n.label })
+    };
+    let mut b = label_or_id(&res.nodes[0]);
+    for (i, e) in res.edges.iter().enumerate() {
+        let next = label_or_id(&res.nodes[i + 1]);
+        let conf = if e.confidence.is_empty() {
+            String::new()
+        } else {
+            format!(" [{}]", e.confidence)
+        };
+        if e.forward {
+            b += &format!(" --{}{conf}--> {next}", e.relation);
+        } else {
+            b += &format!(" <--{}{conf}-- {next}", e.relation);
+        }
+    }
+    b
+}
+
+/// Go `modelOf` (`serve.go:113`): a `model::Graph` of the loaded graph.json, for
+/// `analyze::god_nodes`.
+fn model_of(g: &query::Graph) -> Graph {
+    let mut m = Graph::new();
+    for n in &g.nodes {
+        m.add_node(crate::model::Node {
+            id: n.id.clone(),
+            label: n.label.clone(),
+            file_type: n.file_type.clone(),
+            source_file: n.source_file.clone(),
+            source_location: n.source_location.clone(),
+            ..Default::default()
+        });
+    }
+    for l in &g.links {
+        m.add_edge(crate::model::Edge {
+            source: l.source.clone(),
+            target: l.target.clone(),
+            relation: crate::model::rel(&l.relation),
+            confidence: crate::model::conf(&l.confidence),
+            ..Default::default()
+        });
+    }
+    m
 }
 
 /// Go `cmdPath`: `path <from> <to> [--undirected] [--graph path]`.
-pub fn cmd_path(args: &[OsString], _stdout: Out<'_>, _stderr: Out<'_>) -> Result<(), Error> {
+pub fn cmd_path(args: &[OsString], stdout: Out<'_>, _stderr: Out<'_>) -> Result<(), Error> {
     let mut args = strs(args);
     let n = args.len();
     args.retain(|a| a != "--undirected");
@@ -1092,13 +1224,18 @@ pub fn cmd_path(args: &[OsString], _stdout: Out<'_>, _stderr: Out<'_>) -> Result
             "usage: graphify path <from> <to> [--undirected] [--graph path]".to_string(),
         ));
     }
-    load_graph_at(graph_path)?;
-    let _ = undirected;
-    todo!("graphify-rs-ihc.13: query.PathEdges and renderPathChain (main.go:1045-1053)")
+    let g = load_graph_at(graph_path)?;
+    let res = match query::path_edges(&g, &positionals[0], &positionals[1], 0, undirected) {
+        Err(e @ query::Error::NoDirectedPath(_)) => {
+            return Err(Error::Msg(format!("{e}; retry with --undirected")));
+        }
+        r => r.map_err(msg)?,
+    };
+    w!(stdout, "{}\n", render_path_chain(&res))
 }
 
 /// Go `cmdGodNodes`: `god-nodes [--top N] [--graph path] [--json]`.
-pub fn cmd_god_nodes(args: &[OsString], _stdout: Out<'_>, _stderr: Out<'_>) -> Result<(), Error> {
+pub fn cmd_god_nodes(args: &[OsString], stdout: Out<'_>, _stderr: Out<'_>) -> Result<(), Error> {
     let (positionals, graph_path) = parse_graph_flag(strs(args));
     let (mut top, mut as_json) = (10, false);
     let mut i = 0;
@@ -1126,9 +1263,19 @@ pub fn cmd_god_nodes(args: &[OsString], _stdout: Out<'_>, _stderr: Out<'_>) -> R
         }
         i += 1;
     }
-    load_graph_at(graph_path)?;
-    let _ = (top, as_json);
-    todo!("graphify-rs-ihc.13: analyze.GodNodes(modelOf(g)) and the printout (main.go:1087-1104)")
+    let g = load_graph_at(graph_path)?;
+    let gods = analyze::god_nodes(&model_of(&g), top, 0);
+    if as_json {
+        return encode_indented(stdout, &gods);
+    }
+    if gods.is_empty() {
+        return w!(stdout, "no god nodes (graph has no non-file entities)\n");
+    }
+    w!(stdout, "God nodes (most connected):\n")?;
+    for (i, n) in gods.iter().enumerate() {
+        w!(stdout, "  {}. {:<40} {} edges\n", i + 1, n.label, n.degree)?;
+    }
+    Ok(())
 }
 
 /// Go `parseGraphFlag`: the positionals and the `--graph` path (default `default_graph_path`).
@@ -1152,7 +1299,7 @@ fn parse_graph_flag(args: Vec<String>) -> (Vec<String>, String) {
 }
 
 /// Go `loadGraphAt`: the containment guard for a path other than the default, then the load.
-fn load_graph_at(graph_path: String) -> Result<(), Error> {
+fn load_graph_at(graph_path: String) -> Result<query::Graph, Error> {
     let graph_path = if graph_path != default_graph_path() {
         safe_graph_path(&graph_path)?
     } else {
@@ -1245,7 +1392,7 @@ pub(crate) fn read_path_list(r: impl BufRead) -> Vec<String> {
 
 /// Go `cmdAffected`: `affected [file...|-] [--depth N] [--relation R]`.
 pub fn cmd_affected(args: &[OsString], stdout: Out<'_>, _stderr: Out<'_>) -> Result<(), Error> {
-    query_load(&default_graph_path())?;
+    let g = query_load(&default_graph_path())?;
     let args = strs(args);
     let (mut files, mut relations, mut depth) = (Vec::new(), Vec::new(), 0);
     let depth_of =
@@ -1281,12 +1428,21 @@ pub fn cmd_affected(args: &[OsString], stdout: Out<'_>, _stderr: Out<'_>) -> Res
         }
         w!(stdout, "changed files (from git): {}\n", files.join(", "))?;
     }
-    let _ = (files, depth, relations);
-    todo!("graphify-rs-ihc.13: query.Affected and the printout (main.go:1258-1271)")
+    let res = query::affected(&g, &files, &query::AffectedOptions { depth, relations });
+    if res.changed.is_empty() {
+        return w!(stdout, "no graph nodes are defined in those files\n");
+    }
+    for (title, ns) in [("changed", &res.changed), ("impacted", &res.impacted)] {
+        w!(stdout, "{title} ({}):\n", ns.len())?;
+        for n in ns {
+            w!(stdout, "  {:<40} {}\n", n.label, loc_of(n))?;
+        }
+    }
+    Ok(())
 }
 
 /// Go `cmdDiff`: `diff <old.json> <new.json> [--json]`.
-pub fn cmd_diff(args: &[OsString], _stdout: Out<'_>, _stderr: Out<'_>) -> Result<(), Error> {
+pub fn cmd_diff(args: &[OsString], stdout: Out<'_>, _stderr: Out<'_>) -> Result<(), Error> {
     let mut as_json = false;
     let mut paths = Vec::new();
     for a in strs(args) {
@@ -1304,10 +1460,36 @@ pub fn cmd_diff(args: &[OsString], _stdout: Out<'_>, _stderr: Out<'_>) -> Result
     for p in &mut paths {
         *p = safe_graph_path(p)?;
     }
-    query_load(&paths[0])?;
-    query_load(&paths[1])?;
-    let _ = as_json;
-    todo!("graphify-rs-ihc.13: query.Diff and the printout (main.go:1306-1335)")
+    let old_g = query_load(&paths[0])?;
+    let new_g = query_load(&paths[1])?;
+    let res = query::diff(&old_g, &new_g);
+    if as_json {
+        return encode_indented(stdout, &res);
+    }
+    w!(stdout, "{}\n", res.summary)?;
+    for (title, ns) in [
+        ("new nodes", &res.new_nodes),
+        ("removed nodes", &res.removed_nodes),
+    ] {
+        if !ns.is_empty() {
+            w!(stdout, "{title} ({}):\n", ns.len())?;
+            for n in ns {
+                w!(stdout, "  {}\n", n.label)?;
+            }
+        }
+    }
+    for (title, es) in [
+        ("new edges", &res.new_edges),
+        ("removed edges", &res.removed_edges),
+    ] {
+        if !es.is_empty() {
+            w!(stdout, "{title} ({}):\n", es.len())?;
+            for e in es {
+                w!(stdout, "  {} -{}-> {}\n", e.source, e.relation, e.target)?;
+            }
+        }
+    }
+    Ok(())
 }
 
 /// Go `cmdMergeDriver`: `merge-driver <base> <current> <other>`.
@@ -1321,14 +1503,43 @@ pub fn cmd_merge_driver(
             "usage: graphify merge-driver <base> <current> <other>".to_string(),
         ));
     }
-    let _ = (&args[1], &args[2]);
-    todo!("graphify-rs-ihc.13: query.Merge(current, other) (main.go:1349)")
+    query::merge(Path::new(&args[1]), Path::new(&args[2])).map_err(msg)
 }
 
 /// Go `cmdValidate`: `validate`.
-pub fn cmd_validate(_args: &[OsString], _stdout: Out<'_>, _stderr: Out<'_>) -> Result<(), Error> {
-    query_load(&default_graph_path())?;
-    todo!("graphify-rs-ihc.13: query.Validate and the printout (main.go:1355-1372)")
+pub fn cmd_validate(_args: &[OsString], stdout: Out<'_>, _stderr: Out<'_>) -> Result<(), Error> {
+    let (issues, nodes, links, unclassified) =
+        query::validate(Path::new(&default_graph_path())).map_err(msg)?;
+    let res = validate_report(&issues, nodes, links, &mut *stdout);
+    // Go defers this Println: it follows the report, error or not.
+    if !unclassified.is_empty() {
+        w!(stdout, "{unclassified}\n")?;
+    }
+    res
+}
+
+/// The body of Go `cmdValidate` after `query.Validate`, up to its deferred print.
+fn validate_report(
+    issues: &[String],
+    nodes: i64,
+    links: i64,
+    stdout: Out<'_>,
+) -> Result<(), Error> {
+    if issues.is_empty() {
+        return w!(
+            stdout,
+            "graph OK: {nodes} nodes · {links} edges, no issues\n"
+        );
+    }
+    w!(
+        stdout,
+        "graph has {} issue(s) across {nodes} nodes · {links} edges:\n",
+        issues.len()
+    )?;
+    for is in issues {
+        w!(stdout, "  - {is}\n")?;
+    }
+    Err(Error::Msg(format!("{} validation issue(s)", issues.len())))
 }
 
 /// Go `gitChangedFiles`: the files that differ from HEAD in the working tree; none if git fails.

@@ -4,7 +4,6 @@ use super::{AFFECTED_JSON, write_graph_json};
 use crate::query::validate;
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_validate_clean() {
     let (_d, p) = write_graph_json(AFFECTED_JSON.as_bytes());
     let (issues, nodes, links, _) = validate(&p).unwrap_or_else(|e| panic!("{e}"));
@@ -27,7 +26,6 @@ const BROKEN_JSON: &str = r#"{"directed":true,"multigraph":false,"graph":{},
 "hyperedges":[]}"#;
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_validate_finds_problems() {
     let (_d, p) = write_graph_json(BROKEN_JSON.as_bytes());
     let (issues, ..) = validate(&p).unwrap_or_else(|e| panic!("{e}"));

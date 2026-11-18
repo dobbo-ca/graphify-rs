@@ -45,7 +45,6 @@ fn report_graph() -> Graph {
 // pins Go v0.12.0 (the two hops, no summary line); upstream 0.9.107 ends with "Path confidence:
 // INFERRED (weakest hop 2: dispatches_to, score 0.75)" -> P3 (B62)
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_path_confidence() {
     let g = report_graph();
     let ids = [
@@ -191,7 +190,6 @@ fn file_name_graph() -> Graph {
 // pins Go v0.12.0 (`no node matching "PdfReport.Build"`); upstream 0.9.107 exits 3 with
 // "Ambiguous: 'PdfReport.Build' matches 2 nodes ..." -> P3 (B09)
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_type_member_is_refused() {
     let two_files = write_nodes(
         &[
@@ -249,7 +247,6 @@ fn upstream_test_type_member_is_refused() {
 // pins Go v0.12.0 (no match for Outer.Inner.Go, Inner.Go, Outer.Go, Outer.Inner); upstream
 // 0.9.107 resolves them through the types' membership edges -> P3 (B09)
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_nested_type_members() {
     let g = nested_graph();
     for q in [
@@ -265,7 +262,6 @@ fn upstream_test_nested_type_members() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_dotted_label_and_non_type_owner_keep_their_old_resolution() {
     let g = write_nodes(
         &[
@@ -286,7 +282,6 @@ fn upstream_test_dotted_label_and_non_type_owner_keep_their_old_resolution() {
 /// `test_file_name_endpoint_is_not_refused_as_a_missing_member`: `utils.py` is a substring of
 /// the file node's label, `helper()` its exact label; the path is the one `contains` hop.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_file_name_endpoint_is_not_refused_as_a_missing_member() {
     let g = file_name_graph();
     assert_eq!(resolved(&g, "utils.py").as_deref(), Some("src_utils"));
@@ -305,7 +300,6 @@ fn upstream_test_file_name_endpoint_is_not_refused_as_a_missing_member() {
 // pins Go v0.12.0 (no match for config.json, Utils.Run); upstream 0.9.107 resolves config_port
 // and utils_run -> P3 (B09)
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_file_name_beats_a_same_shaped_member() {
     let g = file_name_graph();
     assert_eq!(resolved(&g, "config.json"), None);
@@ -313,7 +307,6 @@ fn upstream_test_file_name_beats_a_same_shaped_member() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_exact_dotted_node_id_is_not_refused_as_a_missing_member() {
     let g = write_nodes(
         &[

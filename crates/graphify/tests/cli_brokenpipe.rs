@@ -44,8 +44,6 @@ fn run_closing_early(cwd: &std::path::Path, args: &[&str], read_lines: usize) ->
 
 // Go closes the read end before the child writes, so its stdout writes hit a broken pipe.
 #[test]
-// cli test (ihc.20): needs query
-#[ignore = "graphify-rs-ihc.13"]
 fn test_query_exits_zero_on_broken_pipe() {
     let work = TempDir::new();
     write(&work.join("graphify-out/graph.json"), BROKEN_PIPE_GRAPH);

@@ -88,13 +88,11 @@ fn same_answer_three_times(dfs: bool) {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_bfs_query_output_does_not_depend_on_hash_seed() {
     same_answer_three_times(false);
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_dfs_query_output_does_not_depend_on_hash_seed() {
     same_answer_three_times(true);
 }
@@ -107,7 +105,6 @@ fn upstream_test_dfs_query_output_does_not_depend_on_hash_seed() {
 // pins Go v0.12.0 (Start: [alpha, bravo, zebra]); upstream 0.9.107 also seeds charlie and apple
 // through the per-term guarantee, charlie first -> P3 (B65)
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_query_prints_the_stronger_guaranteed_seed_first_and_is_deterministic() {
     let mut nodes = Vec::new();
     for name in ["alpha", "bravo", "charlie", "zebra", "apple"] {
@@ -217,7 +214,6 @@ fn triangle() -> Graph {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_bfs_records_edge_between_two_seeds() {
     let (mut nodes, mut links) = (Vec::new(), Vec::new());
     add(&mut nodes, &["checkout", "discounted_total"]);
@@ -233,7 +229,6 @@ fn upstream_test_bfs_records_edge_between_two_seeds() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_bfs_records_cross_edge_in_a_triangle() {
     let g = triangle();
     let (visited, edges) = traverse(&g, &["n1"], 2, false, None);
@@ -248,7 +243,6 @@ fn upstream_test_bfs_records_cross_edge_in_a_triangle() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_bfs_records_edge_between_two_visited_hubs() {
     let g = hubs_graph();
     let (visited, edges) = traverse(&g, &["seed"], 1, false, None);
@@ -260,7 +254,6 @@ fn upstream_test_bfs_records_edge_between_two_visited_hubs() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_dfs_records_edge_between_two_visited_hubs() {
     let g = hubs_graph();
     let (visited, edges) = traverse(&g, &["seed"], 1, true, None);
@@ -272,7 +265,6 @@ fn upstream_test_dfs_records_edge_between_two_visited_hubs() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_traversal_edges_keep_discovery_order_and_come_first() {
     let g = triangle();
     let (_, edges) = traverse(&g, &["n1"], 2, false, None);
@@ -285,7 +277,6 @@ fn upstream_test_traversal_edges_keep_discovery_order_and_come_first() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_no_duplicate_edges_are_returned() {
     let (mut nodes, mut links) = (Vec::new(), Vec::new());
     add(&mut nodes, &["n1", "n2", "n3", "n4"]);
@@ -308,7 +299,6 @@ fn upstream_test_no_duplicate_edges_are_returned() {
 /// The completion pass scans the filtered adjacency: upstream's `context` `call` is Go's
 /// relation `calls`.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_completion_respects_the_context_filter() {
     let (mut nodes, mut links) = (Vec::new(), Vec::new());
     add(&mut nodes, &["n1", "n2", "n3"]);
@@ -326,7 +316,6 @@ fn upstream_test_completion_respects_the_context_filter() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_self_loops_are_not_introduced() {
     let (mut nodes, mut links) = (Vec::new(), Vec::new());
     add(&mut nodes, &["recurse", "caller"]);
@@ -346,7 +335,6 @@ fn upstream_test_self_loops_are_not_introduced() {
 // pins Go v0.12.0 ([(ping, pong)]); upstream 0.9.107 records both (ping, pong) and (pong, ping)
 // on a DiGraph -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_directed_graph_keeps_both_directions_of_a_mutual_edge() {
     let (mut nodes, mut links) = (Vec::new(), Vec::new());
     add(&mut nodes, &["ping", "pong"]);
@@ -358,7 +346,6 @@ fn upstream_test_directed_graph_keeps_both_directions_of_a_mutual_edge() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_directed_graph_renders_the_seed_to_seed_edge() {
     let (mut nodes, mut links) = (Vec::new(), Vec::new());
     add(&mut nodes, &["checkout", "discounted_total"]);
@@ -372,7 +359,6 @@ fn upstream_test_directed_graph_renders_the_seed_to_seed_edge() {
 /// `test_query_cli_renders_the_edge_between_two_seeds`: upstream's CLI `query` is Go's `ask`
 /// (depth 2, budget 2000, as `cmd_ask` passes them).
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_query_cli_renders_the_edge_between_two_seeds() {
     let nodes = [
         r#"{"id": "app.py::checkout", "label": "checkout", "source_file": "app.py", "source_location": "L4", "community": 0}"#.to_string(),
@@ -429,7 +415,6 @@ fn nodes_in_order(text: &str) -> Vec<&str> {
 // pins Go v0.12.0 (docs/auth.md first); upstream 0.9.107 leads with pkg/auth/validators.py,
 // weighting tests and docs down -> P3 (B51)
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_query_answer_leads_with_source_not_test() {
     let g = source_first_graph(&[]);
     let text = ask(
@@ -448,7 +433,6 @@ fn upstream_test_query_answer_leads_with_source_not_test() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_per_term_seed_guarantee_still_seeds_a_term_only_tests_match() {
     let g = source_first_graph(&[nx_node("fx", "fixture_loader()", "tests/helpers.py", "L3")]);
     let text = ask(&g, "validate_username fixture_loader", false, 1, 2000, &[]);
@@ -465,7 +449,6 @@ fn upstream_test_per_term_seed_guarantee_still_seeds_a_term_only_tests_match() {
 /// `test_path_and_explain_scoring_is_unchanged`, the `_score_nodes` half (Go has no
 /// `_score_query`): names alone cannot tell the source from its test.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_path_and_explain_scoring_is_unchanged() {
     let g = source_first_graph(&[]);
     let scored = score_nodes(&g, &query_terms("validate_username"));
@@ -487,7 +470,6 @@ fn upstream_test_path_and_explain_scoring_is_unchanged() {
 // pins Go v0.12.0 ("  ... 5 more connections. Grouped by file:" and the per-file counts);
 // upstream 0.9.107 prints "Connections (25):" and "... and 5 more (--all lists all 25)" -> P3
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_explain_cut_names_the_total_and_the_option() {
     let mut nodes =
         vec![r#"{"id": "hub", "label": "hub()", "source_file": "lib/hub.py"}"#.to_string()];

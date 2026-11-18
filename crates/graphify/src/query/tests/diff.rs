@@ -43,7 +43,6 @@ fn de(source: &str, target: &str, relation: &str) -> DiffEdge {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_diff() {
     let old_g = load_json(OLD_DIFF_JSON);
     let new_g = load_json(NEW_DIFF_JSON);
@@ -68,7 +67,6 @@ fn test_diff() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_diff_no_changes() {
     let g1 = load_json(OLD_DIFF_JSON);
     let g2 = load_json(OLD_DIFF_JSON);
@@ -87,7 +85,6 @@ fn test_diff_no_changes() {
 /// Go `TestDiffEdgeDirectionAware`: the graph is directed, so reversing an edge's endpoints
 /// between snapshots registers as one removed (x->y) and one added (y->x).
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_diff_edge_direction_aware() {
     let a = r#"{"directed":true,"nodes":[
  {"id":"x","label":"x()","source_file":"a.go","source_location":"L1"},
@@ -115,7 +112,6 @@ fn test_diff_edge_direction_aware() {
 /// (A->B and B->A) and one is removed, the removal must be reported. A direction-insensitive key
 /// would collapse both edges and hide the removal.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_diff_mutual_recursion_edge_removed() {
     let a = r#"{"directed":true,"nodes":[
  {"id":"A","label":"A()","source_file":"a.go","source_location":"L1"},

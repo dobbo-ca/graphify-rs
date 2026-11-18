@@ -117,7 +117,6 @@ fn python_graph() -> Graph {
 // pins Go v0.12.0 (no hits: a node id is not a file seed); upstream 0.9.107 walks back from the
 // symbol through `defines` to its file and the file's importers -> P3 (B52)
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_affected_defines() {
     assert_no_hits(vec![
         (
@@ -194,7 +193,6 @@ fn upstream_test_affected_defines() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_defines_is_in_default_affected_relations() {
     assert!(
         DEP_RELATIONS.contains(&"defines"),
@@ -225,7 +223,6 @@ fn member_graph() -> Graph {
 // pins Go v0.12.0 (no hits: a node id is not a file seed, and these nodes have no file);
 // upstream 0.9.107 seeds the class's members and reaches the method-bound callers -> P3 (B52)
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_affected_member_seed() {
     assert_no_hits(vec![
         (
@@ -337,7 +334,6 @@ const VISITOR: &[(&str, &str, &str)] = &[
 // pins Go v0.12.0 (no hits: a node id is not a file seed, and these nodes have no file);
 // upstream 0.9.107 walks from an override to the callers of the member it overrides -> P3 (B52)
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_affected_overrides() {
     assert_no_hits(vec![
         (
@@ -507,7 +503,6 @@ const DOCSTRING: (&str, &str, &str) = (
 /// `test_affected_path_file_node.py`, the four graph-level tests (Go's `fileNodes` needs the
 /// file node to be the lone non-heading node on L1 when its label is not the bare basename).
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_affected_path_file_node() {
     // pins Go v0.12.0 (no match: two non-heading nodes on L1 and no label "hooks.py");
     // upstream 0.9.107 resolves the file node app_alpha_hooks -> P3 (B52)
@@ -564,7 +559,6 @@ fn two_states() -> Graph {
 
 /// `test_affected_seed_reference_forms.py`, the five `resolve_seed` tests.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn upstream_test_affected_seed_reference_forms() {
     let g = two_states();
     // pins Go v0.12.0 (no match: `::state` must equal the label `state()`, and Go has no dotted

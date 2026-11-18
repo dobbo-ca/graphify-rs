@@ -21,7 +21,6 @@ fn nb(dir: &str, file: &str) -> Neighbor {
 /// Go `TestExplainLinesCapsAndGroups`: explain shows at most `explainConnCap` connections in
 /// full and folds the rest into per-file counts.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_explain_lines_caps_and_groups() {
     let mut nbrs = Vec::new();
     for _ in 0..EXPLAIN_CONN_CAP + 5 {
@@ -58,7 +57,6 @@ fn test_explain_lines_caps_and_groups() {
 /// Go `TestExplainLinesShortListUngrouped`: a node under the cap prints every connection with
 /// no grouped tail.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_explain_lines_short_list_ungrouped() {
     let lines = explain_lines(&[nb("->", "a.go")]);
     assert_eq!(lines.len(), 1, "lines = {lines:?}, want 1 connection line");
