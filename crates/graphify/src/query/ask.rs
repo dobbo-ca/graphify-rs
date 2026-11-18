@@ -454,7 +454,7 @@ fn hub_threshold(g: &Graph, deg: &BTreeMap<String, i64>) -> i64 {
     if degrees.is_empty() {
         return 50;
     }
-    degrees.sort_unstable();
+    degrees.sort();
     let p99 = ((degrees.len() as f64 * 0.99) as usize).min(degrees.len() - 1);
     degrees[p99].max(50)
 }
@@ -659,8 +659,8 @@ fn subgraph_to_text(
         };
         let total = lines.iter().filter(|l| l.starts_with("NODE ")).count();
         // Go cuts bytes: with no newline in the budget the cut can split a rune, which a Rust
-        // `String` cannot hold, so the partial rune becomes U+FFFD.
-        let head = String::from_utf8_lossy(&b[..cut]);
+        // `String` cannot hold, so each byte of the partial rune becomes U+FFFD (D-008).
+        let head = crate::detect::go_lossy(&b[..cut]);
         let mut shown = head.matches("\nNODE ").count();
         if output.starts_with("NODE ") {
             shown += 1;

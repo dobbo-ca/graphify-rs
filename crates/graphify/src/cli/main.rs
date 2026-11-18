@@ -1000,7 +1000,7 @@ fn encode_indented(stdout: Out<'_>, v: &impl gostd::json::Marshal) -> Result<(),
     enc.set_indent("", "  ");
     enc.encode(v).map_err(msg)?;
     // The encoder writes valid UTF-8.
-    w!(stdout, "{}", String::from_utf8_lossy(&buf))
+    w!(stdout, "{}", go_lossy(&buf))
 }
 
 /// Go `cmdQuery`: `query <pattern>` (`run` checks the pattern is there).
