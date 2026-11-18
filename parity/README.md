@@ -368,7 +368,31 @@ The Rust tests read graph.json back with `gostd::json::unmarshal` into the priva
 
 | Source | Source tests | Ported | Passing | Not ported (reason) |
 |---|---|---|---|---|
-| `query` (`graphify-rs-ihc.13`) | - | - | - | not started |
+| graphify-go `internal/query/affected_test.go` (`graphify-rs-ihc.13`) | 8 | 8 (`TestAffectedSeedPathForms` reads the test process's cwd instead of `t.Chdir`) | 0 | - |
+| graphify-go `internal/query/ask_test.go` | 22 | 22 (`ask` uses `gostd::math::log`, graphify-rs-aa6.21) | 0 | - |
+| graphify-go `internal/query/diff_test.go` | 4 | 4 | 0 | - |
+| graphify-go `internal/query/merge_test.go` | 7 | 7 (`loadMerged` reads back with `load`) | 0 | - |
+| graphify-go `internal/query/query_test.go` | 14 | 14 | 0 | - |
+| graphify-go `internal/query/unclassified_test.go` | 3 | 3 | 0 | - |
+| graphify-go `internal/query/validate_test.go` | 2 | 2 | 0 | - |
+| graphify-go `cmd/graphify/explain_path_test.go` (moved from cli-core) | 2 (`TestExplainLinesCapsAndGroups`, `TestExplainLinesShortListUngrouped`) | 2 (`explain_path.rs`; `explain_lines` is stubbed in `cli/main.rs`) | 0 | - |
+| added | - | 6 (`deep_path_chain`, `validate_bom_error_text`, `load_error_texts`, `query_ties_use_go_pdqsort`, `explain_ties_use_go_pdqsort`, `affected_ties_use_go_pdqsort`) | 0 | - |
+| upstream `test_validate.py` | 18 | 15 (`upstream_validate.rs`, as rows; `edges` renamed `links`; 10 pin Go's value: a decode error where upstream reports a structured value, no enum or required-field check) | 0 | 3: `test_build_repairs_structured_enum_values`, `test_build_repairs_structured_confidence_on_hyperedges`, `test_legacy_aliases_valid_after_build_canonicalization` (build-time repair and alias folding: Go's build reads no extraction JSON) |
+| upstream `test_corrupt_graph_json.py` | 4 | 2 (`load` of the truncated file pins Go's `parsing <path>: unexpected end of JSON input`; the valid file loads) | 0 | 2: `build_merge` (Go's `update` refuses a corrupt graph.json through export's shrink guard, tested in the export block) and `diagnostics._read_json_file` (Go has no `diagnose`) |
+| upstream `tests/test_query_deterministic_order.py` | 2 | 2 (`ask` three times in one process: Go has no hash seed) | 0 | - |
+| upstream `tests/test_query_seed_order.py` | 5 | 1 (the `_query_graph_text` test pins Go's `Start: [alpha, bravo, zebra]`, B65) | 0 | 4: `_pick_seeds` and `_score_query` with the per-term seed guarantee (Go has none, B65) |
+| upstream `tests/test_query_induced_edges.py` | 11 | 11 (`_bfs`/`_dfs` are `bfs_traverse`/`dfs_traverse` over `relation_adj`; the context filter is a relation list; the mutual DiGraph edge pins Go's one pair) | 0 | - |
+| upstream `tests/test_query_source_first.py` | 10 | 3 (the answer leads with `docs/auth.md`, pinned, B51; the per-term start and `_score_nodes` ties hold) | 0 | 7: `_query_path_weight`, `_QUERY_DEMOTE_WEIGHT`, `demote_docs` and the `scores` of `_subgraph_to_text` (Go weights no node and orders no answer by file, B51) |
+| upstream `test_truncation_full_answer.py` | 4 | 1 (`explain` of a 25-caller hub pins Go's `explainLines` cut and per-file groups) | 0 | 3: `explain --all` (Go has no `--all`); the exact-budget hint of `_subgraph_to_text` and `_cut_lines_to_budget` (Go's truncation line has none) |
+| upstream `test_affected_defines.py`, `test_affected_member_seed.py`, `test_affected_overrides.py` | 10 + 5 + 11 | 10 + 5 + 8 (`upstream_affected.rs`; each node-id seed pins Go's empty result, B52; `defines` is in `DEP_RELATIONS`) | 0 | 3: the Java, TypeScript and Python end-to-end override tests (their seed is a node id too, so Go's answer is the pinned empty one; they would only add three extractors) |
+| upstream `test_affected_path_file_node.py`, `test_affected_seed_reference_forms.py` | 6 + 8 | 4 + 5 (`resolve_seed` is Go's `Graph::resolve`: the shared-basename file, `path::state` and `pkg.mod.func` pin no match, B52; the two file-shaped labels and the miss hold; the bare `state` is Go's `AmbiguousError` naming both files) | 0 | 5: the CLI tests (`update` of a Python corpus, then `affected`; exit codes 3 and 4: Go exits 1, B52) |
+| upstream `tests/test_path_confidence.py` | 12 | 4 (`path_edges` hops for the Report.cs and built graphs; two equal routes pin Go's BFS pick A -> B1 -> C, B62) | 0 | 8: `_path_confidence_line` (7) and the equal-length-route note (Go prints no confidence summary, B62) |
+| upstream `tests/test_path_type_member.py` | 15 | 8 (synthetic graphs through `resolve` and `path_edges`: `Type.Member` queries pin no match or `no node matching "PdfReport.Build"`, B09; the file name, dotted label and dotted id hold) | 0 | 7: the five tests over the extracted C# `Report.cs` and `_find_node_tiers` with undirected owner markers (Go has no `Type.Member` tier, B09) |
+| upstream `tests/test_merge_chunks_validation.py`, `tests/test_merge_graphs_cli.py` | 10 + 15 | 0 | 0 | Go has no `merge-chunks`, no `validate_semantic_fragment` and no `merge-graphs` (its `merge-driver` is `merge_test.go`) |
+| upstream `tests/test_query_fallback_edges.py` | 6 | 0 | 0 | the Python fallback script of the skill's query fragment: Go's `SKILL.md` has none |
+| upstream `tests/test_query_seeds.py` | 13 | 0 | 0 | `query --seed`: Go's `ask` has no given seeds |
+
+Every query test is `#[ignore = "graphify-rs-ihc.13"]`; none needs a corpus build. A row marked as pinning Go's value carries `// pins Go v0.12.0 (...); upstream 0.9.107 ... -> P3 (B<n>)` at the test. The JSON error texts (`added.rs`, `upstream_validate.rs`) follow gostd's Go 1.27 rules (`crates/gostd/tests/json_decode.rs`, `json_scanner.rs`), not an oracle run of `query.Load`.
 
 #### detect
 
