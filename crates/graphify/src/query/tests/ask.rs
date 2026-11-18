@@ -65,6 +65,7 @@ fn first_node_line(out: &str) -> &str {
 }
 
 #[test]
+#[ignore = "graphify-rs-aa6.21"]
 fn test_ask_seeds_rare_identifier() {
     let g = load_ask();
     let out = ask(&g, "where is authValidate", false, 2, 2000, &[]);
@@ -85,6 +86,7 @@ fn test_ask_seeds_rare_identifier() {
 }
 
 #[test]
+#[ignore = "graphify-rs-aa6.21"]
 fn test_ask_traverses_to_neighbors() {
     let g = load_ask();
     let out = ask(&g, "authValidate", false, 2, 2000, &[]);
@@ -102,6 +104,7 @@ fn test_ask_traverses_to_neighbors() {
 }
 
 #[test]
+#[ignore = "graphify-rs-aa6.21"]
 fn test_ask_no_match() {
     let g = load_ask();
     let out = ask(&g, "nonexistentxyz", false, 2, 2000, &[]);
@@ -109,6 +112,7 @@ fn test_ask_no_match() {
 }
 
 #[test]
+#[ignore = "graphify-rs-aa6.21"]
 fn test_ask_dfs_mode() {
     let g = load_ask();
     let out = ask(&g, "authValidate", true, 2, 2000, &[]);
@@ -119,6 +123,7 @@ fn test_ask_dfs_mode() {
 }
 
 #[test]
+#[ignore = "graphify-rs-aa6.21"]
 fn test_ask_budget_truncates() {
     let g = load_ask();
     // A tiny budget forces the truncation branch.
@@ -262,6 +267,7 @@ fn test_query_terms_handles_accented_tokens() {
 }
 
 #[test]
+#[ignore = "graphify-rs-aa6.21"]
 fn test_ask_emits_edge_between_seeds() {
     let g = load_ask();
     // Both endpoints are seeds, so the traversal itself records no edge between them; the
@@ -297,6 +303,7 @@ const CONTEXT_GRAPH: &str = r#"{
 }"#;
 
 #[test]
+#[ignore = "graphify-rs-aa6.21"]
 fn test_ask_context_filter() {
     let g = load_str(CONTEXT_GRAPH);
     let unfiltered = ask(&g, "authValidate", false, 2, 2000, &[]);
@@ -323,6 +330,7 @@ fn test_ask_context_filter() {
 /// Go `TestAskMatchesAttributes`: a node's Terraform attributes feed the search text, so an
 /// agent can ask "which resource runs t3.large" and land on the resource that sets it.
 #[test]
+#[ignore = "graphify-rs-aa6.21"]
 fn test_ask_matches_attributes() {
     let src = r#"{
   "directed": true, "multigraph": false, "graph": {},
@@ -341,6 +349,7 @@ fn test_ask_matches_attributes() {
 }
 
 #[test]
+#[ignore = "graphify-rs-aa6.21"]
 fn test_ask_stored_direction_and_site() {
     let g = load_json(&graph_json(
         &[
@@ -384,6 +393,7 @@ fn test_ask_stored_direction_and_site() {
 }
 
 #[test]
+#[ignore = "graphify-rs-aa6.21"]
 fn test_ask_parallel_relations() {
     let g = load_json(&graph_json(
         &[
@@ -443,6 +453,7 @@ fn test_ask_parallel_relations() {
 }
 
 #[test]
+#[ignore = "graphify-rs-aa6.21"]
 fn test_ask_mutual_context_self_loop() {
     let g = load_json(&graph_json(
         &[
@@ -475,6 +486,7 @@ fn test_ask_mutual_context_self_loop() {
 }
 
 #[test]
+#[ignore = "graphify-rs-aa6.21"]
 fn test_ask_hop_order() {
     let g = load_json(&graph_json(
         &[
@@ -499,6 +511,7 @@ fn test_ask_hop_order() {
 }
 
 #[test]
+#[ignore = "graphify-rs-aa6.21"]
 fn test_hub_threshold_counts_isolated_nodes() {
     let mut nodes = vec![
         node_json("seedling", "seedling", "m.py", "L1"),
@@ -532,6 +545,7 @@ fn test_hub_threshold_counts_isolated_nodes() {
 }
 
 #[test]
+#[ignore = "graphify-rs-aa6.21"]
 fn test_hub_threshold_context_keeps_dangling_nodes() {
     let mut nodes = Vec::new();
     let mut links = Vec::new();

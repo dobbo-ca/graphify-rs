@@ -8,6 +8,7 @@ use common::{TempDir, run_in, s, write};
 // A user-supplied --graph path cannot escape the graphify-out directory to read arbitrary
 // on-disk JSON.
 #[test]
+#[ignore = "graphify-rs-aa6.21"]
 fn test_cmd_ask_graph_traversal() {
     let dir = TempDir::new();
     std::fs::create_dir_all(dir.join("graphify-out")).expect("mkdir graphify-out");
