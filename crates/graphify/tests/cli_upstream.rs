@@ -116,8 +116,6 @@ fn test_export_graphml_creates_file() {
 }
 
 #[test]
-// cli test (ihc.20): needs query
-#[ignore = "graphify-rs-ihc.13"]
 fn test_missing_graph_fails() {
     // test_query_missing_graph_fails, test_path_missing_graph_fails,
     // test_explain_missing_graph_fails
@@ -137,8 +135,6 @@ fn test_missing_graph_fails() {
 }
 
 #[test]
-// cli test (ihc.20): needs query
-#[ignore = "graphify-rs-ihc.13"]
 fn test_uses_graphify_out_env() {
     // test_query_uses_graphify_out_env, test_explain_uses_graphify_out_env: the graph lives in
     // `custom-graph`, named by a relative GRAPHIFY_OUT.

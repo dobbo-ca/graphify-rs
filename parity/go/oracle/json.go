@@ -12,6 +12,8 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+
+	"gostd-oracle/query"
 )
 
 // json: encoding/json against gostd::json. Inputs: "strings" (length-prefixed records, 4-byte
@@ -20,7 +22,8 @@ import (
 // files of 500 length-prefixed JSON documents, about 15% of them invalid), "docs-edge" (closes
 // past the top level followed by a new value), "raw" (length-prefixed RawMessage values, see
 // jsRawDocs), and "typed-<shape>-NNN" (60 per shape in jsShapes, one JSON document each,
-// following a graphify-go type: see jsTyped).
+// following a graphify-go type: see jsTyped), and "graphfile" (length-prefixed graph.json files:
+// see jsGraphFiles).
 //
 // Ops: strings: html, nohtml; floats: json; raw: marshal (json.Marshal of jsRawField, or the
 // error); docs: valid, compact, compact_html, indent. Every
@@ -29,49 +32,15 @@ import (
 // line. typed: unmarshal (json.Unmarshal into a new value: the error text, or empty), value
 // (json.Marshal of the value after Unmarshal, error or not), indent (json.MarshalIndent of it,
 // prefix "", indent two spaces); rpc also encode (serve.go's reply through an Encoder).
-// That is 2 + 1 + 1 + 20*4 + 4 + 6*60*3 + 60 = 1228 output files.
+// graphfile: load and validate, one line per file (see jsGraphLine).
+// That is 2 + 1 + 1 + 20*4 + 4 + 6*60*3 + 60 + 2 = 1230 output files.
 
 func init() {
-	register("json", 1228, jsGen, jsRun)
+	register("json", 1230, jsGen, jsRun)
 }
 
-// graphify-go internal/query/query.go:22-97: graph.json as query.Load and Validate read it
-// (Unmarshal at query.go:113 and validate.go:27, error "parsing %s: %w"). The unexported fields
-// (byID, adj, edge) are left out: encoding/json ignores them.
-type Graph struct {
-	Nodes []Node     `json:"nodes"`
-	Links []Link     `json:"links"`
-	Attrs GraphAttrs `json:"graph"`
-
-	BuiltAtCommit string `json:"built_at_commit,omitempty"`
-	Path          string `json:"-"` // file Load read, for git lookups
-}
-
-type GraphAttrs struct {
-	UnclassifiedFiles int            `json:"unclassified_files"`
-	UnclassifiedExts  map[string]int `json:"unclassified_extensions"`
-}
-
-type Node struct {
-	ID             string            `json:"id"`
-	Label          string            `json:"label"`
-	FileType       string            `json:"file_type"`
-	SourceFile     string            `json:"source_file"`
-	SourceLocation string            `json:"source_location"`
-	Community      *int              `json:"community"`
-	NormLabel      string            `json:"norm_label"`
-	ComputedName   string            `json:"computed_name"`
-	Attributes     map[string]string `json:"attributes"`
-}
-
-type Link struct {
-	Source         string `json:"source"`
-	Target         string `json:"target"`
-	Relation       string `json:"relation"`
-	Confidence     string `json:"confidence"`
-	SourceFile     string `json:"source_file"`
-	SourceLocation string `json:"source_location"`
-}
+// The query.Graph types (graphify-go internal/query/query.go:22-97) are in the query
+// subpackage, so error texts name them `query.Graph` as graphify-go's do.
 
 // graphify-go internal/export/export.go:39-78: graph.json as ToJSON writes it (MarshalIndent
 // at export.go:141).
@@ -169,7 +138,7 @@ var jsShapes = []struct {
 	zero func() any // a pointer to a new value
 }{
 	{"export", func() any { return new(jsonGraph) }},
-	{"graph", func() any { return new(Graph) }},
+	{"graph", func() any { return new(query.Graph) }},
 	{"mcp", func() any { return new(map[string]json.RawMessage) }},
 	{"rawgraph", func() any { return new(rawGraph) }},
 	{"rpc", func() any { return new(rpcRequest) }},
@@ -244,6 +213,13 @@ func jsGen(dir string) error {
 	if err := jsWrite(dir, "raw", raw); err != nil {
 		return err
 	}
+	var gf []byte
+	for _, d := range jsGraphFiles() {
+		gf = jsFrame(gf, []byte(d))
+	}
+	if err := jsWrite(dir, "graphfile", gf); err != nil {
+		return err
+	}
 	for _, s := range jsShapes {
 		t := reflect.TypeOf(s.zero()).Elem()
 		for i := 0; i < jsTypedPer; i++ {
@@ -265,6 +241,61 @@ var jsEdgeDocs = []string{
 // MarshalerError for *jsontext.Value (RawMessage is an alias of jsontext.Value).
 var jsRawDocs = []string{
 	"{", "1 2", "\"\xff\"", "[1,]", "tru", "{\"a\" 1}", "\"\\u12\"", " [ 1 , \"<&>\" ] ",
+}
+
+// jsGraphFiles are the graph.json files whose error texts the graphify query tests assert
+// (crates/graphify/src/query/tests: added.rs load_error_texts and validate_bom_error_text,
+// upstream_validate.rs): a truncated file, values of the wrong type, a BOM, and the valid ones
+// next to them.
+func jsGraphFiles() []string {
+	// upstream_validate.rs VALID with nodes[0].file_type and links[0].confidence set.
+	const valid = `{"nodes":[
+ {"id":"n1","label":"Foo","file_type":%s,"source_file":"foo.py"},
+ {"id":"n2","label":"Bar","file_type":"document","source_file":"bar.md"}],
+"links":[{"source":"n1","target":"n2","relation":"references","confidence":%s,"source_file":"foo.py","weight":1.0}]}`
+	// query/tests/mod.rs AFFECTED_JSON.
+	const affected = `{"directed":true,"multigraph":false,"graph":{},
+"nodes":[
+ {"id":"add","label":"add()","file_type":"code","source_file":"util.go","source_location":"L1"},
+ {"id":"compute","label":"compute()","file_type":"code","source_file":"math.go","source_location":"L1"},
+ {"id":"run","label":"run()","file_type":"code","source_file":"main.go","source_location":"L1"},
+ {"id":"lonely","label":"lonely()","file_type":"code","source_file":"other.go","source_location":"L1"}
+],
+"links":[
+ {"source":"compute","target":"add","relation":"calls","confidence":"INFERRED"},
+ {"source":"run","target":"compute","relation":"calls","confidence":"INFERRED"}
+],
+"hyperedges":[]}`
+	files := []string{
+		`{"nodes":[`,
+		`{"nodes":[{"id":"a"},{"id":1}]}`,
+		affected,
+		"\xef\xbb\xbf" + affected,
+		`{"nodes": [{"id": "a", "labe`,
+		`{"nodes": [{"id": "a", "label": "a", "file_type": "code"}], "edges": []}`,
+		`[]`,
+		`{"links":[]}`,
+		`{"nodes":"bad","links":[],"oops":true}`,
+		`{"nodes":[{"id":"n1","label":"A","file_type":"code","source_file":"a.py"},{"id":["x","y"],"label":"B","file_type":"code","source_file":"b.py"}],"links":[]}`,
+		`{"nodes":[{"id":"n1","label":"A","file_type":"code","source_file":"a.py"},{"id":"n2","label":"B","file_type":"code","source_file":"b.py"}],"links":[{"source":"n1","target":["n2","n3"],"relation":"calls","confidence":"INFERRED","source_file":"a.py"}]}`,
+		`{"nodes":[{"id":"n1","label":"A","file_type":"code","source_file":"a.py"},{"id":{"oops":1},"label":"B","file_type":"code","source_file":"b.py"}],"links":[]}`,
+		fmt.Sprintf(valid, `"code"`, `"EXTRACTED"`),
+	}
+	for _, v := range []string{`[]`, `{}`, `["code"]`, `{"value":"code"}`} {
+		files = append(files, fmt.Sprintf(valid, v, `"EXTRACTED"`), fmt.Sprintf(valid, `"code"`, v))
+	}
+	return files
+}
+
+// jsGraphLine decodes a graph.json file into Graph as query.Load (query.go:113) and Validate
+// (validate.go:27) do: the error text (they wrap it in "parsing <path>: "), or "ok" and the
+// node and link counts. The load op strips a UTF-8 BOM first (query.go:111), validate does not.
+func jsGraphLine(d []byte) string {
+	var g query.Graph
+	if err := json.Unmarshal(d, &g); err != nil {
+		return err.Error()
+	}
+	return fmt.Sprintf("ok %d %d", len(g.Nodes), len(g.Links))
 }
 
 // jsRawField is a struct with a RawMessage field, as rawGraph and rpcRequest have.
@@ -663,6 +694,13 @@ func jsRun(name string, in []byte) []op {
 			out = append(append(out, m...), '\n')
 		}
 		return []op{{"marshal", result{out: out}}}
+	case name == "graphfile":
+		var load, validate []byte
+		for _, d := range jsRecords(in) {
+			load = append(append(load, jsGraphLine(bytes.TrimPrefix(d, []byte("\xef\xbb\xbf")))...), '\n')
+			validate = append(append(validate, jsGraphLine(d)...), '\n')
+		}
+		return []op{{"load", result{out: load}}, {"validate", result{out: validate}}}
 	case strings.HasPrefix(name, "docs-"):
 		var valid, compact, compactHTML, indent []byte
 		for _, d := range jsRecords(in) {

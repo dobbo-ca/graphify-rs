@@ -65,7 +65,6 @@ fn first_node_line(out: &str) -> &str {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_ask_seeds_rare_identifier() {
     let g = load_ask();
     let out = ask(&g, "where is authValidate", false, 2, 2000, &[]);
@@ -86,7 +85,6 @@ fn test_ask_seeds_rare_identifier() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_ask_traverses_to_neighbors() {
     let g = load_ask();
     let out = ask(&g, "authValidate", false, 2, 2000, &[]);
@@ -104,7 +102,6 @@ fn test_ask_traverses_to_neighbors() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_ask_no_match() {
     let g = load_ask();
     let out = ask(&g, "nonexistentxyz", false, 2, 2000, &[]);
@@ -112,7 +109,6 @@ fn test_ask_no_match() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_ask_dfs_mode() {
     let g = load_ask();
     let out = ask(&g, "authValidate", true, 2, 2000, &[]);
@@ -123,7 +119,6 @@ fn test_ask_dfs_mode() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_ask_budget_truncates() {
     let g = load_ask();
     // A tiny budget forces the truncation branch.
@@ -135,7 +130,6 @@ fn test_ask_budget_truncates() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_query_terms_drops_short_and_punctuation() {
     let got = query_terms("Is an auth-token ok?");
     // "is", "an", "ok" are <=2 chars and dropped; "auth"/"token" survive, the hyphen splits the
@@ -151,7 +145,6 @@ fn test_query_terms_drops_short_and_punctuation() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_pick_seeds_gap_cutoff() {
     let scored = [sn(1000.0, "a", 1), sn(1.0, "b", 1), sn(0.9, "c", 1)];
     let seeds = pick_seeds(&Graph::default(), &scored, 3, 0.2);
@@ -162,7 +155,6 @@ fn test_pick_seeds_gap_cutoff() {
 /// fill every seed slot: dedup by normalized label seeds one representative and leaves room for
 /// the distinct relevant node (#1766).
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_pick_seeds_dedups_by_label() {
     let g = graph_by_id(&[
         ("get1", "get()"),
@@ -200,7 +192,6 @@ fn test_pick_seeds_dedups_by_label() {
 /// Go `TestPickSeedsDedupNormalizesCase`: case-variant homonyms (GET/Get/get) must collapse to
 /// one seed: exercises normLabel's case-folding, not just exact-string equality.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_pick_seeds_dedup_normalizes_case() {
     let g = graph_by_id(&[
         ("h1", "GET()"),
@@ -225,7 +216,6 @@ fn test_pick_seeds_dedup_normalizes_case() {
 /// Go `TestPickSeedsKeepsLabellessDistinct`: label-less nodes must NOT collapse into a single
 /// seed: they stay distinct via the id fallback (mirrors upstream `... or nid`).
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_pick_seeds_keeps_labelless_distinct() {
     let g = graph_by_id(&[("n1", ""), ("n2", ""), ("n3", "")]);
     let scored = [
@@ -244,7 +234,6 @@ fn test_pick_seeds_keeps_labelless_distinct() {
 /// Go `TestQueryTermsDropsStopwords`: question/filler stopwords (English and German/Romance) are
 /// dropped so the content noun drives seeding (#1900).
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_query_terms_drops_stopwords() {
     let got = query_terms("Wie funktioniert die Authentifizierung?");
     assert_eq!(got, ["authentifizierung"], "German stopwords not dropped");
@@ -255,7 +244,6 @@ fn test_query_terms_drops_stopwords() {
 /// Go `TestQueryTermsAllStopwordsFallback`: an all-stopword query falls back to the unfiltered
 /// searchable tokens so it still seeds on something.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_query_terms_all_stopwords_fallback() {
     let got = query_terms("wie funktioniert das");
     assert_eq!(
@@ -268,14 +256,12 @@ fn test_query_terms_all_stopwords_fallback() {
 /// Go `TestQueryTermsHandlesAccentedTokens`: accented tokens must be kept whole (Unicode-aware
 /// tokenizer): an accented content noun survives while accented/ASCII stopwords around it drop.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_query_terms_handles_accented_tokens() {
     let got = query_terms("warum funktioniert die Größe nicht");
     assert_eq!(got, ["größe"], "accented content noun should survive whole");
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_ask_emits_edge_between_seeds() {
     let g = load_ask();
     // Both endpoints are seeds, so the traversal itself records no edge between them; the
@@ -311,7 +297,6 @@ const CONTEXT_GRAPH: &str = r#"{
 }"#;
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_ask_context_filter() {
     let g = load_str(CONTEXT_GRAPH);
     let unfiltered = ask(&g, "authValidate", false, 2, 2000, &[]);
@@ -338,7 +323,6 @@ fn test_ask_context_filter() {
 /// Go `TestAskMatchesAttributes`: a node's Terraform attributes feed the search text, so an
 /// agent can ask "which resource runs t3.large" and land on the resource that sets it.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_ask_matches_attributes() {
     let src = r#"{
   "directed": true, "multigraph": false, "graph": {},
@@ -357,7 +341,6 @@ fn test_ask_matches_attributes() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_ask_stored_direction_and_site() {
     let g = load_json(&graph_json(
         &[
@@ -401,7 +384,6 @@ fn test_ask_stored_direction_and_site() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_ask_parallel_relations() {
     let g = load_json(&graph_json(
         &[
@@ -461,7 +443,6 @@ fn test_ask_parallel_relations() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_ask_mutual_context_self_loop() {
     let g = load_json(&graph_json(
         &[
@@ -494,7 +475,6 @@ fn test_ask_mutual_context_self_loop() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_ask_hop_order() {
     let g = load_json(&graph_json(
         &[
@@ -519,7 +499,6 @@ fn test_ask_hop_order() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_hub_threshold_counts_isolated_nodes() {
     let mut nodes = vec![
         node_json("seedling", "seedling", "m.py", "L1"),
@@ -553,7 +532,6 @@ fn test_hub_threshold_counts_isolated_nodes() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_hub_threshold_context_keeps_dangling_nodes() {
     let mut nodes = Vec::new();
     let mut links = Vec::new();

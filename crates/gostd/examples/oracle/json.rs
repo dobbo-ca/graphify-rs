@@ -10,7 +10,8 @@ use gostd::json::{
 // The typed shapes, mirroring the graphify-go types in parity/go/oracle/json.go. A Go nil-able
 // slice or map is an `Option`, `any` is `Value`.
 
-/// graphify-go internal/query/query.go:22-33 (`Graph`; the unexported fields are left out).
+/// graphify-go internal/query/query.go:22-33 (`Graph`; the unexported fields are left out). The
+/// Go side declares these in parity/go/oracle/query, so their type names are `query.*`.
 #[derive(Default)]
 struct Graph {
     nodes: Option<Vec<Node>>,
@@ -19,7 +20,7 @@ struct Graph {
     built_at_commit: String,
     path: String,
 }
-gostd::json_fields!(decode Graph, "main.Graph", {
+gostd::json_fields!(decode Graph, "query.Graph", {
     nodes => "nodes",
     links => "links",
     attrs => "graph",
@@ -33,7 +34,7 @@ struct GraphAttrs {
     unclassified_files: i64,
     unclassified_exts: Option<BTreeMap<String, i64>>,
 }
-gostd::json_fields!(decode GraphAttrs, "main.GraphAttrs", {
+gostd::json_fields!(decode GraphAttrs, "query.GraphAttrs", {
     unclassified_files => "unclassified_files",
     unclassified_exts => "unclassified_extensions",
 });
@@ -51,7 +52,7 @@ struct Node {
     computed_name: String,
     attributes: Option<BTreeMap<String, String>>,
 }
-gostd::json_fields!(decode Node, "main.Node", {
+gostd::json_fields!(decode Node, "query.Node", {
     id => "id",
     label => "label",
     file_type => "file_type",
@@ -73,7 +74,7 @@ struct Link {
     source_file: String,
     source_location: String,
 }
-gostd::json_fields!(decode Link, "main.Link", {
+gostd::json_fields!(decode Link, "query.Link", {
     source => "source",
     target => "target",
     relation => "relation",
@@ -344,6 +345,30 @@ fn raw(input: &[u8]) -> Vec<Op> {
     vec![("marshal", Ok(out))]
 }
 
+/// The `graphfile` ops (see json.go `jsGraphFiles`): load (a UTF-8 BOM stripped, then
+/// `unmarshal` into `Graph`) and validate (`unmarshal` as is), one line per file.
+fn graphfile(input: &[u8]) -> Vec<Op> {
+    let (mut load, mut validate) = (Vec::new(), Vec::new());
+    for d in records(input) {
+        let no_bom = d.strip_prefix(b"\xef\xbb\xbf").unwrap_or(d);
+        line(&mut load, graph_line(no_bom).as_bytes());
+        line(&mut validate, graph_line(d).as_bytes());
+    }
+    vec![("load", Ok(load)), ("validate", Ok(validate))]
+}
+
+/// json.go `jsGraphLine`: the error text, or "ok" and the node and link counts.
+fn graph_line(d: &[u8]) -> String {
+    match json::unmarshal::<Graph>(d) {
+        Ok(g) => format!(
+            "ok {} {}",
+            g.nodes.map_or(0, |v| v.len()),
+            g.links.map_or(0, |v| v.len())
+        ),
+        Err(e) => e.to_string(),
+    }
+}
+
 fn docs(input: &[u8]) -> Vec<Op> {
     let (mut valid, mut compact, mut compact_html, mut indent) =
         (Vec::new(), Vec::new(), Vec::new(), Vec::new());
@@ -385,6 +410,8 @@ pub fn run(name: &str, input: &[u8]) -> Vec<Op> {
         floats(input)
     } else if name == "raw" {
         raw(input)
+    } else if name == "graphfile" {
+        graphfile(input)
     } else if name.starts_with("docs-") {
         docs(input)
     } else if let Some(rest) = name.strip_prefix("typed-") {

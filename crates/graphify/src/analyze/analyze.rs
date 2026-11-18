@@ -32,6 +32,12 @@ pub struct GodNode {
     pub degree: i64,
 }
 
+gostd::json_fields!(GodNode, "analyze.GodNode", {
+    id => "id",
+    label => "label",
+    degree => "degree",
+});
+
 /// Go `GodNodes` (`analyze.go:32`): the `top_n` most-connected real entities (file hubs, concept
 /// nodes and generic JSON keys excluded), optionally without nodes above the degree percentile
 /// `exclude_hubs_percentile` (1-100; 0 keeps the historical ranking).

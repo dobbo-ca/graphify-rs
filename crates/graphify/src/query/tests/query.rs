@@ -22,7 +22,6 @@ fn load_sample() -> Graph {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_query_matches() {
     let g = load_sample();
     let m = query(&g, "a").unwrap_or_else(|e| panic!("{e}"));
@@ -34,7 +33,6 @@ fn test_query_matches() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_explain_neighbors() {
     let g = load_sample();
     let ex = explain(&g, "b()").unwrap_or_else(|e| panic!("{e}"));
@@ -51,7 +49,6 @@ fn test_explain_neighbors() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_path_edges() {
     let g = load_sample();
     let res = path_edges(&g, "a()", "c()", 8, false).unwrap_or_else(|e| panic!("{e}"));
@@ -75,7 +72,6 @@ fn test_path_edges() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_path_directed_by_default() {
     let g = load_sample();
     // c -> a only exists against the direction of the stored call edges.
@@ -93,7 +89,6 @@ fn test_path_directed_by_default() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_path_edges_same_node() {
     let g = load_sample();
     match path_edges(&g, "a()", "a()", 8, false) {
@@ -103,7 +98,6 @@ fn test_path_edges_same_node() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_path_edges_max_hops() {
     let g = load_sample();
     match path_edges(&g, "a()", "c()", 1, false) {
@@ -131,7 +125,6 @@ const EDGE_LOC_GRAPH: &str = r#"{
 }"#;
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_explain_uses_edge_call_site() {
     let g = load_str(EDGE_LOC_GRAPH);
     let ex = explain(&g, "zorktarget()").unwrap_or_else(|e| panic!("{e}"));
@@ -150,7 +143,6 @@ fn test_explain_uses_edge_call_site() {
 /// Go `TestExplainNeighborsDegreeOrdered`: Explain returns the most connected neighbours first,
 /// so a caller capping the list keeps the hubs.
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_explain_neighbors_degree_ordered() {
     let g = load_sample();
     let ex = explain(&g, "b()").unwrap_or_else(|e| panic!("{e}"));
@@ -181,7 +173,6 @@ fn load_dup() -> Graph {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_explain_ambiguous_label() {
     let g = load_dup();
     let err = match explain(&g, "Foo()") {
@@ -202,7 +193,6 @@ fn test_explain_ambiguous_label() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_explain_path_qualifier_selects_one() {
     let g = load_dup();
     let ex = explain(&g, "pkg/q.go::Foo()").unwrap_or_else(|e| panic!("{e}"));
@@ -210,7 +200,6 @@ fn test_explain_path_qualifier_selects_one() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_path_edges_ambiguous() {
     let g = load_dup();
     let r = path_edges(&g, "Foo()", "pkg/q.go::Foo()", 0, false);
@@ -229,7 +218,6 @@ const SUFFIX_GRAPH: &str = r#"{
 }"#;
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_resolve_empty_query_no_match() {
     let g = load_sample();
     let r = g.resolve("");
@@ -240,7 +228,6 @@ fn test_resolve_empty_query_no_match() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_explain_path_qualifier_needs_boundary() {
     let g = load_str(SUFFIX_GRAPH);
     // "handler.go" is not a path-boundary suffix of "pkg/x/req_handler.go".
@@ -254,7 +241,6 @@ fn test_explain_path_qualifier_needs_boundary() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.13"]
 fn test_resolve_file_path_tier() {
     let body = r#"{"nodes":[
  {"id":"claude","label":"CLAUDE.md","file_type":"document","source_file":"CLAUDE.md","source_location":"L1"},
