@@ -40,8 +40,8 @@ gositter-rs.
   parity tests. (For SHA-256 the tiers are SHA-NI and ARMv8 SHA2, chosen at
   run time by CPU feature detection.)
 - No build, test, lint, fuzz or run on Chris's Mac. Edit, `cargo fmt`,
-  `cargo generate-lockfile` and git only. CI builds on ARC runners with
-  in-cluster BuildKit (copied from deflate-rs `ci/` and workflows: `ci.yml`,
+  `cargo generate-lockfile` and git only. CI builds on GitHub-hosted runners with
+  BuildKit (copied from deflate-rs `ci/` and workflows: `ci.yml`,
   `bench.yml`, `fuzz.yml`).
 - Branch `port-<area>-<4 hex>`, PR into main, squash-merge on green.
 - Tests first: port and land the tests before the code. Sources are the Go
@@ -55,7 +55,7 @@ gositter-rs.
 |---|---|---|
 | Repos private | Both public | Owner decision, 2026-11-12. |
 | Tracked in rust-ports checklist | Tracked in each repo's beads | Owner decision: rust-ports is for image libraries only. |
-| CI on ARC only | ARC for everything, plus GitHub-hosted macOS runners for darwin test and release jobs | ARC is Linux only, Mac builds are banned, and graphify ships darwin binaries. Hosted macOS is free for public repos. |
+| CI on ARC only | GitHub-hosted runners: Linux (BuildKit) for everything, plus macOS for darwin test and release jobs | Owner decision, 2026-11-24; graphify ships darwin binaries. Hosted runners are free for public repos. |
 | Limits / cancel / max_alloc / max_threads | Library crates: yes. CLI: worker count from `available_parallelism`, no allocation cap | The CLI reproduces graphify-go behaviour, which has neither. |
 
 ## 3. Repos and layout

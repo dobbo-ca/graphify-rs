@@ -6,7 +6,7 @@
 
 **Architecture:** The design has six subsystems. This plan does not plan their code; it gives each stream its scope, its first beads and its brief. Each stream session writes `docs/superpowers/plans/<date>-<stream>.md` in its repo as its first task and gets it reviewed by this coordinator thread before code.
 
-**Tech Stack:** Rust 1.99.1, edition 2024; BuildKit on ARC (`github-arc-runner-set`); beads (`bd`) with Dolt remotes; Go 1.27 for oracles only.
+**Tech Stack:** Rust 1.99.1, edition 2024; BuildKit on GitHub-hosted runners (`ubuntu-latest`); beads (`bd`) with Dolt remotes; Go 1.27 for oracles only.
 
 **Spec:** `docs/superpowers/specs/2026-11-12-graphify-rs-design.md` (graphify-rs repo).
 
