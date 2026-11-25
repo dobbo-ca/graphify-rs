@@ -5,7 +5,7 @@ on:
   workflow_dispatch: {}
   # The heavy main stages (arm64, parity, parity-arm64) run on this schedule against the newest
   # main, not on every push: with several streams merging, per-push main runs queued behind PR
-  # runs on the shared ARC runners and were replaced while pending, so none finished.
+  # runs on the shared runners and were replaced while pending, so none finished.
   schedule: [{ cron: '23 */3 * * *' }]
 permissions:
   contents: read
@@ -17,21 +17,19 @@ concurrency:
   group: ${{ github.workflow }}-${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')) && 'heavy' || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
-  # The checks run inside ci/Dockerfile on the in-cluster BuildKit (pattern from dobbo-ca/deflate-rs).
+  # The checks run inside ci/Dockerfile with BuildKit on GitHub-hosted runners (pattern from
+  # dobbo-ca/deflate-rs).
   # A PR runs test and gen (the required check is `test`). A push to main runs only macos (GitHub
   # hosted): the PR run already tested the same merge result. The scheduled run (and dispatch)
-  # runs every ARC job on the newest main. A bead is done when that run is green.
+  # runs every Linux job on the newest main. A bead is done when that run is green.
   test:
     if: github.event_name != 'push'
-    runs-on: github-arc-runner-set
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: { lfs: false }
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
-        with:
-          driver: remote
-          endpoint: tcp://buildkitd.github-arc.svc.cluster.local:1234
       - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: .
@@ -48,15 +46,12 @@ jobs:
   # job fails while the committed files differ from it.
   gen:
     if: github.event_name != 'push'
-    runs-on: github-arc-runner-set
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: { lfs: false }
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
-        with:
-          driver: remote
-          endpoint: tcp://buildkitd.github-arc.svc.cluster.local:1234
       - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: .
@@ -71,15 +66,12 @@ jobs:
 
   arm64:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    runs-on: github-arc-runner-set
+    runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: { lfs: false }
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
-        with:
-          driver: remote
-          endpoint: tcp://buildkitd.github-arc.svc.cluster.local:1234
       - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: .
@@ -93,15 +85,12 @@ jobs:
   # gostd against the Go oracle (parity/README.md): diff -r of the Go and Rust output trees.
   parity:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    runs-on: github-arc-runner-set
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: { lfs: false }
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
-        with:
-          driver: remote
-          endpoint: tcp://buildkitd.github-arc.svc.cluster.local:1234
       - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: .
@@ -115,15 +104,12 @@ jobs:
   # The same, with the oracle example built for aarch64 and run under qemu-aarch64.
   parity-arm64:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    runs-on: github-arc-runner-set
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: { lfs: false }
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
-        with:
-          driver: remote
-          endpoint: tcp://buildkitd.github-arc.svc.cluster.local:1234
       - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: .
