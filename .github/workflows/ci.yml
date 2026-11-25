@@ -5,7 +5,7 @@ on:
   workflow_dispatch: {}
   # The heavy main stages (arm64, parity, parity-arm64) run on this schedule against the newest
   # main, not on every push: with several streams merging, per-push main runs queued behind PR
-  # runs on the shared runners and were replaced while pending, so none finished.
+  # runs and were replaced while pending, so none finished.
   schedule: [{ cron: '23 */3 * * *' }]
 permissions:
   contents: read
@@ -19,9 +19,9 @@ concurrency:
 jobs:
   # The checks run inside ci/Dockerfile with BuildKit on GitHub-hosted runners (pattern from
   # dobbo-ca/deflate-rs).
-  # A PR runs test and gen (the required check is `test`). A push to main runs only macos (GitHub
-  # hosted): the PR run already tested the same merge result. The scheduled run (and dispatch)
-  # runs every Linux job on the newest main. A bead is done when that run is green.
+  # A PR runs test and gen (the required check is `test`). A push to main runs only macos: the PR
+  # run already tested the same merge result. The scheduled run (and dispatch) runs every Linux
+  # job on the newest main. A bead is done when that run is green.
   test:
     if: github.event_name != 'push'
     runs-on: ubuntu-latest
