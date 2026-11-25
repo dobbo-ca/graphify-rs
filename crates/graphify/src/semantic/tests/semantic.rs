@@ -8,7 +8,6 @@ use crate::model::{Confidence, Edge, File, Loc, Relation, file_of, line, rel};
 use crate::semantic::{Cache, Config, MAX_NOTE_BYTES, Note, enrich};
 
 #[test]
-#[ignore = "graphify-rs-ihc.1"]
 fn test_enrich_is_additive() {
     let base = base_extraction();
     let be = FakeBackend::with(|n: &Note| {
@@ -50,7 +49,6 @@ fn test_enrich_is_additive() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.1"]
 fn test_enrich_never_duplicates_a_concept_node() {
     let base = base_extraction(); // already has the appconfig concept node
     let be = FakeBackend::with(|_n: &Note| {
@@ -78,7 +76,6 @@ fn test_enrich_never_duplicates_a_concept_node() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.1"]
 fn test_enrich_cache_skips_unchanged_notes() {
     let base = base_extraction();
     let be = FakeBackend::with(|n: &Note| {
@@ -124,7 +121,6 @@ fn test_enrich_cache_skips_unchanged_notes() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.1"]
 fn test_enrich_cache_repays_changed_note() {
     let base = base_extraction();
     let be = FakeBackend::with(|_n: &Note| (Vec::new(), Vec::new()));
@@ -143,7 +139,6 @@ fn test_enrich_cache_repays_changed_note() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.1"]
 fn test_enrich_skips_sensitive_and_oversized_notes() {
     let base = base_extraction();
     let be = FakeBackend::with(|_n: &Note| (Vec::new(), Vec::new()));
@@ -174,7 +169,6 @@ fn test_enrich_skips_sensitive_and_oversized_notes() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.1"]
 fn test_enrich_drops_edges_with_unknown_endpoints() {
     let base = base_extraction();
     let be = FakeBackend::with(|n: &Note| {
@@ -201,7 +195,6 @@ fn test_enrich_drops_edges_with_unknown_endpoints() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.1"]
 fn test_enrich_forces_inferred_confidence() {
     let base = base_extraction();
     let be = FakeBackend::with(|n: &Note| {
@@ -228,7 +221,6 @@ fn test_enrich_forces_inferred_confidence() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.1"]
 fn test_enrich_keeps_type_only_without_location() {
     let be = FakeBackend::with(|n: &Note| {
         let mut e = Edge {
@@ -255,7 +247,6 @@ fn test_enrich_keeps_type_only_without_location() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.1"]
 fn test_backend_error_is_tolerated() {
     let base = base_extraction();
     let be = FakeBackend {
@@ -280,7 +271,6 @@ fn test_backend_error_is_tolerated() {
 // notes, the second fails; the other three still contribute. The stderr text is not asserted
 // (Go prints `  semantic: skipped <file> (<err>)` to the process stderr).
 #[test]
-#[ignore = "graphify-rs-ihc.1"]
 fn test_enrich_continues_after_note_failure() {
     let be = FakeBackend {
         fail_on: BTreeSet::from(["f1".to_string()]),
@@ -314,7 +304,6 @@ fn test_enrich_continues_after_note_failure() {
 /// Added (R6): Go `Enrich` with a nil backend returns `semantic: no backend configured`
 /// (`semantic.go:101`); no Go test pins the text.
 #[test]
-#[ignore = "graphify-rs-ihc.1"]
 fn test_enrich_no_backend_error_text() {
     let err = enrich(
         &Config::default(),

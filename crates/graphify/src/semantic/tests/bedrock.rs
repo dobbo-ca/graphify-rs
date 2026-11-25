@@ -7,7 +7,6 @@ use crate::semantic::{CONCEPT_TYPE, Note};
 use crate::semantic::bedrock::parse_concepts;
 
 #[test]
-#[ignore = "graphify-rs-ihc.1"]
 fn test_parse_concepts_builds_nodes_and_edges() {
     let raw = r#"{
 		"concepts": [
@@ -49,7 +48,6 @@ fn test_parse_concepts_builds_nodes_and_edges() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.1"]
 fn test_parse_concepts_drops_unknown_relations() {
     let raw = r#"{"concepts": [{"name": "X", "relation": "is_a", "score": 1.0}]}"#;
     let note = Note {
@@ -66,7 +64,6 @@ fn test_parse_concepts_drops_unknown_relations() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.1"]
 fn test_parse_concepts_tolerates_garbage() {
     let note = Note {
         id: "n".to_string(),
@@ -79,7 +76,6 @@ fn test_parse_concepts_tolerates_garbage() {
 }
 
 #[test]
-#[ignore = "graphify-rs-ihc.1"]
 fn test_parse_concepts_marks_low_score_ambiguous() {
     let raw =
         r#"{"concepts": [{"name": "Maybe", "relation": "semantically_similar_to", "score": 0.2}]}"#;
